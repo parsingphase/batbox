@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Maps</title>
+</head>
+<body>
+{% for file in audio %}
+<div>
+    <p><a href="/media/{{ file }}">{{ file }}</a></p>
+    <audio controls>
+        <source src="/media/{{ file }}" type="audio/wav"> <!-- OK on chrome, files not recognised on Safari -->
+    </audio>
+</div>
+{% endfor %}
+</body>
+</html>

@@ -1,2 +1,3 @@
 db.sqlite3
-batbox/__pycache__
+__pycache__
+data
