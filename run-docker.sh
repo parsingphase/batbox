@@ -15,7 +15,9 @@ PARENT_DIR=$( dirname "$SCRIPT_DIR" )
 cd ${SCRIPT_DIR}
 
 echo Checking for rebuild...
+set +e
 docker rm batbox
+set -e
 docker build -t pyserver -f docker/Dockerfile docker/context
 
 echo Running container, mounting current directory at /var/www

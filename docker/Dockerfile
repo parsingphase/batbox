@@ -25,9 +25,13 @@ VOLUME /var/log
 VOLUME /var/www
 
 RUN a2dissite 000-default.conf
-#RUN a2ensite apache-flask.conf
 
 EXPOSE 80
+
+RUN python3 -m venv /var/venv
+ENV PYTHONPATH=/var/venv
+
+RUN echo source /var/venv/bin/activate >> /root/.bashrc
 
 WORKDIR /var/www
 
