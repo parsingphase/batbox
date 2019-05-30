@@ -44,7 +44,11 @@ def index(request):
 
     for file in data_files:
         if file[-4:] == '.wav':
-            audio_files.append(file)
+            audio_files.append({
+                'id': file[:-4],
+                'filename': file,
+                'path': session_path + '/' + file
+            })
         elif file[-4:] == '.kml':
             map_files.append(file)
 

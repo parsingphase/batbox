@@ -23,9 +23,9 @@
         <div class="col" id="audio-pane">
             {% for file in audio %}
                 <div>
-                    <p><a href="{{ session_path }}/{{ file }}">{{ file }}</a></p>
-                    <audio controls>
-                        <source src="{{ session_path }}/{{ file }}" type="audio/wav">
+                    <p><a href="{{ file.path }}">{{ file.filename }}</a></p>
+                    <audio id="audio-{{ file.id }}" controls>
+                        <source src="{{ file.path }}" type="audio/wav">
                         <!-- OK on chrome, files not recognised on Safari -->
                     </audio>
                 </div>
@@ -48,15 +48,17 @@
         accessToken: '{{ mapbox_token }}'
     }).addTo(mymap);
 
+    function playSample(name) {
+        document.getElementById('audio-' + name).play();
+    }
+
     var markers = {};
     var marker;
     for (var i = 0; i < mapData.points.length; i++) {
-        var marker = L.marker(mapData.points[i].position).addTo(mymap);
-        marker.bindPopup(mapData.points[i].name);
+        marker = L.marker(mapData.points[i].position).addTo(mymap);
+        marker.bindPopup('<a href="javascript:playSample(\'' + mapData.points[i].name + '\')">' + mapData.points[i].name + '</a>');
         markers[mapData.points[i].name] = marker;
     }
-
-    console.log(markers);
 
 </script>
 </body>
