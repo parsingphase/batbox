@@ -67,6 +67,7 @@ def index(request):
         'session_name': session_name,
         'audio': audio_files,
         'map_data': map_data,
+        'mapbox_token': settings.MAPS['mapbox_token'],
     }
 
     template = loader.get_template('tracemap/index.html')
@@ -87,4 +88,4 @@ def bound_from_points(points: list):
     min_lon = min([p.lon for p in points])
     max_lat = max([p.lat for p in points])
     max_lon = max([p.lon for p in points])
-    return ((min_lat, min_lon), (max_lat, max_lon))
+    return (min_lat, min_lon), (max_lat, max_lon)

@@ -7,3 +7,4 @@ docker/logs/apache2/*
 !docker/logs/apache2/.gitkeep
 webroot/media/sessions/*
 !webroot/media/sessions/.gitkeep
+settings_local.py
