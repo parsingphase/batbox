@@ -41,12 +41,18 @@
     var mapData = JSON.parse(document.getElementById('map-data').textContent);
 
     var mymap = L.map('map-target').fitBounds(mapData.bounds);
-    L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        maxZoom: 18,
-        id: 'mapbox.streets',
-        accessToken: '{{ mapbox_token }}'
-    }).addTo(mymap);
+    {#var tileset = 'mapbox.streets';#}
+    var tilesets = ['mapbox.streets', 'mapbox.satellite'];
+    var tileset = tilesets[1];
+
+    for (var s = 0; s < tilesets.length; s++) {
+        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            maxZoom: 18,
+            id: tileset,
+            accessToken: '{{ mapbox_token }}'
+        }).addTo(mymap);
+    }
 
     function playSample(name) {
         document.getElementById('audio-' + name).play();
