@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Maps</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+          integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+          crossorigin=""/>
+</head>
+<body>
+{{ map_data|json_script:"map-data" }}
+
+<div class="container">
+    <div class="row">
+        <h1>{{ session_name }}</h1>
+    </div>
+    <div class="row">
+        <div class="col" id="map-pane">
+            <div id="map-target" style="width: 100%; height: 600px; background-color: lightgray"></div>
+        </div>
+        <div class="col" id="audio-pane">
+            {% for file in audio %}
+                <div>
+                    <p><a href="{{ file.path }}">{{ file.filename }}</a></p>
+                    <audio id="audio-{{ file.id }}" controls>
+                        <source src="{{ file.path }}" type="audio/wav">
+                        <!-- OK on chrome, files not recognised on Safari -->
+                    </audio>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+        integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+        crossorigin=""></script>
+<script>
+    var mapData = JSON.parse(document.getElementById('map-data').textContent);
+
+    var mymap = L.map('map-target').fitBounds(mapData.bounds);
+    {#var tileset = 'mapbox.streets';#}
+    var tilesets = ['mapbox.streets', 'mapbox.satellite'];
+    var tileset = tilesets[1];
+
+    for (var s = 0; s < tilesets.length; s++) {
+        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            maxZoom: 18,
+            id: tileset,
+            accessToken: '{{ mapbox_token }}'
+        }).addTo(mymap);
+    }
+
+    function playSample(name) {
+        document.getElementById('audio-' + name).play();
+    }
+
+    var markers = {};
+    var marker;
+    for (var i = 0; i < mapData.points.length; i++) {
+        marker = L.marker(mapData.points[i].position).addTo(mymap);
+        marker.bindPopup('<a href="javascript:playSample(\'' + mapData.points[i].name + '\')">' + mapData.points[i].name + '</a>');
+        markers[mapData.points[i].name] = marker;
+    }
+
+</script>
+</body>
+</html>

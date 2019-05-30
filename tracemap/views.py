@@ -1,6 +1,6 @@
 from batbox import settings
 # from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.template import loader
 from os import listdir, path
 import xmltodict
@@ -27,21 +27,37 @@ class Point:
 
 # Create your views here.
 def index(request):
-    session_name = request.GET.get('session', '')
-    sessions_dir = settings.MEDIA_ROOT + 'sessions'
-    sessions = [d for d in listdir(sessions_dir) if path.isdir(sessions_dir + '/' + d)]
+    session_name = request.GET.get('session', None)
+    if session_name:
+        return display_session(request, session_name)
+    else:
+        return display_index(request)
 
+
+def get_session_dir():
+    return settings.MEDIA_ROOT + 'sessions'
+
+
+def display_index(request):
+    template = loader.get_template('tracemap/index.html')
+    sessions_dir = get_session_dir()
+    sessions = list_sessions(sessions_dir)
+    context = {
+        'sessions': sessions
+    }
+    return HttpResponse(template.render(context, request))
+
+
+def display_session(request, session_name):
+    sessions_dir = get_session_dir()
+    sessions = list_sessions(sessions_dir)
     if session_name not in sessions:
-        session_name = sessions[0]  # FIXME do something better here
-
+        raise Http404("No such session")
     session_dir = sessions_dir + '/' + session_name
     session_path = settings.MEDIA_URL + 'sessions/' + session_name
-
     data_files = listdir(session_dir)
-
     audio_files = []
     map_files = []
-
     for file in data_files:
         if file[-4:] == '.wav':
             audio_files.append({
@@ -51,11 +67,8 @@ def index(request):
             })
         elif file[-4:] == '.kml':
             map_files.append(file)
-
     # return HttpResponse(repr(data_files))
-
     map_data = {'points': []}
-
     if map_files:
         map_file = session_dir + '/' + map_files[0]
         with open(map_file) as fd:
@@ -65,7 +78,6 @@ def index(request):
             points = [xml_dict_to_point(p) for p in kml['Placemark'] if 'Point' in p]
             map_data['points'] = [p.as_dict() for p in points]
             map_data['bounds'] = bound_from_points(points)
-
     context = {
         'session_path': session_path,
         'session_name': session_name,
@@ -73,9 +85,13 @@ def index(request):
         'map_data': map_data,
         'mapbox_token': settings.MAPS['mapbox_token'],
     }
-
-    template = loader.get_template('tracemap/index.html')
+    template = loader.get_template('tracemap/session.html')
     return HttpResponse(template.render(context, request))
+
+
+def list_sessions(sessions_dir):
+    sessions = [d for d in listdir(sessions_dir) if path.isdir(sessions_dir + '/' + d)]
+    return sessions
 
 
 def xml_dict_to_point(data: dict) -> Point:
