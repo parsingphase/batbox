@@ -24,7 +24,8 @@ docker run -it -d -p 8088:80 \
     -v ${SCRIPT_DIR}:/var/www \
     -v ${SCRIPT_DIR}/docker/sites-enabled:/etc/apache2/sites-enabled \
     -v ${SCRIPT_DIR}/docker/logs:/var/log \
-    --name batbox pyserver
+    --name batbox pyserver \
+    "$@"
 # -p, -v are host:container
 
 # To get inside:
