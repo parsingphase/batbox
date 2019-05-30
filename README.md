@@ -2,6 +2,8 @@
 
 ### Visualisation utility for Wildlife Acoustics data exports
 
+![Map view](docs/images/mapview.png)         
+
 [Wildlife Acoustics](https://www.wildlifeacoustics.com) are a manufacturer of 
 wildlife audio tracking tools, from consumer to professional. This utility is 
 designed to help sort and visualise data exported from these tools by providing a 
@@ -38,5 +40,6 @@ Note that the first build will take a significant time and download a large amou
 
 ### Code status
 
-The code is in a very early form (3 days old!) and frankly isn't ready for anything.                      
+The code is in a very early form (3 days old!) and frankly isn't ready for anything.
+           
                    
