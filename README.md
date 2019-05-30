@@ -25,10 +25,14 @@ each with one KML file, eg:
                    MYOBRA_20180626_215501.wav
                    ...
                    Session 20180626_214348.kml
+### Configuration
+
+The only configuration required is in [`settings_local.sample.py`](settings_local.sample.py), which is documented internally.
+Copy this to `settings_local.py` and edit as required.                   
                    
 ### Running the code
 
-The code is not yet configured for production deployment. You can test it on a local computer using
+The code is not yet built for production deployment. You can test it on a local computer using
 [Docker](https://docker.com). Once that's installed you can run
 
     ./run-docker.sh
