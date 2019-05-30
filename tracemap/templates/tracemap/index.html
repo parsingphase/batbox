@@ -5,12 +5,15 @@
     <title>Maps</title>
 </head>
 <body>
+{{ map_data|json_script:"map-data" }}
+
 <h1>{{ session_name }}</h1>
 {% for file in audio %}
     <div>
         <p><a href="{{ session_path }}/{{ file }}">{{ file }}</a></p>
         <audio controls>
-            <source src="{{ session_path }}/{{ file }}" type="audio/wav"> <!-- OK on chrome, files not recognised on Safari -->
+            <source src="{{ session_path }}/{{ file }}" type="audio/wav">
+            <!-- OK on chrome, files not recognised on Safari -->
         </audio>
     </div>
 {% endfor %}
