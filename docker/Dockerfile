@@ -35,5 +35,8 @@ RUN echo source /var/venv/bin/activate >> /root/.bashrc
 
 WORKDIR /var/www
 
+ADD buildAndRun.sh /root/buildAndRun.sh
+RUN chmod u+x /root/buildAndRun.sh
 # CMD ["/bin/bash"]
-CMD  /usr/sbin/apache2ctl -D FOREGROUND
+#CMD  /usr/sbin/apache2ctl -D FOREGROUND
+CMD /root/buildAndRun.sh
