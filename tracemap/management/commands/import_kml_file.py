@@ -7,7 +7,9 @@ class Command(BaseCommand):
     help = 'Load a kml file to update recordings in database'
 
     def add_arguments(self, parser):
-        parser.add_argument('filename', type=str, help='Name of the file to import')
+        parser.add_argument(
+            'filename', type=str, help='Name of the file to import'
+        )
 
     def handle(self, *args, **kwargs):
         filename = kwargs['filename']
@@ -19,7 +21,7 @@ class Command(BaseCommand):
             audio_files = AudioRecording.objects.filter(identifier=ident)
             if len(audio_files) == 1:
                 audio = audio_files[0]  # type: AudioRecording
-                if audio.processed is False or audio.latitude is None or audio.longitude is None:
+                if audio.processed is False:
                     audio.latitude = point.lat
                     audio.longitude = point.lon
                     audio.processed = True

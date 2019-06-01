@@ -35,12 +35,20 @@ def display_session(request, session_name):
     if session_name not in sessions:
         raise Http404("No such session")
 
-    files = AudioRecording.objects.filter(file__contains=session_name)  # type: List[AudioRecording]
+    files = AudioRecording.objects.filter(  # type: List[AudioRecording]
+        file__contains=session_name
+    )
 
     if len(files):
         bounds = (
-            (min([t.latitude for t in files]), min([t.longitude for t in files])),
-            (max([t.latitude for t in files]), max([t.longitude for t in files]))
+            (
+                min([t.latitude for t in files]),
+                min([t.longitude for t in files])
+            ),
+            (
+                max([t.latitude for t in files]),
+                max([t.longitude for t in files])
+            )
         )
     else:
         bounds = None
@@ -59,6 +67,8 @@ def display_session(request, session_name):
 
 
 def list_sessions(sessions_dir):
-    sessions = [d for d in listdir(sessions_dir) if path.isdir(sessions_dir + '/' + d)]
+    sessions = [
+        d for d in listdir(sessions_dir) if path.isdir(sessions_dir + '/' + d)
+    ]
     sessions.sort()
     return sessions

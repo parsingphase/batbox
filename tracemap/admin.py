@@ -5,7 +5,16 @@ from .models import AudioRecording
 
 
 class AudioRecordingAdmin(admin.ModelAdmin):
-    list_display = ('identifier', 'processed', 'recorded_at', 'latitude', 'longitude', 'genus', 'species', 'recorder_serial')
+    list_display = (
+        'identifier',
+        'processed',
+        'recorded_at',
+        'latitude',
+        'longitude',
+        'genus',
+        'species',
+        'recorder_serial'
+    )
 
 
 admin.site.register(AudioRecording, AudioRecordingAdmin)

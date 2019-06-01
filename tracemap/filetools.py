@@ -20,7 +20,8 @@ class TraceIdentifier:
         self.datetime = None
         self.identifier_string = identifier_string
         match = re.match(
-            r'^(?P<ident>(((?P<genus>\w{3})(?P<species>\w{3}))|(No_ID)|(NOISE))_)?(?P<date>\d{8})_(?P<time>\d{6})$',
+            r'^((((?P<genus>\w{3})(?P<species>\w{3}))|(No_ID)|(NOISE))_)?'
+            r'(?P<date>\d{8})_(?P<time>\d{6})$',
             identifier_string
         )
         if match:
@@ -36,7 +37,7 @@ class TraceIdentifier:
                 int(time[2:4]),
                 int(time[4:6])
             )
-            if fields['ident'] and fields['genus']:
+            if fields['genus']:
                 self.identified = True
                 self.genus = fields['genus']
                 self.species = fields['species']
@@ -60,7 +61,10 @@ class KmlParser:
             kml = xmltodict.parse(fd.read())['kml']['Document']
             # map_data['styles'] = kml['Style']
             # Two types of placemark: containing Point or LineString
-            points = [self.xml_dict_to_point(p) for p in kml['Placemark'] if 'Point' in p]
+            points = [
+                self.xml_dict_to_point(p) for p in kml['Placemark']
+                if 'Point' in p
+            ]
 
             return points
 
@@ -69,5 +73,5 @@ class KmlParser:
         point.description = data['description']
         point.id = data['name']
         point.style = data['styleUrl']
-        (point.lon, point.lat, _altitude) = data['Point']['coordinates'].split(',')
+        (point.lon, point.lat, _) = data['Point']['coordinates'].split(',')
         return point

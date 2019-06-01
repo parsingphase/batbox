@@ -1,5 +1,7 @@
 class Point:
-    def __init__(self, id=None, lat=None, lon=None, description=None, style=None):
+    def __init__(
+            self, id=None, lat=None, lon=None, description=None, style=None
+    ):
         self.id = id
         self.description = description
         self.style = style

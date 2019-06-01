@@ -11,7 +11,9 @@ class Command(BaseCommand):
     help = 'Load an audio file into database'
 
     def add_arguments(self, parser):
-        parser.add_argument('filename', type=str, help='Name of the file to import')
+        parser.add_argument(
+            'filename', type=str, help='Name of the file to import'
+        )
 
     def handle(self, *args, **kwargs):
         filename = kwargs['filename']
@@ -41,7 +43,7 @@ class Command(BaseCommand):
 
             try:
                 guano_file = GuanoFile(filepath)
-            except:
+            except:  # noqa:E722 FIXME
                 print(f'Unable to load guano data for {filename}')
                 audio.save()
                 return
@@ -60,9 +62,13 @@ class Command(BaseCommand):
                 audio.recorder_serial = guano_file['Serial']
 
             try:
-                if 'Timestamp' in guano_file and guano_file['Timestamp'] is not None:
+                if 'Timestamp' in guano_file \
+                        and guano_file['Timestamp'] is not None:
                     if guano_file['Timestamp'].utcoffset() is None:
-                        print('Timestamp with no tzinfo from guano cannot be saved')
+                        print(
+                            'Timestamp with no tzinfo from guano '
+                            'cannot be saved'
+                        )
                     else:
                         audio.recorded_at = guano_file['Timestamp']
             except ValueError:
