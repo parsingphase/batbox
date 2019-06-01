@@ -1,5 +1,9 @@
 import re
 from datetime import datetime
+from typing import List
+from tracemap.datatypes import Point
+
+import xmltodict
 
 
 class TraceIdentifier:
@@ -45,3 +49,25 @@ class TraceIdentifier:
             'genus': self.genus,
             'datetime': self.datetime,
         }
+
+
+class KmlParser:
+    def __init__(self, filepath):
+        self.filepath = filepath
+
+    def get_recording_points(self) -> List[Point]:
+        with open(self.filepath) as fd:
+            kml = xmltodict.parse(fd.read())['kml']['Document']
+            # map_data['styles'] = kml['Style']
+            # Two types of placemark: containing Point or LineString
+            points = [self.xml_dict_to_point(p) for p in kml['Placemark'] if 'Point' in p]
+
+            return points
+
+    def xml_dict_to_point(self, data: dict) -> Point:
+        point = Point()
+        point.description = data['description']
+        point.id = data['name']
+        point.style = data['styleUrl']
+        (point.lon, point.lat, _altitude) = data['Point']['coordinates'].split(',')
+        return point

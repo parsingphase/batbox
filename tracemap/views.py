@@ -1,29 +1,9 @@
-import xmltodict
 from batbox import settings
 from django.http import HttpResponse, Http404
 from django.template import loader
 from os import listdir, path
 from tracemap.filetools import TraceIdentifier
-
-
-class Point:
-    def __init__(self, id=None, lat=None, lon=None, description=None, style=None):
-        self.id = id
-        self.description = description
-        self.style = style
-        self.lat = lat
-        self.lon = lon
-
-    def __repr__(self):
-        return repr(self.as_dict())
-
-    def as_dict(self):
-        return {
-            'name': self.id,
-            'description': self.description,
-            'style': self.description,
-            'position': (self.lat, self.lon)
-        }
+from tracemap.datatypes import bound_from_points
 
 
 # Create your views here.
@@ -79,11 +59,6 @@ def display_session(request, session_name):
     if map_files:
         for map_file in map_files:
             map_file_path = session_dir + '/' + map_file
-            with open(map_file_path) as fd:
-                kml = xmltodict.parse(fd.read())['kml']['Document']
-                # map_data['styles'] = kml['Style']
-                # Two types of placemark: containing Point or LineString
-                points = [xml_dict_to_point(p) for p in kml['Placemark'] if 'Point' in p]
 
         bounds = bound_from_points(points)
 
@@ -105,20 +80,3 @@ def list_sessions(sessions_dir):
     sessions = [d for d in listdir(sessions_dir) if path.isdir(sessions_dir + '/' + d)]
     sessions.sort()
     return sessions
-
-
-def xml_dict_to_point(data: dict) -> Point:
-    point = Point()
-    point.description = data['description']
-    point.id = data['name']
-    point.style = data['styleUrl']
-    (point.lon, point.lat, _altitude) = data['Point']['coordinates'].split(',')
-    return point
-
-
-def bound_from_points(points: list):
-    min_lat = min([p.lat for p in points])
-    min_lon = min([p.lon for p in points])
-    max_lat = max([p.lat for p in points])
-    max_lon = max([p.lon for p in points])
-    return (min_lat, min_lon), (max_lat, max_lon)
