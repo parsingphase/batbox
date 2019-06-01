@@ -19,7 +19,7 @@ class Command(BaseCommand):
         if os.path.isfile(filename):
             filepath = os.path.realpath(filename)
             filestem = os.path.basename(filename).split('.')[0]
-            print(f'Full path of {filename} is {filepath}')
+            print(f'Loading {filepath}')
 
             existing_audio = AudioRecording.objects.filter(file=filepath)
             if len(existing_audio):
@@ -39,7 +39,12 @@ class Command(BaseCommand):
             if id_parser.species:
                 audio.species = id_parser.species
 
-            guano_file = GuanoFile(filepath)
+            try:
+                guano_file = GuanoFile(filepath)
+            except:
+                print(f'Unable to load guano data for {filename}')
+                audio.save()
+                return
 
             guano_dict = {k: v for k, v in guano_file.items()}
 
@@ -48,7 +53,9 @@ class Command(BaseCommand):
                     guano_dict[k] = v.strftime('%Y-%m-%d %H:%M:%S')
 
             audio.guano_data = json.dumps(guano_dict)
-            audio.latitude, audio.longitude = guano_dict['Loc Position']
+            if 'Loc Position' in guano_dict:
+                audio.latitude, audio.longitude = guano_dict['Loc Position']
+
             if 'Serial' in guano_file:
                 audio.recorder_serial = guano_file['Serial']
 
