@@ -42,20 +42,29 @@ class TraceIdentifier:
                 self.genus = fields['genus']
                 self.species = fields['species']
 
+    def as_dict(self):
+        return {
+            'matched': self.matched,
+            'identified': self.identified,
+            'species': self.species,
+            'genus': self.genus,
+            'datetime': self.datetime,
+        }
 
 class Point:
-    name = None
-    description = None
-    style = None
-    lat = None
-    lon = None
+    def __init__(self, id=None, lat=None, lon=None, description=None, style=None):
+        self.id = id
+        self.description = description
+        self.style = style
+        self.lat = lat
+        self.lon = lon
 
     def __repr__(self):
         return repr(self.as_dict())
 
     def as_dict(self):
         return {
-            'name': self.name,
+            'name': self.id,
             'description': self.description,
             'style': self.description,
             'position': (self.lat, self.lon)
@@ -92,34 +101,45 @@ def display_session(request, session_name):
         raise Http404("No such session")
     session_dir = sessions_dir + '/' + session_name
     session_path = settings.MEDIA_URL + 'sessions/' + session_name
+
     data_files = listdir(session_dir)
-    audio_files = []
+    traces = {}
     map_files = []
+
     for file in data_files:
         if file[-4:] == '.wav':
-            audio_files.append({
-                'id': file[:-4],
+            id = file[:-4]
+            traces[id] = {
+                'id': id,
                 'filename': file,
-                'path': session_path + '/' + file
-            })
+                'path': session_path + '/' + file,
+                'id_data': TraceIdentifier(id).as_dict(),
+                'location': None
+            }
         elif file[-4:] == '.kml':
             map_files.append(file)
-    # return HttpResponse(repr(data_files))
-    map_data = {'points': []}
+
+    bounds = None
+    points = []
     if map_files:
-        map_file = session_dir + '/' + map_files[0]
-        with open(map_file) as fd:
-            kml = xmltodict.parse(fd.read())['kml']['Document']
-            # map_data['styles'] = kml['Style']
-            # Two types of placemark: containing Point or LineString
-            points = [xml_dict_to_point(p) for p in kml['Placemark'] if 'Point' in p]
-            map_data['points'] = [p.as_dict() for p in points]
-            map_data['bounds'] = bound_from_points(points)
+        for map_file in map_files:
+            map_file_path = session_dir + '/' + map_file
+            with open(map_file_path) as fd:
+                kml = xmltodict.parse(fd.read())['kml']['Document']
+                # map_data['styles'] = kml['Style']
+                # Two types of placemark: containing Point or LineString
+                points = [xml_dict_to_point(p) for p in kml['Placemark'] if 'Point' in p]
+
+        bounds = bound_from_points(points)
+
+    for point in points:
+        if point.id in traces:
+            traces[point.id]['location'] = point.as_dict()
+
     context = {
         'session_path': session_path,
         'session_name': session_name,
-        'audio': audio_files,
-        'map_data': map_data,
+        'map_data': {'traces': traces, 'bounds': bounds},
         'mapbox_token': settings.MAPS['mapbox_token'],
     }
     template = loader.get_template('tracemap/session.html')
@@ -135,7 +155,7 @@ def list_sessions(sessions_dir):
 def xml_dict_to_point(data: dict) -> Point:
     point = Point()
     point.description = data['description']
-    point.name = data['name']
+    point.id = data['name']
     point.style = data['styleUrl']
     (point.lon, point.lat, _altitude) = data['Point']['coordinates'].split(',')
     return point

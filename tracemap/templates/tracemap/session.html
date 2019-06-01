@@ -12,6 +12,8 @@
 <body>
 {{ map_data|json_script:"map-data" }}
 
+{#<code>{{ map_data.traces.items }}</code>#}
+
 <div class="container">
     <div class="row">
         <h1>{{ session_name }}</h1>
@@ -21,9 +23,10 @@
             <div id="map-target" style="width: 100%; height: 600px; background-color: lightgray"></div>
         </div>
         <div class="col" id="audio-pane">
-            {% for file in audio %}
+            {% for id, file in map_data.traces.items %}
                 <div>
                     <p><a href="{{ file.path }}">{{ file.filename }}</a></p>
+{#                    <div>{{ file  }}</div>#}
                     <audio id="audio-{{ file.id }}" controls>
                         <source src="{{ file.path }}" type="audio/wav">
                         <!-- OK on chrome, files not recognised on Safari -->
@@ -60,10 +63,13 @@
 
     var markers = {};
     var marker;
-    for (var i = 0; i < mapData.points.length; i++) {
-        marker = L.marker(mapData.points[i].position).addTo(mymap);
-        marker.bindPopup('<a href="javascript:playSample(\'' + mapData.points[i].name + '\')">' + mapData.points[i].name + '</a>');
-        markers[mapData.points[i].name] = marker;
+    for (let id in  mapData.traces) {
+        if (mapData.traces.hasOwnProperty(id)) {
+            let trace = mapData.traces[id];
+            marker = L.marker(trace.location.position).addTo(mymap);
+            marker.bindPopup('<a href="javascript:playSample(\'' + trace.name + '\')">' + trace.name + '</a>');
+            markers[id] = marker;
+        }
     }
 
 </script>
