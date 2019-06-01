@@ -12,6 +12,8 @@
 <body>
 {{ map_data|json_script:"map-data" }}
 
+{% load tracemap_extras %}
+
 {#<code>{{ map_data.traces.items }}</code>#}
 
 <div class="container">
@@ -23,12 +25,13 @@
             <div id="map-target" style="width: 100%; height: 600px; background-color: lightgray"></div>
         </div>
         <div class="col" id="audio-pane">
-            {% for id, file in map_data.traces.items %}
+            {% for file in map_data.traces %}
+{#                {{ file }}#}
                 <div>
-                    <p><a href="{{ file.path }}">{{ file.filename }}</a></p>
+                    <p><a href="{{ MEDIA_URL }}{{ file.file|relpath:MEDIA_ROOT }}">{{ file.identifier }}</a></p>
 {#                    <div>{{ file  }}</div>#}
-                    <audio id="audio-{{ file.id }}" controls>
-                        <source src="{{ file.path }}" type="audio/wav">
+                    <audio id="audio-{{ file.identifier }}" controls>
+                        <source src="{{ MEDIA_URL }}{{ file.file|relpath:MEDIA_ROOT }}" type="audio/wav">
                         <!-- OK on chrome, files not recognised on Safari -->
                     </audio>
                 </div>
@@ -66,8 +69,8 @@
     for (let id in  mapData.traces) {
         if (mapData.traces.hasOwnProperty(id)) {
             let trace = mapData.traces[id];
-            marker = L.marker(trace.location.position).addTo(mymap);
-            marker.bindPopup('<a href="javascript:playSample(\'' + trace.name + '\')">' + trace.name + '</a>');
+            marker = L.marker(trace.latlon).addTo(mymap);
+            marker.bindPopup('<a href="javascript:playSample(\'' + trace.identifier + '\')">' + trace.identifier + '</a>');
             markers[id] = marker;
         }
     }

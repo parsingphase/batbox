@@ -2,8 +2,8 @@ from batbox import settings
 from django.http import HttpResponse, Http404
 from django.template import loader
 from os import listdir, path
-from tracemap.filetools import TraceIdentifier
-from tracemap.datatypes import bound_from_points
+from tracemap.models import AudioRecording
+from typing import List
 
 
 # Create your views here.
@@ -34,43 +34,25 @@ def display_session(request, session_name):
     sessions = list_sessions(sessions_dir)
     if session_name not in sessions:
         raise Http404("No such session")
-    session_dir = sessions_dir + '/' + session_name
-    session_path = settings.MEDIA_URL + 'sessions/' + session_name
 
-    data_files = listdir(session_dir)
-    traces = {}
-    map_files = []
+    files = AudioRecording.objects.filter(file__contains=session_name)  # type: List[AudioRecording]
 
-    for file in data_files:
-        if file[-4:] == '.wav':
-            id = file[:-4]
-            traces[id] = {
-                'id': id,
-                'filename': file,
-                'path': session_path + '/' + file,
-                'id_data': TraceIdentifier(id).as_dict(),
-                'location': None
-            }
-        elif file[-4:] == '.kml':
-            map_files.append(file)
+    if len(files):
+        bounds = (
+            (min([t.latitude for t in files]), min([t.longitude for t in files])),
+            (max([t.latitude for t in files]), max([t.longitude for t in files]))
+        )
+    else:
+        bounds = None
 
-    bounds = None
-    points = []
-    if map_files:
-        for map_file in map_files:
-            map_file_path = session_dir + '/' + map_file
-
-        bounds = bound_from_points(points)
-
-    for point in points:
-        if point.id in traces:
-            traces[point.id]['location'] = point.as_dict()
+    traces = [f.as_serializable() for f in files]
 
     context = {
-        'session_path': session_path,
         'session_name': session_name,
         'map_data': {'traces': traces, 'bounds': bounds},
         'mapbox_token': settings.MAPS['mapbox_token'],
+        'MEDIA_URL': settings.MEDIA_URL,
+        'MEDIA_ROOT': settings.MEDIA_ROOT,
     }
     template = loader.get_template('tracemap/session.html')
     return HttpResponse(template.render(context, request))
