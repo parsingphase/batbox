@@ -42,5 +42,6 @@ class AudioRecording(models.Model):
             'genus': self.genus,
             'species': self.species,
             'recorder_serial': self.recorder_serial,
-            'guano_data': json.loads(self.guano_data),
+            'guano_data': json.loads(self.guano_data) if self.guano_data
+            else None,
         }

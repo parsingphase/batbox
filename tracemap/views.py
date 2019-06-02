@@ -1,4 +1,7 @@
 from batbox import settings
+from datetime import datetime, timedelta
+from django.db.models import Count
+from django.db.models.functions import TruncDay
 from django.http import HttpResponse, Http404
 from django.template import loader
 from os import listdir, path
@@ -8,11 +11,40 @@ from typing import List
 
 # Create your views here.
 def index(request):
-    session_name = request.GET.get('session', None)
-    if session_name:
-        return display_session(request, session_name)
+    template = loader.get_template('tracemap/days_index.html')
+    context = {
+        'days': list_counts_by_day(),
+    }
+    return HttpResponse(template.render(context, request))
+
+
+def day_view(request, date):
+    if date == 'undated':
+        files = AudioRecording.objects.filter(recorded_at__isnull=True)
     else:
-        return display_index(request)
+        (year, month, day) = date.split('-')
+        date_start = datetime(int(year), int(month), int(day))
+        date_end = date_start + timedelta(days=1)
+        files = AudioRecording.objects.filter(
+            recorded_at__range=(date_start, date_end)
+        )
+
+    if not len(files):
+        raise Http404("No records")
+
+    bounds = bounds_from_recordings(files)
+
+    traces = [f.as_serializable() for f in files]
+
+    context = {
+        'title': date,
+        'map_data': {'traces': traces, 'bounds': bounds},
+        'mapbox_token': settings.MAPS['mapbox_token'],
+        'MEDIA_URL': settings.MEDIA_URL,
+        'MEDIA_ROOT': settings.MEDIA_ROOT,
+    }
+    template = loader.get_template('tracemap/session.html')
+    return HttpResponse(template.render(context, request))
 
 
 def get_session_dir():
@@ -39,24 +71,12 @@ def display_session(request, session_name):
         file__contains=session_name
     )
 
-    if len(files):
-        bounds = (
-            (
-                min([t.latitude for t in files]),
-                min([t.longitude for t in files])
-            ),
-            (
-                max([t.latitude for t in files]),
-                max([t.longitude for t in files])
-            )
-        )
-    else:
-        bounds = None
+    bounds = bounds_from_recordings(files)
 
     traces = [f.as_serializable() for f in files]
 
     context = {
-        'session_name': session_name,
+        'title': session_name,
         'map_data': {'traces': traces, 'bounds': bounds},
         'mapbox_token': settings.MAPS['mapbox_token'],
         'MEDIA_URL': settings.MEDIA_URL,
@@ -66,9 +86,41 @@ def display_session(request, session_name):
     return HttpResponse(template.render(context, request))
 
 
+def bounds_from_recordings(files):
+    positioned_files = [f for f in files if f.latitude is not None]
+    if len(positioned_files):
+        bounds = (
+            (
+                min([t.latitude for t in positioned_files]),
+                min([t.longitude for t in positioned_files])
+            ),
+            (
+                max([t.latitude for t in positioned_files]),
+                max([t.longitude for t in positioned_files])
+            )
+        )
+
+        if bounds[0] == bounds[1]:
+            bounds = (
+                (bounds[0][0] - 0.01, bounds[0][1] - 0.01),
+                (bounds[0][0] + 0.01, bounds[0][1] + 0.01)
+            )
+    else:
+        bounds = None
+    return bounds
+
+
 def list_sessions(sessions_dir):
     sessions = [
         d for d in listdir(sessions_dir) if path.isdir(sessions_dir + '/' + d)
     ]
     sessions.sort()
     return sessions
+
+
+def list_counts_by_day():
+    days = AudioRecording.objects.annotate(day=TruncDay('recorded_at')) \
+        .values('day').annotate(c=Count('id'))\
+        .values('day', 'c').order_by('day')
+
+    return days

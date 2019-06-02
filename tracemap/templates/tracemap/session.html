@@ -1,24 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Maps</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+{% extends 'tracemap/base.html' %}
+{% load tracemap_extras %}
+
+{% block head-css %}
+    {{ block.super }}
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
           integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
           crossorigin=""/>
-</head>
-<body>
-{{ map_data|json_script:"map-data" }}
+{% endblock %}
 
-{% load tracemap_extras %}
+{% block body-container %}
+    {{ map_data|json_script:"map-data" }}
 
-{#<code>{{ map_data.traces.items }}</code>#}
-
-<div class="container">
     <div class="row">
-        <h1>{{ session_name }}</h1>
+        <h1>{{ title }}</h1>
     </div>
     <div class="row">
         <div class="col" id="map-pane">
@@ -26,10 +20,10 @@
         </div>
         <div class="col" id="audio-pane">
             {% for file in map_data.traces %}
-{#                {{ file }}#}
+{#                                {{ file }}#}
                 <div>
                     <p><a href="{{ MEDIA_URL }}{{ file.file|relpath:MEDIA_ROOT }}">{{ file.identifier }}</a></p>
-{#                    <div>{{ file  }}</div>#}
+                    {#                    <div>{{ file  }}</div>#}
                     <audio id="audio-{{ file.identifier }}" controls>
                         <source src="{{ MEDIA_URL }}{{ file.file|relpath:MEDIA_ROOT }}" type="audio/wav">
                         <!-- OK on chrome, files not recognised on Safari -->
@@ -38,43 +32,41 @@
             {% endfor %}
         </div>
     </div>
-</div>
 
-<script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
-        integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
-        crossorigin=""></script>
-<script>
-    var mapData = JSON.parse(document.getElementById('map-data').textContent);
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+            integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+            crossorigin=""></script>
+    <script>
+        var mapData = JSON.parse(document.getElementById('map-data').textContent);
 
-    var mymap = L.map('map-target').fitBounds(mapData.bounds);
-    {#var tileset = 'mapbox.streets';#}
-    var tilesets = ['mapbox.streets', 'mapbox.satellite'];
-    var tileset = tilesets[1];
+        var mymap = L.map('map-target').fitBounds(mapData.bounds);
+        {#var tileset = 'mapbox.streets';#}
+        var tilesets = ['mapbox.streets', 'mapbox.satellite'];
+        var tileset = tilesets[1];
 
-    for (var s = 0; s < tilesets.length; s++) {
-        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-            maxZoom: 18,
-            id: tileset,
-            accessToken: '{{ mapbox_token }}'
-        }).addTo(mymap);
-    }
-
-    function playSample(name) {
-        document.getElementById('audio-' + name).play();
-    }
-
-    var markers = {};
-    var marker;
-    for (let id in  mapData.traces) {
-        if (mapData.traces.hasOwnProperty(id)) {
-            let trace = mapData.traces[id];
-            marker = L.marker(trace.latlon).addTo(mymap);
-            marker.bindPopup('<a href="javascript:playSample(\'' + trace.identifier + '\')">' + trace.identifier + '</a>');
-            markers[id] = marker;
+        for (var s = 0; s < tilesets.length; s++) {
+            L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+                attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+                maxZoom: 18,
+                id: tileset,
+                accessToken: '{{ mapbox_token }}'
+            }).addTo(mymap);
         }
-    }
 
-</script>
-</body>
-</html>
+        function playSample(name) {
+            document.getElementById('audio-' + name).play();
+        }
+
+        var markers = {};
+        var marker;
+        for (let id in  mapData.traces) {
+            if (mapData.traces.hasOwnProperty(id)) {
+                let trace = mapData.traces[id];
+                marker = L.marker(trace.latlon).addTo(mymap);
+                marker.bindPopup('<a href="javascript:playSample(\'' + trace.identifier + '\')">' + trace.identifier + '</a>');
+                markers[id] = marker;
+            }
+        }
+
+    </script>
+{% endblock %}

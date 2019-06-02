@@ -1,0 +1,16 @@
+{% extends 'tracemap/base.html' %}
+{% block body-container %}
+    <div class="row"><h1>Available dates</h1></div>
+    {% for day in days %}
+        <div class="row">
+            <div class="col">
+                {% if day.day is None %}
+                    <a href="{% url 'day_view' date='undated' %}">Undated</a>
+                {% else %}
+                    <a href="{% url 'day_view' date=day.day|date:'Y-m-d' %}">{{ day.day|date:'Y-m-d' }}</a>
+                {% endif %}
+                ({{ day.c }} trace{{ day.c|pluralize }})
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}
