@@ -13,14 +13,15 @@ SCRIPT_DIR="$( get_script_dir )"
 
 cd ${SCRIPT_DIR}
 
-echo Checking for rebuild...
+echo '### Checking for rebuild...'
 set +e
 docker rm batbox
 set -e
 docker build -t pyserver -f docker/Dockerfile docker/context
 
-echo Running container, mounting current directory at /var/www
-docker run -it -d -p 8088:80 \
+echo
+echo '### Running container, mounting current directory at /var/www'
+docker run -it -p 8088:80 \
     -v ${SCRIPT_DIR}:/var/www \
     -v ${SCRIPT_DIR}/docker/sites-enabled:/etc/apache2/sites-enabled \
     -v ${SCRIPT_DIR}/docker/logs:/var/log \

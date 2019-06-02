@@ -1,22 +1,24 @@
 # batbox
 
-### Visualisation utility for Wildlife Acoustics data exports
+### Visualisation utility for Wildlife Acoustics and GUANO-tagged data exports
 
 ![Map view](docs/images/mapview.png)         
 
 [Wildlife Acoustics](https://www.wildlifeacoustics.com) are a manufacturer of 
-wildlife audio tracking tools, from consumer to professional. This utility is 
-designed to help sort and visualise data exported from these tools by providing a 
-map and time-based interface to audio recordings.
+wildlife audio tracking tools, from hobbyist to professional.
+ 
+[GUANO](https://guano-md.org) is a standardised tag format for recordings of 
+bat echolocation calls.
+ 
+This utility is designed to help sort and visualise data exported from these tools 
+by providing a map and time-based interface to audio recordings. 
+It works best with GUANO-tagged files, but can also WAV files from Wildlife Acoustics 
+exports with or without these tags, so long as the related KML files are also present.
 
 So far it's been tested with the output of an 
 [Echo Meter Touch 2 Bat Detector](https://www.wildlifeacoustics.com/products/echo-meter-touch-2).
 
-The export needs to include both the WAV and KML files, which can be achieved with the WiFi export
-mechanism.  
-
-Files should be stored under the `webroot/media/sessions` folder, with one folder per session,
-each with one KML file, eg:
+Your recording files should be stored under the `webroot/media/sessions` folder.
 
     webroot/
         media/
@@ -25,6 +27,7 @@ each with one KML file, eg:
                    MYOBRA_20180626_215501.wav
                    ...
                    Session 20180626_214348.kml
+                   
 ### Configuration
 
 The only configuration required is in [`settings_local.sample.py`](settings_local.sample.py), which is documented internally.
@@ -41,6 +44,7 @@ then (if all works) view the site in a browser at http://127.0.0.1:8088
 
 Note that the first build will take a significant time and download a large amount of data.
 
+Each time the server is restarted it will index any new files in the media folder.
 
 ### Code status
 

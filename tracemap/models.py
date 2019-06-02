@@ -25,8 +25,7 @@ class AudioRecording(models.Model):
     def path_relative_to(self, base_dir):
         if self.file is not None:
             return os.path.relpath(self.file, base_dir)
-        else:
-            return None
+        return None
 
     def as_serializable(self):
         return {

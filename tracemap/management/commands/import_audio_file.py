@@ -25,9 +25,12 @@ class Command(BaseCommand):
 
             existing_audio = AudioRecording.objects.filter(file=filepath)
             if len(existing_audio):
-                print('Found existing record')
                 audio = existing_audio[0]
                 audio.identifier = filestem
+                if audio.processed:
+                    print("Already processed this file, skipping")
+                    return
+                print('Found incomplete existing record, trying to update')
             else:
                 audio = AudioRecording(file=filepath, identifier=filestem)
 
