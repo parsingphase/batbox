@@ -38,7 +38,8 @@ def day_view(request, date):
 
     context = {
         'title': date,
-        'map_data': {'traces': traces, 'bounds': bounds},
+        'files': files,  # Non-flattened
+        'map_data': {'traces': traces, 'bounds': bounds},  # for JSON
         'mapbox_token': settings.MAPS['mapbox_token'],
         'MEDIA_URL': settings.MEDIA_URL,
         'MEDIA_ROOT': settings.MEDIA_ROOT,
@@ -77,6 +78,7 @@ def display_session(request, session_name):
 
     context = {
         'title': session_name,
+        'files': files,  # Non-flattened
         'map_data': {'traces': traces, 'bounds': bounds},
         'mapbox_token': settings.MAPS['mapbox_token'],
         'MEDIA_URL': settings.MEDIA_URL,
@@ -100,6 +102,7 @@ def bounds_from_recordings(files):
             )
         )
 
+        # Possibly not needed, leaflet.js may handle this
         if bounds[0] == bounds[1]:
             bounds = (
                 (bounds[0][0] - 0.01, bounds[0][1] - 0.01),
@@ -120,7 +123,7 @@ def list_sessions(sessions_dir):
 
 def list_counts_by_day():
     days = AudioRecording.objects.annotate(day=TruncDay('recorded_at')) \
-        .values('day').annotate(c=Count('id'))\
+        .values('day').annotate(c=Count('id')) \
         .values('day', 'c').order_by('day')
 
     return days
