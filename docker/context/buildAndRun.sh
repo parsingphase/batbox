@@ -9,6 +9,10 @@ echo '## Fetching dependencies'
 echo
 source /var/venv/bin/activate
 pipenv install
+echo
+echo '## Installing frontend assets'
+echo
+python manage.py collectstatic --noinput
 # Load any files in webroot/media
 echo
 echo '## Refreshing the local database…'

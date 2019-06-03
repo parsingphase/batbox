@@ -9,3 +9,4 @@ webroot/media/sessions/*
 !webroot/media/sessions/.gitkeep
 settings_local.py
 FIRSTPASS.txt
+webroot/static
