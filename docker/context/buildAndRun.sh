@@ -15,6 +15,10 @@ echo '## Refreshing the local database…'
 echo
 python manage.py migrate
 echo
+echo '## Creating a default admin user, if needed'
+echo
+python manage.py createdefaultadmin FIRSTPASS.txt
+echo
 echo '## Looking for new audio files to import…'
 echo
 find webroot/media -name *.wav | xargs -iz python manage.py importaudiofile 'z'
