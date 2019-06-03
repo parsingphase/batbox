@@ -13,8 +13,8 @@ pipenv install
 echo
 echo '## Looking for new audio files to import…'
 echo
-find webroot/media -name *.wav | xargs -iz python manage.py import_audio_file 'z'
-find webroot/media -name *.kml | xargs -iz python manage.py import_kml_file 'z'
+find webroot/media -name *.wav | xargs -iz python manage.py importaudiofile 'z'
+find webroot/media -name *.kml | xargs -iz python manage.py importkmlfile 'z'
 
 echo
 echo "## Running the web server. Ignore any message about the server's domain name…"
