@@ -11,6 +11,10 @@ source /var/venv/bin/activate
 pipenv install
 # Load any files in webroot/media
 echo
+echo '## Refreshing the local database…'
+echo
+python manage.py migrate
+echo
 echo '## Looking for new audio files to import…'
 echo
 find webroot/media -name *.wav | xargs -iz python manage.py import_audio_file 'z'
