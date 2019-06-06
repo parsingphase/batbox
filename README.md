@@ -18,36 +18,72 @@ exports with or without these tags, so long as the related KML files are also pr
 So far it's been tested with the output of an 
 [Echo Meter Touch 2 Bat Detector](https://www.wildlifeacoustics.com/products/echo-meter-touch-2).
 
-Your recording files should be stored under the `webroot/media/sessions` folder.
-
-    webroot/
-        media/
-            sessions/
-                Session 20130401_053030/
-                   MYOBRA_20180626_215501.wav
-                   ...
-                   Session 20180626_214348.kml
+Your recording files should be stored under the `webroot/media/sessions` folder. 
+This folder and any subfolders are scanned for new WAV and KML files every time the system is restarted.
                    
 ### Configuration
 
 The only configuration required is in [`settings_local.sample.py`](settings_local.sample.py), which is documented internally.
-Copy this to `settings_local.py` and edit as required.                   
-                   
+Copy this to `settings_local.py` and edit as required.
+
 ### Running the code
 
-The code is not yet built for production deployment. You can test it on a local computer using
-[Docker](https://docker.com). Once that's installed you can run
+While this is a web-based application, it's also set up to easily run on your laptop or desktop - it should work on 
+Windows, MacOS or Linux. To run it, you'll need [Docker](https://docker.com). Once that's installed you can run
 
     ./run-docker.sh
     
-then (if all works) view the site in a browser at http://127.0.0.1:8088
+This will:
 
-Note that the first build will take a significant time and download a large amount of data.
+- Build a small web server as a virtual machine on your desktop
+- Install the libraries that the project needs, inside the VM
+- Configure a database inside the VM
+- Set up an `admin` user for the management interface, with a dummy email address
+  - The default build process will save the `admin` user's (randomly generated) password to a file in the project 
+  directory called `FIRSTPASS.txt`. It's good practice to delete this file once you've read it, and change the password
+  inside the admin interface. 
+- Scan the `webroot/media` folder for any relevant WAV or KML files
+- and finally start a server which you can reach in your wed browser at http://127.0.0.1:8088, where you can use the 
+project
 
-Each time the server is restarted it will index any new files in the media folder.
+Note that the first build will take a significant time and download a large amount of data. After that, it'll skim 
+through the early steps quite quickly.
+
+Also note than Windows use is untested, as I don't have a Windows box. If it doesn't work, let me know.
+
+### What you can do
+
+- View a list of dates on which traces are recorded
+- View traces on each date on a map, and play the audio files in your browser
+- View and manage data in an inbuilt admin interface
 
 ### Code status
 
-The code is in a very early form (3 days old!) and frankly isn't ready for anything.
+The code is very much pre-alpha and not presumed ready for production use.
+
+### Feedback
+
+For questions or bug reports, email [richard@parsingphase.dev](mailto:parsingphase@parsingphase.dev). 
+
+Please note: 
+
+ - This is a hobby project, so time is limited and patience will be appreciated
+ - This is one of the first projects of any size that I've built in Python, so the code may not be very neat or idiomatic
+ 
+### Thanks
+
+Particular credit is due to [David Riggs](https://github.com/riggsd) for both building the Guano library used in this
+project, and being incredibly helpful and responsive in helping to debug an issue with Guano data from the Echo Meter 
+Touch.
+
+Credit is also due to the creators of [Django](https://www.djangoproject.com), particularly the 
+[Django Admin](https://docs.djangoproject.com/en/2.2/ref/contrib/admin/) project which supplies the whole admin 
+interface to the site.
+
+### Licence
+
+The project is currently licenced under the [MIT](LICENCE.txt) licence, which should allow you to do what you need to
+with it. I reserve the right to change the licence at a later date, but any such change won't be retroactive - if you
+receive a MIT version, you can keep using it as such.
            
                    

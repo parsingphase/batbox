@@ -22,14 +22,17 @@ echo
 echo '## Creating a default admin user, if needed'
 echo
 python manage.py createdefaultadmin FIRSTPASS.txt
-echo
-echo '## Looking for new audio files to import…'
-echo
-find webroot/media -name *.wav | xargs -iz python manage.py importaudiofile 'z'
-find webroot/media -name *.kml | xargs -iz python manage.py importkmlfile 'z'
 
-echo
-echo "## Running the web server. Ignore any message about the server's domain name…"
-echo "## You should now be able to access the project at http://127.0.0.1:8088"
-echo "## To stop the server, hit Control-C at least once"
-/usr/sbin/apache2ctl -D FOREGROUND
+if [[ "$1" != "--buildonly" ]]; then
+    echo
+    echo '## Looking for new audio files to import…'
+    echo
+    find webroot/media -name *.wav | xargs -iz python manage.py importaudiofile 'z'
+    find webroot/media -name *.kml | xargs -iz python manage.py importkmlfile 'z'
+
+    echo
+    echo "## Running the web server. Ignore any message about the server's domain name…"
+    echo "## You should now be able to access the project at http://127.0.0.1:8088"
+    echo "## To stop the server, hit Control-C at least once"
+    /usr/sbin/apache2ctl -D FOREGROUND
+fi
