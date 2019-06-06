@@ -4,16 +4,12 @@
 
 ![Map view](docs/images/mapview.png)         
 
-[Wildlife Acoustics](https://www.wildlifeacoustics.com) are a manufacturer of 
-wildlife audio tracking tools, from hobbyist to professional.
+[Wildlife Acoustics](https://www.wildlifeacoustics.com) are a manufacturer of wildlife audio tracking tools, from hobbyist to professional.
  
-[GUANO](https://guano-md.org) is a standardised tag format for recordings of 
-bat echolocation calls.
+[GUANO](https://guano-md.org) is a standardised tag format for recordings of bat echolocation calls.
  
-This utility is designed to help sort and visualise data exported from these tools 
-by providing a map and time-based interface to audio recordings. 
-It works best with GUANO-tagged files, but can also WAV files from Wildlife Acoustics 
-exports with or without these tags, so long as the related KML files are also present.
+This utility is designed to help sort and visualise data exported from these tools by providing a map and time-based interface to audio recordings. 
+It works best with GUANO-tagged files, but can also WAV files from Wildlife Acoustics exports with or without these tags, so long as the related KML files are also present.
 
 So far it's been tested with the output of an 
 [Echo Meter Touch 2 Bat Detector](https://www.wildlifeacoustics.com/products/echo-meter-touch-2).
@@ -28,8 +24,7 @@ Copy this to `settings_local.py` and edit as required.
 
 ### Running the code
 
-While this is a web-based application, it's also set up to easily run on your laptop or desktop - it should work on 
-Windows, MacOS or Linux. To run it, you'll need [Docker](https://docker.com). Once that's installed you can run
+While this is a web-based application, it's also set up to easily run on your laptop or desktop - it should work on Windows, MacOS or Linux. To run it, you'll need [Docker](https://docker.com). Once that's installed you can run
 
     ./run-docker.sh
     
@@ -39,15 +34,11 @@ This will:
 - Install the libraries that the project needs, inside the VM
 - Configure a database inside the VM
 - Set up an `admin` user for the management interface, with a dummy email address
-  - The default build process will save the `admin` user's (randomly generated) password to a file in the project 
-  directory called `FIRSTPASS.txt`. It's good practice to delete this file once you've read it, and change the password
-  inside the admin interface. 
+  - The default build process will save the `admin` user's (randomly generated) password to a file in the project directory called `FIRSTPASS.txt`. It's good practice to delete this file once you've read it, and change the password inside the admin interface. 
 - Scan the `webroot/media` folder for any relevant WAV or KML files
-- and finally start a server which you can reach in your wed browser at http://127.0.0.1:8088, where you can use the 
-project
+- and finally start a server which you can reach in your wed browser at http://127.0.0.1:8088, where you can use the project
 
-Note that the first build will take a significant time and download a large amount of data. After that, it'll skim 
-through the early steps quite quickly.
+Note that the first build will take a significant time and download a large amount of data. After that, it'll skim through the early steps quite quickly.
 
 Also note than Windows use is untested, as I don't have a Windows box. If it doesn't work, let me know.
 
@@ -72,18 +63,12 @@ Please note:
  
 ### Thanks
 
-Particular credit is due to [David Riggs](https://github.com/riggsd) for both building the Guano library used in this
-project, and being incredibly helpful and responsive in helping to debug an issue with Guano data from the Echo Meter 
-Touch.
+Particular credit is due to [David Riggs](https://github.com/riggsd) for both building the Guano library used in this project, and being incredibly helpful and responsive in helping to debug an issue with Guano data from the Echo Meter Touch.
 
-Credit is also due to the creators of [Django](https://www.djangoproject.com), particularly the 
-[Django Admin](https://docs.djangoproject.com/en/2.2/ref/contrib/admin/) project which supplies the whole admin 
-interface to the site.
+Credit is also due to the creators of [Django](https://www.djangoproject.com), particularly the [Django Admin](https://docs.djangoproject.com/en/2.2/ref/contrib/admin/) project which supplies the whole admin interface to the site.
 
 ### Licence
 
-The project is currently licenced under the [MIT](LICENCE.txt) licence, which should allow you to do what you need to
-with it. I reserve the right to change the licence at a later date, but any such change won't be retroactive - if you
-receive a MIT version, you can keep using it as such.
+The project is currently licenced under the [MIT](LICENCE.txt) licence, which should allow you to do what you need to with it. I reserve the right to change the licence at a later date, but any such change won't be retroactive - if you receive a MIT version, you can keep using it as such.
            
                    
