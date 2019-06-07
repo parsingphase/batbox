@@ -1,0 +1,69 @@
+{% extends 'tracemap/base.html' %}
+
+{% block head-css %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+{% endblock %}
+
+
+{% block body-container %}
+    {{ map_data|json_script:"map-data" }}
+
+    <table id="recordingsTable" class="table table-striped">
+        {#        <thead><tr><th>Recorded At</th></tr></thead>#}
+    </table>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+            integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8=" crossorigin="anonymous"></script>
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" charset="utf8"
+            src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script>
+
+        function playSample(name) {
+            document.getElementById('audio-' + name).play();
+        }
+
+        function renderUnknown(defaultString) {
+            return function (data, type, row) {
+                if (type === "sort" || type === "type") {
+                    return data;
+                }
+                return data ? data : defaultString;
+            }
+        }
+
+        const recordings = JSON.parse(document.getElementById('map-data').textContent)['traces'];
+        $('#recordingsTable').DataTable({
+            data: recordings,
+            columns: [
+                {
+                    data: 'recorded_at',
+                    title: 'Recorded At',
+                    render: function (data, type, row) {
+                        if (type === "sort" || type === "type") {
+                            return data;
+                        }
+                        return data ? moment(data).format("YYYY-MM-DD HH:mm") : '(no time available)';
+                    }
+                },
+                {data: 'genus', title: 'Genus', render: renderUnknown('-')},
+                {data: 'species', title: 'Species', render: renderUnknown('-')},
+                {data: 'latitude', title: 'Latitude', render: renderUnknown('-')},
+                {data: 'longitude', title: 'Longitude', render: renderUnknown('-')},
+                {
+                    data: 'url',
+                    title: 'Audio', render:
+                        function (data, type, row) {
+                            if (type === "sort" || type === "type") {
+                                return data;
+                            }
+                            return '<a href="javascript:playSample(\'' + row.identifier + '\')"><i class="fas fa-play"></i></a>'
+                                + '<audio preload="metadata" id="audio-' + row.identifier + '"><source src="' + data + '" type="audio/wav"></audio>'
+                                + ' <a href="' + data + '"><i class="fas fa-download"></i></a>';
+                        }
+                },
+                {#{data: 'identifier'},#}
+            ]
+        });
+    </script>
+{% endblock %}

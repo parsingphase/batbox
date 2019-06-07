@@ -49,7 +49,6 @@
                         {% endif %}
                         <audio id="audio-{{ file.identifier }}">
                             <source src="{{ MEDIA_URL }}{{ file.file|relpath:MEDIA_ROOT }}" type="audio/wav">
-                            <!-- OK on chrome, files not recognised on Safari -->
                         </audio>
                     </div>
                 </div>

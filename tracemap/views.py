@@ -127,3 +127,28 @@ def list_counts_by_day():
         .values('day', 'c').order_by('day')
 
     return days
+
+
+def list_view(request):
+    files = AudioRecording.objects.all()
+
+    traces = [audio_for_json(f) for f in files]
+
+    template = loader.get_template('tracemap/list.html')
+    context = {
+        'map_data': {'traces': traces},
+    }
+    return HttpResponse(template.render(context, request))
+
+
+def audio_for_json(audio: AudioRecording) -> dict:
+    if audio is not None:
+        j = audio.as_serializable()
+        j['url'] = settings.MEDIA_URL + path.relpath(
+            j['file'], settings.MEDIA_ROOT
+        )
+        j['file'] = None
+    else:
+        j = None
+
+    return j

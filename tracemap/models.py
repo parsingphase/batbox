@@ -29,6 +29,7 @@ class AudioRecording(models.Model):
 
     def as_serializable(self):
         return {
+            'id': self.id,
             'identifier': self.identifier,
             'file': self.file,
             'processed': self.processed,
