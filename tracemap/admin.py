@@ -9,6 +9,7 @@ class AudioRecordingAdmin(admin.ModelAdmin):
         'identifier',
         'processed',
         'recorded_at',
+        'duration',
         'latitude',
         'longitude',
         'genus',

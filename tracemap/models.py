@@ -21,6 +21,7 @@ class AudioRecording(models.Model):
     species = models.CharField(max_length=16, blank=True)
     recorder_serial = models.CharField(max_length=16, blank=True)
     guano_data = models.TextField(blank=True)
+    duration = models.FloatField(blank=True, null=True)
 
     def path_relative_to(self, base_dir):
         if self.file is not None:
@@ -45,4 +46,5 @@ class AudioRecording(models.Model):
             'recorder_serial': self.recorder_serial,
             'guano_data': json.loads(self.guano_data) if self.guano_data
             else None,
+            'duration': self.duration
         }

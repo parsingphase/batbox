@@ -5,6 +5,7 @@ from tracemap.filetools import TraceIdentifier
 from guano import GuanoFile
 import json
 from datetime import datetime
+import audioread
 
 
 class Command(BaseCommand):
@@ -48,6 +49,7 @@ class Command(BaseCommand):
                 guano_file = GuanoFile(filepath)
             except:  # noqa:E722 FIXME
                 print(f'Unable to load guano data for {filename}')
+                self.read_file_duration(filename, audio)
                 audio.save()
                 return
 
@@ -63,6 +65,11 @@ class Command(BaseCommand):
 
             if 'Serial' in guano_file:
                 audio.recorder_serial = guano_file['Serial']
+
+            if 'Length' in guano_file:
+                audio.duration = guano_file['Length']
+            else:
+                self.read_file_duration(filename, audio)
 
             try:
                 if 'Timestamp' in guano_file \
@@ -80,3 +87,7 @@ class Command(BaseCommand):
             audio.save()
         else:
             print(f'{filename} not found')
+
+    def read_file_duration(self, filename, audio):
+        with audioread.audio_open(filename) as f:
+            audio.duration = f.duration

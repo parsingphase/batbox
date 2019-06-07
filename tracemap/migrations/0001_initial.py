@@ -2,7 +2,7 @@
 # flake8: noqa
 
 from django.db import migrations, models
-
+from batbox import settings
 
 class Migration(migrations.Migration):
 
@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('identifier', models.CharField(blank=True, max_length=32)),
-                ('file', models.FilePathField(match='^[^.].*\\.wav', path='/var/www/webroot/media/sessions/', recursive=True)),
+                ('file', models.FilePathField(match='^[^.].*\\.wav', path=settings.MEDIA_ROOT + 'sessions/', recursive=True)),
                 ('processed', models.BooleanField(default=False)),
                 ('recorded_at', models.DateTimeField(blank=True, null=True)),
                 ('latitude', models.FloatField(blank=True, null=True)),

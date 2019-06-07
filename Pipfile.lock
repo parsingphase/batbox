@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "763305319c526b1208b5ee5d9a192d66dc6613a9ecd00d39a11e29423e52a546"
+            "sha256": "cd0ac815138c1f6c67f9288dcc1f3f0412dd79b637bd2e3de69f44e73831495b"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,13 +16,20 @@
         ]
     },
     "default": {
-        "django": {
+        "audioread": {
             "hashes": [
-                "sha256:6fcc3cbd55b16f9a01f37de8bcbe286e0ea22e87096557f1511051780338eaea",
-                "sha256:bb407d0bb46395ca1241f829f5bd03f7e482f97f7d1936e26e98dacb201ed4ec"
+                "sha256:073904fabc842881e07bd3e4a5776623535562f70b1655b635d22886168dd168"
             ],
             "index": "pypi",
-            "version": "==2.2.1"
+            "version": "==2.1.8"
+        },
+        "django": {
+            "hashes": [
+                "sha256:753d30d3eb078064d2ddadfea65083c9848074a7f93d7b4dc7fa6b1380d278f5",
+                "sha256:7cb67e8b934fab23b6daed7144da52e8a25a47eba7f360ca43d2b448506b01ad"
+            ],
+            "index": "pypi",
+            "version": "==2.2.2"
         },
         "guano": {
             "hashes": [

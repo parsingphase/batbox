@@ -46,6 +46,15 @@
                         return data ? moment(data).format("YYYY-MM-DD HH:mm") : '(no time available)';
                     }
                 },
+                {
+                    data: 'duration', title: 'Duration (s)',
+                    render: function (data, type, row) {
+                        if (type === "sort" || type === "type") {
+                            return data;
+                        }
+                        return data ? data.toFixed(2) : '-'
+                    }
+                },
                 {data: 'genus', title: 'Genus', render: renderUnknown('-')},
                 {data: 'species', title: 'Species', render: renderUnknown('-')},
                 {data: 'latitude', title: 'Latitude', render: renderUnknown('-')},
