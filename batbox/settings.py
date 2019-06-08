@@ -119,6 +119,8 @@ STATIC_URL = '/static/'
 
 MEDIA_URL = '/media/'
 
-MEDIA_ROOT = BASE_DIR + '/webroot/media/'
+MEDIA_ROOT = BASE_DIR + '/webroot/media/'  # Where we put the data files
 
-STATIC_ROOT = BASE_DIR + '/webroot/static/'
+STATIC_ROOT = BASE_DIR + '/webroot/static/'  # Where static assets are collected to
+
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'assets'), ]  # In addition to those in individual apps

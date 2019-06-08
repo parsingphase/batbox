@@ -1,5 +1,6 @@
 {% extends 'tracemap/base.html' %}
 {% load tracemap_extras %}
+{% load static %}
 
 {% block head-css %}
     {{ block.super }}
@@ -12,6 +13,7 @@
 
 {% block body-container %}
     {{ map_data|json_script:"map-data" }}
+    {{ mapbox_token|json_script:"mapbox-token" }}
 
     <div class="row">
         <h1>Recordings {{ title }}</h1>
@@ -22,14 +24,13 @@
         </div>
         <div class="col col-sm-4" id="audio-pane">
             {% for file in files %}
-                {#                {{ file.as_serializable }}#}
                 <div class="card">
                     <div class="card-body" id="recording-{{ file.identifier }}">
                         <h5 class="card-title">{{ file.identifier }}</h5>
                         <a href="{{ MEDIA_URL }}{{ file.file|relpath:MEDIA_ROOT }}"><i class="fas fa-download"></i></a>
                         <a href="javascript:playSample('{{ file.identifier }}')"><i class="fas fa-play"></i></a>
                         {% if file.latitude %}
-                            <a href="javascript:panTo('{{ file.identifier }}')"><i
+                            <a href="#" class="panTrigger" data-audio-ident="{{ file.identifier }}"><i
                                     class="fas fa-map-marker-alt"></i></a>
                         {% endif %}
                         <br/>
@@ -55,49 +56,39 @@
             {% endfor %}
         </div>
     </div>
-
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+            integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8=" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
             integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
             crossorigin=""></script>
+
+
     <script>
-        var mapData = JSON.parse(document.getElementById('map-data').textContent);
-
-        var map = L.map('map-target').fitBounds(mapData.bounds);
-        {#var tileset = 'mapbox.streets';#}
-        var tilesets = ['mapbox.streets', 'mapbox.satellite'];
-        var tileset = tilesets[1];
-
-        for (var s = 0; s < tilesets.length; s++) {
-            L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-                attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-                maxZoom: 18,
-                id: tileset,
-                accessToken: '{{ mapbox_token }}'
-            }).addTo(map);
-        }
-
         function playSample(name) {
             document.getElementById('audio-' + name).play();
         }
-
-        var markers = {};
-        var marker;
-        for (let i = 0; i < mapData.traces.length; i++) {
-            let trace = mapData.traces[i];
-            let id = trace.identifier;
-            marker = L.marker(trace.latlon).addTo(map);
-            marker.bindPopup('<a href="#recording-' + trace.identifier + '">' + trace.identifier + '</a>');
-            markers[id] = marker;
-
-        }
-
-        function panTo(ident) {
-            if (markers.hasOwnProperty(ident)) {
-                map.panTo(markers[ident].getLatLng());
-                markers[ident].openPopup();
-                document.getElementById('map-pane').scrollIntoView();
-            }
-        }
-
     </script>
+
+    <script type="module">
+        import MapHandler from '{% static 'tracemap/js/MapHandler.js' %}';
+
+        /**
+         * @type {Object}
+         * @property {Array} traces
+         * @property {Array} bounds
+         */
+        const mapData = JSON.parse(document.getElementById('map-data').textContent);
+        const mapboxToken = JSON.parse(document.getElementById('mapbox-token').textContent);
+
+        const map = new MapHandler('map-target', mapboxToken)
+            .drawMapWithBounds(mapData.bounds)
+            .addAudioMarkers(mapData.traces);
+
+        $('.panTrigger').click(function () {
+            const id = $(this).data('audioIdent');
+            map.panMapToAudioFile(id);
+            return false; // prevent link action
+        });
+    </script>
+
 {% endblock %}

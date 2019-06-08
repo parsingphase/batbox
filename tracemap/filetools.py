@@ -20,7 +20,7 @@ class TraceIdentifier:
         self.datetime = None
         self.identifier_string = identifier_string
         match = re.match(
-            r'^((((?P<genus>\w{3})(?P<species>\w{3}))|(No_ID)|(NOISE))_)?'
+            r'^((((?P<genus>\w{3})(?P<species>\w{3}))|(No_?ID)|(NOISE))_)?'
             r'(?P<date>\d{8})_(?P<time>\d{6})$',
             identifier_string
         )
