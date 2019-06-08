@@ -97,7 +97,9 @@
 
                             if (row.latlon) {
                                 cellContent = cellContent + ' <a href="#" class="panTrigger" data-audio-ident="' + row.identifier + '">' +
-                                    '<i class="fas fa-map-marker-alt"></i></a>';
+                                    '<i class="fas fa-map-marker-alt"></i></a>' +
+                                    ' <a href="#" class="panTriggerZoom" data-audio-ident="' + row.identifier + '">' +
+                                    '<i class="fas fa-search-location"></i></a>';
                             }
 
                             return cellContent;
@@ -113,6 +115,13 @@
             $panTriggers.click(function () {
                 const id = $(this).data('audioIdent');
                 map.panMapToAudioFile(id);
+                return false; // prevent link action
+            });
+            let $panZoomTriggers = $('.panTriggerZoom');
+            $panZoomTriggers.off('click');
+            $panZoomTriggers.click(function () {
+                const id = $(this).data('audioIdent');
+                map.panMapToAudioFile(id, 15);
                 return false; // prevent link action
             });
         }

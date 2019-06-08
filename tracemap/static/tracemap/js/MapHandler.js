@@ -85,11 +85,16 @@ export default class MapHandler {
      * Pan to the marker with the given ident, if it exists
      *
      * @param {string} ident
+     * @param {number|null} zoomLevel
      * @returns {MapHandler}
      */
-    panMapToAudioFile(ident) {
+    panMapToAudioFile(ident, zoomLevel = null) {
         if (this.audioMarkers.hasOwnProperty(ident)) {
-            this.map.panTo(this.audioMarkers[ident].getLatLng());
+            if (zoomLevel === null) {
+                this.map.panTo(this.audioMarkers[ident].getLatLng());
+            } else {
+                this.map.flyTo(this.audioMarkers[ident].getLatLng(), zoomLevel);
+            }
             this.audioMarkers[ident].openPopup();
             // document.getElementById('map-pane').scrollIntoView();
         }
