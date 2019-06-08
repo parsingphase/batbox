@@ -17,7 +17,8 @@ export default class MapHandler {
         this.targetElementId = targetElementId;
         this.mapboxToken = mapboxToken;
         this.tileSet = 'mapbox.satellite';
-        this.audioMarkers = [];
+        this.audioMarkers = {};
+        this.markersLayer = new L.FeatureGroup();
         return this;
     }
 
@@ -29,6 +30,7 @@ export default class MapHandler {
      */
     drawMapWithBounds(bounds) {
         this.map = L.map(this.targetElementId).fitBounds(bounds);
+        this.map.addLayer(this.markersLayer);
         L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
                 '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © ' +
@@ -52,12 +54,31 @@ export default class MapHandler {
         for (let i = 0; i < audioFiles.length; i++) {
             let trace = audioFiles[i];
             let id = trace.identifier;
-            marker = L.marker(trace.latlon).addTo(this.map);
-            marker.bindPopup('<a href="#recording-' + trace.identifier + '">' + trace.identifier + '</a>');
-            this.audioMarkers[id] = marker;
+            if (trace.latlon) {
+                marker = L.marker(trace.latlon);
+                marker.bindPopup('<a href="#recording-' + trace.identifier + '">' + trace.identifier + '</a>');
+                this.audioMarkers[id] = marker;
+                this.markersLayer.addLayer(marker);
+            }
         }
 
         return this;
+    }
+
+
+    /**
+     * Replace map markers with those specified
+     *
+     * @param {Array.<AudioFile>} audioFiles
+     * @returns {MapHandler}
+     */
+    replaceAudioMarkers(audioFiles) {
+        this.audioMarkers = {};
+        this.map.removeLayer(this.markersLayer);
+        this.markersLayer = new L.FeatureGroup();
+        this.map.addLayer(this.markersLayer);
+
+        return this.addAudioMarkers(audioFiles);
     }
 
     /**

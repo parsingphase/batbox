@@ -133,10 +133,12 @@ def list_view(request):
     files = AudioRecording.objects.all()
 
     traces = [audio_for_json(f) for f in files]
+    bounds = bounds_from_recordings(files)
 
     template = loader.get_template('tracemap/list.html')
     context = {
-        'map_data': {'traces': traces},
+        'map_data': {'traces': traces, 'bounds': bounds},
+        'mapbox_token': settings.MAPS['mapbox_token'],
     }
     return HttpResponse(template.render(context, request))
 
