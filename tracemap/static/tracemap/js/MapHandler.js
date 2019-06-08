@@ -1,3 +1,4 @@
+// noinspection JSUnusedGlobalSymbols
 /**
  * @typedef AudioFile
  * @type {Object}
@@ -6,6 +7,7 @@
  */
 
 export default class MapHandler {
+    // noinspection JSUnusedGlobalSymbols
     /**
      * Create a new instance
      *
@@ -90,6 +92,7 @@ export default class MapHandler {
      */
     panMapToAudioFile(ident, zoomLevel = null) {
         if (this.audioMarkers.hasOwnProperty(ident)) {
+            // noinspection JSIncompatibleTypesComparison
             if (zoomLevel === null) {
                 this.map.panTo(this.audioMarkers[ident].getLatLng());
             } else {

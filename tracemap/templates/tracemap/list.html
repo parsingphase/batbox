@@ -38,8 +38,6 @@
         const mapData = JSON.parse(document.getElementById('map-data').textContent);
         const mapboxToken = JSON.parse(document.getElementById('mapbox-token').textContent);
 
-        {#console.log(mapData);#}
-
         const map = new MapHandler('map-target', mapboxToken)
             .drawMapWithBounds(mapData.bounds)
             .addAudioMarkers(mapData.traces);
@@ -91,8 +89,9 @@
                             if (type === "sort" || type === "type") {
                                 return data;
                             }
-                            let cellContent = '<a href="javascript:playSample(\'' + row.identifier + '\')"><i class="fas fa-play"></i></a>'
-                                + '<audio preload="metadata" id="audio-' + row.identifier + '"><source src="' + data + '" type="audio/wav"></audio>'
+                            let cellContent = '<a class="audioTrigger" data-audio-src="' + row.url + '" ' +
+                                'data-audio-ident="' + row.identifier + '">' +
+                                '<i class="fas fa-play"></i></a>'
                                 + ' <a href="' + data + '"><i class="fas fa-download"></i></a>';
 
                             if (row.latlon) {
@@ -108,8 +107,10 @@
             ]
         });
 
+        let player;
+        let playingFile;
 
-        function resetPanTriggers() {
+        function resetRowControlTriggers() {
             let $panTriggers = $('.panTrigger');
             $panTriggers.off('click');
             $panTriggers.click(function () {
@@ -124,9 +125,52 @@
                 map.panMapToAudioFile(id, 15);
                 return false; // prevent link action
             });
+            let $audioTriggers = $('.audioTrigger');
+            $audioTriggers.off('click');
+
+            $audioTriggers.click(function () {
+                let sourceElement = $(this);
+                const id = sourceElement.data('audioIdent');
+                const src = sourceElement.data('audioSrc');
+
+                // Reset if we change sample
+                if (playingFile !== id) {
+                    if (player) {
+                        player.pause();
+                    }
+                    player = null;
+                    $('.audioTrigger').html('<i class="fas fa-play"></i>');
+                }
+
+                playingFile = id;
+
+                if (!player) {
+                    player = new Audio(src);
+                }
+
+                player.addEventListener('playing', () => {
+                    // The duration variable now holds the duration (in seconds) of the audio clip
+                    sourceElement.html('<i class="fas fa-pause"></i>');
+                });
+
+                player.addEventListener('ended', () => {
+                    // The duration variable now holds the duration (in seconds) of the audio clip
+                    sourceElement.html('<i class="fas fa-play"></i>');
+                    player = null;
+                });
+
+                if (player.paused) {
+                    sourceElement.html('<i class="fas fa-spinner fa-pulse"></i>');
+                    player.play();
+                } else {
+                    sourceElement.html('<i class="fas fa-play"></i>');
+                    player.pause();
+                }
+
+            });
         }
 
-        resetPanTriggers();
+        resetRowControlTriggers();
 
         // https://stackoverflow.com/questions/33169649/how-to-get-filtered-data-result-set-from-jquery-datatable
         // https://datatables.net/reference/api/toArray()
@@ -134,7 +178,7 @@
         table.on('search.dt', function () {
             const newAudioList = table.rows({filter: 'applied'}).data().toArray();
             map.replaceAudioMarkers(newAudioList);
-            resetPanTriggers();
+            resetRowControlTriggers();
         })
     </script>
 {% endblock %}
