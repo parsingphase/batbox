@@ -34,7 +34,7 @@ This will:
 - Set up an `admin` user for the management interface, with a dummy email address
   - The default build process will save the `admin` user's (randomly generated) password to a file in the project directory called `FIRSTPASS.txt`. It's good practice to delete this file once you've read it, and change the password inside the admin interface. 
 - Scan the `webroot/media` folder for any relevant WAV or KML files
-- and finally start a server which you can reach in your wed browser at http://127.0.0.1:8088, where you can use the project
+- and finally start a server which you can reach in your web browser at http://127.0.0.1:8088, where you can use the project
 
 Note that the first build will take a significant time and download a large amount of data. After that, it'll skim through the early steps quite quickly.
 
