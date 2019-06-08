@@ -31,7 +31,7 @@ def day_view(request, date):
     if not len(files):
         raise Http404("No records")
 
-    return display_recordings_list(files, request)
+    return display_recordings_list(files, request, {'title': f'Date: {date}'})
 
 
 def get_session_dir():
@@ -55,17 +55,29 @@ def list_view(request):
 
 def single_view(request, pk):
     files = [AudioRecording.objects.get(id=pk)]
-    return display_recordings_list(files, request)
+    return display_recordings_list(
+        files,
+        request,
+        {'title': files[0].identifier}
+    )
 
 
 def genus_view(request, genus):
     files = AudioRecording.objects.filter(genus=genus)
-    return display_recordings_list(files, request)
+    return display_recordings_list(
+        files,
+        request,
+        {'title': f'Genus: {genus}'}
+    )
 
 
 def species_view(request, genus, species):
     files = AudioRecording.objects.filter(genus=genus, species=species)
-    return display_recordings_list(files, request)
+    return display_recordings_list(
+        files,
+        request,
+        {'title': f'Species: {genus} ({species})'}
+    )
 
 
 def display_recordings_list(files, request, context: dict = None):

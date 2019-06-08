@@ -1,6 +1,8 @@
 {% extends 'tracemap/base.html' %}
 {% load static %}
 
+{% block subtitle %}{% if title %}{{ title }}{% else %}List View{% endif %}{% endblock %}
+
 {% block head-css %}
     {{ block.super }}
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
@@ -33,6 +35,9 @@
 {% block body-container %}
     {{ map_data|json_script:"map-data" }}
     {{ mapbox_token|json_script:"mapbox-token" }}
+
+    {% if title %}<h1>{{ title }}</h1>{% endif %}
+
     <div id="map-target" style="width: 100%; height: 400px; background-color: lightgray">
         <div class="map-loader" style="margin: auto">loading map…</div>
     </div>
