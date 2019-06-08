@@ -58,7 +58,7 @@ export default class MapHandler {
             let id = trace.identifier;
             if (trace.latlon) {
                 marker = L.marker(trace.latlon);
-                marker.bindPopup('<a href="#recording-' + trace.identifier + '">' + trace.identifier + '</a>');
+                marker.bindPopup(trace.identifier);
                 this.audioMarkers[id] = marker;
                 this.markersLayer.addLayer(marker);
             }
