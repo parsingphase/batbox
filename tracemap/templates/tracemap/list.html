@@ -7,6 +7,13 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
           integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
           crossorigin=""/>
+    <style>
+        table.table a {
+            color: black;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+        }
+    </style>
 {% endblock %}
 
 
@@ -85,8 +92,23 @@
                         return data ? data.toFixed(2) : '-'
                     }
                 },
-                {data: 'genus', title: 'Genus', render: renderUnknown('-')},
-                {data: 'species', title: 'Species', render: renderUnknown('-')},
+                {
+                    data: 'genus', title: 'Genus',
+                    render: function (data, type, row) {
+                        if (type === "sort" || type === "type") {
+                            return data;
+                        }
+                        return data ? '<a href="/genus/' + data + '">' + data + '</a>' : '-'
+                    }
+                },
+                {
+                    data: 'species', title: 'Species', render: function (data, type, row) {
+                        if (type === "sort" || type === "type") {
+                            return data;
+                        }
+                        return data ? '<a href="/species/' + row.genus + '.' + row.species + '">' + data + '</a>' : '-'
+                    }
+                },
                 {data: 'latitude', title: 'Latitude', render: renderUnknown('-')},
                 {data: 'longitude', title: 'Longitude', render: renderUnknown('-')},
                 {

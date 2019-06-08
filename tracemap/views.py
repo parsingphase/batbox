@@ -58,6 +58,16 @@ def single_view(request, pk):
     return display_recordings_list(files, request)
 
 
+def genus_view(request, genus):
+    files = AudioRecording.objects.filter(genus=genus)
+    return display_recordings_list(files, request)
+
+
+def species_view(request, genus, species):
+    files = AudioRecording.objects.filter(genus=genus, species=species)
+    return display_recordings_list(files, request)
+
+
 def display_recordings_list(files, request, context: dict = None):
     if context is None:
         context = {}
