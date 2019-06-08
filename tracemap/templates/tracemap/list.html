@@ -7,11 +7,24 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
           integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
           crossorigin=""/>
+    <!--suppress CssUnusedSymbol -->
     <style>
         table.table a {
             color: black;
             text-decoration: underline;
             text-decoration-style: dotted;
+        }
+
+        table.dataTable tbody td {
+            padding-left: 1.2em
+        }
+
+        table.dataTable tbody td.recording-duration .duration {
+            padding-left: 0;
+            padding-right: 0.4em;
+            text-align: right;
+            width: 5em;
+            display: inline-block;
         }
     </style>
 {% endblock %}
@@ -70,6 +83,9 @@
         }
 
         const recordings = mapData.traces;
+
+        {# FIXME - set a config for base URL #}
+
         const table = $('#recordingsTable').DataTable({
             data: recordings,
             columns: [
@@ -80,17 +96,22 @@
                         if (type === "sort" || type === "type") {
                             return data;
                         }
-                        return data ? moment(data).format("YYYY-MM-DD HH:mm") : '(no time available)';
+                        if (data) {
+                            let date = moment(data).format("YYYY-MM-DD");
+                            return '<a href="/byday/' + date + '">' + date + '</a> ' + moment(data).format('HH:mm');
+                        }
+                        return '(no time available)';
                     }
                 },
                 {
-                    data: 'duration', title: 'Duration (s)',
+                    data: 'duration', title: 'Duration',
                     render: function (data, type, row) {
                         if (type === "sort" || type === "type") {
                             return data;
                         }
-                        return data ? data.toFixed(2) : '-'
-                    }
+                        return data ? '<span class="duration">' + data.toFixed(2) + ' s </span>' : '-'
+                    },
+                    className: 'recording-duration',
                 },
                 {
                     data: 'genus', title: 'Genus',
@@ -109,8 +130,12 @@
                         return data ? '<a href="/species/' + row.genus + '.' + row.species + '">' + data + '</a>' : '-'
                     }
                 },
-                {data: 'latitude', title: 'Latitude', render: renderUnknown('-')},
-                {data: 'longitude', title: 'Longitude', render: renderUnknown('-')},
+                {
+                    data: 'latitude', title: 'Latitude', render: renderUnknown('-')
+                },
+                {
+                    data: 'longitude', title: 'Longitude', render: renderUnknown('-')
+                },
                 {
                     data: 'url',
                     title: 'Controls',
@@ -120,20 +145,19 @@
                             if (type === "sort" || type === "type") {
                                 return data;
                             }
-                            let cellContent = '<a class="audioTrigger" data-audio-src="' + row.url + '" ' +
+                            let cellContent = '<a title="Play" class="audioTrigger" data-audio-src="' + row.url + '" ' +
                                 'data-audio-ident="' + row.identifier + '">' +
                                 '<i class="fas fa-play"></i></a>'
-                                + ' <a href="' + data + '"><i class="fas fa-download"></i></a>';
+                                + ' <a title="Download" href="' + data + '"><i class="fas fa-download"></i></a>';
 
                             if (row.latlon) {
-                                cellContent = cellContent + ' <a href="#" class="panTrigger" data-audio-ident="' + row.identifier + '">' +
+                                cellContent = cellContent + ' <a title="Show" href="#" class="panTrigger" data-audio-ident="' + row.identifier + '">' +
                                     '<i class="fas fa-map-marker-alt"></i></a>' +
-                                    ' <a href="#" class="panTriggerZoom" data-audio-ident="' + row.identifier + '">' +
+                                    ' <a title="Focus" href="#" class="panTriggerZoom" data-audio-ident="' + row.identifier + '">' +
                                     '<i class="fas fa-search-location"></i></a>';
                             }
 
-                            {# FIXME - set a config for base URL #}
-                            cellContent = cellContent + ' <a class="float-right" href="/recording/' + row.id + '"><i class="fas fa-link"></i></a>';
+                            cellContent = cellContent + ' <a title="Permalink" class="float-right" href="/recording/' + row.id + '"><i class="fas fa-link"></i></a>';
 
                             return cellContent;
                         }
