@@ -33,7 +33,7 @@
         }
 
         const recordings = JSON.parse(document.getElementById('map-data').textContent)['traces'];
-        $('#recordingsTable').DataTable({
+        const table = $('#recordingsTable').DataTable({
             data: recordings,
             columns: [
                 {
@@ -71,8 +71,17 @@
                                 + ' <a href="' + data + '"><i class="fas fa-download"></i></a>';
                         }
                 },
-                {#{data: 'identifier'},#}
             ]
         });
+
+        // https://stackoverflow.com/questions/33169649/how-to-get-filtered-data-result-set-from-jquery-datatable
+        // https://datatables.net/reference/api/toArray()
+
+        table.on('search.dt', function () {
+            //number of filtered rows
+            console.log(table.rows({filter: 'applied'}).nodes().length);
+            //filtered rows data as arrays
+            console.log(table.rows({filter: 'applied'}).data().toArray());
+        })
     </script>
 {% endblock %}
