@@ -13,10 +13,11 @@
 {% block body-container %}
     {{ map_data|json_script:"map-data" }}
     {{ mapbox_token|json_script:"mapbox-token" }}
-    <div id="map-target" style="width: 100%; height: 400px; background-color: lightgray"></div>
+    <div id="map-target" style="width: 100%; height: 400px; background-color: lightgray">
+        <div class="map-loader" style="margin: auto">loading map…</div>
+    </div>
 
     <table id="recordingsTable" class="table table-striped">
-        {#        <thead><tr><th>Recorded At</th></tr></thead>#}
     </table>
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
             integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8=" crossorigin="anonymous"></script>
@@ -30,6 +31,8 @@
     <script type="module">
         import MapHandler from '{% static 'tracemap/js/MapHandler.js' %}';
 
+        let map;
+
         /**
          * @type {Object}
          * @property {Array} traces
@@ -38,9 +41,13 @@
         const mapData = JSON.parse(document.getElementById('map-data').textContent);
         const mapboxToken = JSON.parse(document.getElementById('mapbox-token').textContent);
 
-        const map = new MapHandler('map-target', mapboxToken)
-            .drawMapWithBounds(mapData.bounds)
-            .addAudioMarkers(mapData.traces);
+        if (mapData.bounds) {
+            map = new MapHandler('map-target', mapboxToken)
+                .drawMapWithBounds(mapData.bounds)
+                .addAudioMarkers(mapData.traces);
+        } else {
+            $('.map-loader').text('No positioned files available');
+        }
 
         function playSample(name) {
             document.getElementById('audio-' + name).play();
@@ -84,7 +91,9 @@
                 {data: 'longitude', title: 'Longitude', render: renderUnknown('-')},
                 {
                     data: 'url',
-                    title: 'Controls', render:
+                    title: 'Controls',
+                    orderable: false,
+                    render:
                         function (data, type, row) {
                             if (type === "sort" || type === "type") {
                                 return data;
@@ -100,6 +109,9 @@
                                     ' <a href="#" class="panTriggerZoom" data-audio-ident="' + row.identifier + '">' +
                                     '<i class="fas fa-search-location"></i></a>';
                             }
+
+                            {# FIXME - set a config for base URL #}
+                            cellContent = cellContent + ' <a class="float-right" href="/recording/' + row.id + '"><i class="fas fa-link"></i></a>';
 
                             return cellContent;
                         }
@@ -156,6 +168,12 @@
                 player.addEventListener('ended', () => {
                     // The duration variable now holds the duration (in seconds) of the audio clip
                     sourceElement.html('<i class="fas fa-play"></i>');
+                    player = null;
+                });
+
+                player.addEventListener('error', () => {
+                    // The duration variable now holds the duration (in seconds) of the audio clip
+                    sourceElement.html('<abbr title="Failed"><i class="fas fa-exclamation-circle"></i></abbr>');
                     player = null;
                 });
 

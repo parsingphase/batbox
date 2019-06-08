@@ -96,7 +96,7 @@ export default class MapHandler {
             if (zoomLevel === null) {
                 this.map.panTo(this.audioMarkers[ident].getLatLng());
             } else {
-                this.map.flyTo(this.audioMarkers[ident].getLatLng(), zoomLevel);
+                this.map.flyTo(this.audioMarkers[ident].getLatLng(), Math.max(this.map.getZoom(), zoomLevel));
             }
             this.audioMarkers[ident].openPopup();
             // document.getElementById('map-pane').scrollIntoView();

@@ -6,7 +6,6 @@ from django.http import HttpResponse, Http404
 from django.template import loader
 from os import listdir, path
 from tracemap.models import AudioRecording
-from typing import List
 
 
 # Create your views here.
@@ -32,20 +31,7 @@ def day_view(request, date):
     if not len(files):
         raise Http404("No records")
 
-    bounds = bounds_from_recordings(files)
-
-    traces = [f.as_serializable() for f in files]
-
-    context = {
-        'title': date,
-        'files': files,  # Non-flattened
-        'map_data': {'traces': traces, 'bounds': bounds},  # for JSON
-        'mapbox_token': settings.MAPS['mapbox_token'],
-        'MEDIA_URL': settings.MEDIA_URL,
-        'MEDIA_ROOT': settings.MEDIA_ROOT,
-    }
-    template = loader.get_template('tracemap/session.html')
-    return HttpResponse(template.render(context, request))
+    return display_recordings_list(files, request)
 
 
 def get_session_dir():
@@ -62,29 +48,27 @@ def display_index(request):
     return HttpResponse(template.render(context, request))
 
 
-def display_session(request, session_name):
-    sessions_dir = get_session_dir()
-    sessions = list_sessions(sessions_dir)
-    if session_name not in sessions:
-        raise Http404("No such session")
+def list_view(request):
+    files = AudioRecording.objects.all()
+    return display_recordings_list(files, request)
 
-    files = AudioRecording.objects.filter(  # type: List[AudioRecording]
-        file__contains=session_name
-    )
 
+def single_view(request, pk):
+    files = [AudioRecording.objects.get(id=pk)]
+    return display_recordings_list(files, request)
+
+
+def display_recordings_list(files, request, context: dict = None):
+    if context is None:
+        context = {}
+    traces = [audio_for_json(f) for f in files]
     bounds = bounds_from_recordings(files)
-
-    traces = [f.as_serializable() for f in files]
-
-    context = {
-        'title': session_name,
-        'files': files,  # Non-flattened
+    template = loader.get_template('tracemap/list.html')
+    local_context = {
         'map_data': {'traces': traces, 'bounds': bounds},
         'mapbox_token': settings.MAPS['mapbox_token'],
-        'MEDIA_URL': settings.MEDIA_URL,
-        'MEDIA_ROOT': settings.MEDIA_ROOT,
     }
-    template = loader.get_template('tracemap/session.html')
+    context = {**context, **local_context}
     return HttpResponse(template.render(context, request))
 
 
@@ -127,20 +111,6 @@ def list_counts_by_day():
         .values('day', 'c').order_by('day')
 
     return days
-
-
-def list_view(request):
-    files = AudioRecording.objects.all()
-
-    traces = [audio_for_json(f) for f in files]
-    bounds = bounds_from_recordings(files)
-
-    template = loader.get_template('tracemap/list.html')
-    context = {
-        'map_data': {'traces': traces, 'bounds': bounds},
-        'mapbox_token': settings.MAPS['mapbox_token'],
-    }
-    return HttpResponse(template.render(context, request))
 
 
 def audio_for_json(audio: AudioRecording) -> dict:
