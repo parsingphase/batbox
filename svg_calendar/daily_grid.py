@@ -1,8 +1,8 @@
 from datetime import date, timedelta
 from dateutil.parser import parse as parse_date
 from math import ceil
-from svgwrite import Drawing
-from typing import Tuple
+from svgwrite import Drawing, shapes
+from typing import Tuple, Callable
 
 # Defaults
 GRID_PITCH = 15
@@ -32,6 +32,11 @@ class GridImage:
         self.legend_grid = LEGEND_GRID
         self.color_low = COLOR_LOW
         self.color_high = COLOR_HIGH
+        self.day_rect_decorator = None
+
+    def set_day_rect_decorator(self, decorator: Callable[[shapes.Rect, date, float], None]):
+        self.day_rect_decorator = decorator
+        return self
 
     def grid_size(self, rows: int, columns: int) -> Tuple[int, int]:
         width = (
@@ -126,7 +131,10 @@ class GridImage:
             amount_string = round(daily_quantity, 1) if daily_quantity else '?'
             title = day_date.strftime('%b') + (' %d: %s' % (day_date.day, amount_string))
 
-            image.add(self.square_for_date(image, day_date, color, grid_offset=offset, title=title))
+            square_for_date = self.square_for_date(image, day_date, color, grid_offset=offset, title=title)
+            if self.day_rect_decorator is not None:
+                self.day_rect_decorator(square_for_date, day_date, daily_quantity)
+            image.add(square_for_date)
 
         if show_legend:
             top = image_height - LEGEND_GRID['height']
@@ -135,7 +143,7 @@ class GridImage:
 
         return image
 
-    def square_for_date(self, image, day_date, color, grid_offset=(), title=None):
+    def square_for_date(self, image: Drawing, day_date: date, color: str, grid_offset=(), title=None):
         year, week, day = self.isocalendar_natural(day_date)
 
         day_square = self.square_in_grid(image, row=day, column=week, offsets=grid_offset, fill=color, title=title)
@@ -268,7 +276,7 @@ class GridImage:
         return self.grid_square_left(week), self.grid_square_top(day, y_offset)
 
     @staticmethod
-    def isocalendar_natural(when):
+    def isocalendar_natural(when: date):
         """
         Isocalendar week number without crossing month boundaries
 

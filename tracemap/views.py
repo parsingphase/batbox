@@ -1,5 +1,5 @@
 from batbox import settings
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from django.db.models import Count
 from django.db.models.functions import TruncDay
 from django.http import HttpResponse, Http404
@@ -7,6 +7,12 @@ from django.template import loader
 from os import listdir, path
 from tracemap.models import AudioRecording
 from svg_calendar import GridImage
+from svgwrite import shapes
+
+
+def decorate_rect_with_class(rect: shapes.Rect, day: date, _):
+    rect.update({'class_': 'dateTrigger'})
+    rect.update({'id': 'calday-' + day.strftime('%Y-%m-%d')})
 
 
 # Create your views here.
@@ -23,7 +29,8 @@ def index(request):
     template = loader.get_template('tracemap/days_index.html')
     counts = list_counts_by_day()
     counts_by_day = {count['day'].strftime('%Y-%m-%d'): count['c'] for count in counts if count['day'] is not None}
-    image = GridImage().draw_daily_count_image(counts_by_day, True).tostring()
+    grid_image = GridImage().set_day_rect_decorator(decorate_rect_with_class)
+    image = grid_image.draw_daily_count_image(counts_by_day, True).tostring()
     context = {
         'days': counts,
         'calendar_svg': image,
