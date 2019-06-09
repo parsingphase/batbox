@@ -6,13 +6,27 @@ from django.http import HttpResponse, Http404
 from django.template import loader
 from os import listdir, path
 from tracemap.models import AudioRecording
+from svg_calendar import draw_daily_count_image
 
 
 # Create your views here.
 def index(request):
+    """
+    Create a list of days with recordings
+
+    Args:
+        request:
+
+    Returns:
+
+    """
     template = loader.get_template('tracemap/days_index.html')
+    counts = list_counts_by_day()
+    counts_by_day = {count['day'].strftime('%Y-%m-%d'): count['c'] for count in counts if count['day'] is not None}
+    image = draw_daily_count_image(counts_by_day).tostring()
     context = {
-        'days': list_counts_by_day(),
+        'days': counts,
+        'calendar_svg': image,
     }
     return HttpResponse(template.render(context, request))
 
@@ -39,6 +53,15 @@ def get_session_dir():
 
 
 def display_index(request):
+    """
+    Display a list of session links (directories)
+
+    Args:
+        request:
+
+    Returns:
+
+    """
     template = loader.get_template('tracemap/index.html')
     sessions_dir = get_session_dir()
     sessions = list_sessions(sessions_dir)

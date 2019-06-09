@@ -8,6 +8,8 @@ django = "*"
 xmltodict = "*"
 guano = "*"
 audioread = "*"
+svgwrite = "*"
+python-dateutil = "*"
 
 [dev-packages]
 flake8 = "*"

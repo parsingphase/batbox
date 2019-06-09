@@ -1,6 +1,7 @@
 {% extends 'tracemap/base.html' %}
 {% block body-container %}
     <div class="row"><h1>Available dates</h1></div>
+    {{ calendar_svg|safe }}
     {% for day in days %}
         <div class="row">
             <div class="col">
