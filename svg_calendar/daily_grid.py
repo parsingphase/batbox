@@ -4,6 +4,7 @@ from math import ceil
 from svgwrite import Drawing
 from typing import Tuple
 
+# Defaults
 GRID_PITCH = 15
 GRID_SQUARE = 10
 GRID_BORDERS = {'top': 24, 'left': 52, 'bottom': 16, 'right': 10}
@@ -23,301 +24,309 @@ CSS = """
 """
 
 
-def grid_size(rows: int, columns: int) -> Tuple[int, int]:
-    width = GRID_BORDERS['left'] + GRID_PITCH * (columns - 1) + GRID_SQUARE + GRID_BORDERS['right']
-    height = GRID_BORDERS['top'] + GRID_PITCH * (rows - 1) + GRID_SQUARE + GRID_BORDERS['bottom']
-    return width, height
+class GridImage:
+    def __init__(self):
+        self.grid_pitch = GRID_PITCH
+        self.grid_square = GRID_SQUARE
+        self.grid_borders = GRID_BORDERS
+        self.legend_grid = LEGEND_GRID
+        self.color_low = COLOR_LOW
+        self.color_high = COLOR_HIGH
 
+    def grid_size(self, rows: int, columns: int) -> Tuple[int, int]:
+        width = (
+                self.grid_borders['left'] +
+                self.grid_pitch * (columns - 1) +
+                self.grid_square +
+                self.grid_borders['right']
+        )
+        height = (
+                self.grid_borders['top'] +
+                self.grid_pitch * (rows - 1) +
+                self.grid_square +
+                self.grid_borders['bottom']
+        )
+        return width, height
 
-# SVG puts 0,0 at top left
-def square_in_grid(image: Drawing, row: int, column: int, fill, offsets=(), title=None):
-    x_offset = offsets[0] if len(offsets) else 0
-    y_offset = offsets[1] if len(offsets) > 1 else 0
-    left = grid_square_left(column, x_offset)
-    top = grid_square_top(row, y_offset)
-    rect = image.rect(insert=(left, top), size=(GRID_SQUARE, GRID_SQUARE), fill=fill)
-    if title is not None:
-        rect.set_desc(title=title)
-    return rect
+    # SVG puts 0,0 at top left
+    def square_in_grid(self, image: Drawing, row: int, column: int, fill, offsets=(), title=None):
+        x_offset = offsets[0] if len(offsets) else 0
+        y_offset = offsets[1] if len(offsets) > 1 else 0
+        left = self.grid_square_left(column, x_offset)
+        top = self.grid_square_top(row, y_offset)
+        rect = image.rect(insert=(left, top), size=(self.grid_square, self.grid_square), fill=fill)
+        if title is not None:
+            rect.set_desc(title=title)
+        return rect
 
+    def grid_square_top(self, row, y_offset=0):
+        return self.grid_borders['top'] + (row - 1) * self.grid_pitch + y_offset
 
-def grid_square_top(row, y_offset=0):
-    return GRID_BORDERS['top'] + (row - 1) * GRID_PITCH + y_offset
+    def grid_square_left(self, column, x_offset=0):
+        return self.grid_borders['left'] + column * self.grid_pitch + x_offset
 
+    def fractional_fill_color(self, fraction: float) -> str:
+        """
+        Get a hex-triple color between our two configured limits
+        Args:
+            fraction: 0-1 value of position between limits
 
-def grid_square_left(column, x_offset=0):
-    return GRID_BORDERS['left'] + column * GRID_PITCH + x_offset
+        Returns:
 
+        """
+        color = []
+        for k in range(0, 3):
+            color.append(self.color_low[k] + int(fraction * (self.color_high[k] - self.color_low[k])))
 
-def fractional_fill_color(fraction: float) -> str:
-    """
-    Get a hex-triple color between our two configured limits
-    Args:
-        fraction: 0-1 value of position between limits
+        color_string = '#' + (''.join(map(lambda c: "%02x" % c, color)))
+        return color_string
 
-    Returns:
+    def draw_daily_count_image(self, daily_count: dict, show_legend: bool = False, legend_title: str = '',
+                               range_min=0) -> Drawing:
+        """
 
-    """
-    color = []
-    for k in range(0, 3):
-        color.append(COLOR_LOW[k] + int(fraction * (COLOR_HIGH[k] - COLOR_LOW[k])))
+        Args:
+            daily_count: Map of (parsable date) to numeric count
+            show_legend:
+            legend_title:
+            range_min: Value from which to graduate colors, if non-zero
 
-    color_string = '#' + (''.join(map(lambda c: "%02x" % c, color)))
+        Returns:
 
-    return color_string
+        """
+        years = set([parse_date(d).year for d in daily_count])
+        years = range(min(years), max(years) + 1)  # Ensure there are no gaps
+        min_year = min(years)
+        num_years = 1 + max(years) - min_year
+        width, height_per_year = self.grid_size(7, 54)  # 52 weeks + ISO weeks 0, 53
+        image_height = height_per_year * num_years + (LEGEND_GRID['height'] if show_legend else 0)
+        image = self.init_image(width, image_height)
 
+        for year in years:
+            year_top = (height_per_year * (year - min_year))
+            months = self.draw_year_labels(image, year, year_top)
 
-def draw_daily_count_image(daily_count: dict, show_legend: bool = False, legend_title: str = '',
-                           range_min=0) -> Drawing:
-    """
+            for month_index, month in enumerate(months):
+                # Draw lines between months
+                self.draw_month_boundary(image, month_index + 1, year, year_top)
 
-    Args:
-        daily_count: Map of (parsable date) to numeric count
-        show_legend:
-        legend_title:
-        range_min:
+        max_daily = ceil(max([daily_count[c] for c in daily_count]))
 
-    Returns:
+        for date_string in daily_count:
+            daily_quantity = daily_count[date_string]
+            day_date = parse_date(date_string)
 
-    """
-    years = set([parse_date(d).year for d in daily_count])
-    years = range(min(years), max(years)+1)  # Ensure there are no gaps
-    min_year = min(years)
-    num_years = 1 + max(years) - min_year
-    width, height_per_year = grid_size(7, 54)  # 52 weeks + ISO weeks 0, 53
-    image_height = height_per_year * num_years + (LEGEND_GRID['height'] if show_legend else 0)
-    image = init_image(width, image_height)
+            if daily_quantity is None:
+                color = '#e0e0e0'
+            else:
+                color = self.fractional_fill_color((daily_quantity - range_min) / (max_daily - range_min))
 
-    for year in years:
-        year_top = (height_per_year * (year - min_year))
-        months = draw_year_labels(image, year, year_top)
+            year = day_date.year
+            offset = (0, (year - min_year) * height_per_year)
+            amount_string = round(daily_quantity, 1) if daily_quantity else '?'
+            title = day_date.strftime('%b') + (' %d: %s' % (day_date.day, amount_string))
 
+            image.add(self.square_for_date(image, day_date, color, grid_offset=offset, title=title))
+
+        if show_legend:
+            top = image_height - LEGEND_GRID['height']
+
+            self.draw_legend(image, legend_title, top, max_daily, range_min)
+
+        return image
+
+    def square_for_date(self, image, day_date, color, grid_offset=(), title=None):
+        year, week, day = self.isocalendar_natural(day_date)
+
+        day_square = self.square_in_grid(image, row=day, column=week, offsets=grid_offset, fill=color, title=title)
+        return day_square
+
+    def draw_year_labels(self, image, year, year_top):
+        months = 'JFMAMJJASOND'
+        text_vrt_offset = 9
+        image.add(
+            image.text(
+                '%d' % year,
+                insert=(self.grid_borders['left'] - 8,
+                        year_top + self.grid_borders['top'] + text_vrt_offset - self.grid_pitch - 2),
+                class_='year'
+            )
+        )
+        image.add(
+            image.text(
+                'Mo',
+                insert=(self.grid_borders['left'] - 8, year_top + self.grid_borders['top'] + text_vrt_offset),
+                class_='day'
+            )
+        )
+        image.add(
+            image.text(
+                'Su',
+                insert=(self.grid_borders['left'] - 8,
+                        year_top + self.grid_borders['top'] + text_vrt_offset + 6 * self.grid_pitch),
+                class_='day'
+            )
+        )
+        # Draw month initials in line with first day of month
         for month_index, month in enumerate(months):
-            # Draw lines between months
-            draw_month_boundary(image, month_index + 1, year, year_top)
+            start_location = self.month_start_location(month_index + 1, year, year_top)
 
-    max_daily = ceil(max([daily_count[c] for c in daily_count]))
+            image.add(
+                image.text(
+                    month,
+                    insert=(
+                        self.offset_point(start_location, (self.grid_pitch + (self.grid_square / 2), 0))[0],
+                        year_top + self.grid_borders['top'] + text_vrt_offset - self.grid_pitch - 2
+                    ),
+                    class_='month'
+                )
+            )
+        return months
 
-    for date_string in daily_count:
-        daily_quantity = daily_count[date_string]
-        day_date = parse_date(date_string)
-
-        if daily_quantity is None:
-            color = '#e0e0e0'
-        else:
-            color = fractional_fill_color((daily_quantity - range_min) / (max_daily - range_min))
-
-        year = day_date.year
-        offset = (0, (year - min_year) * height_per_year)
-        amount_string = round(daily_quantity, 1) if daily_quantity else '?'
-        title = day_date.strftime('%b') + (' %d: %s' % (day_date.day, amount_string))
-
-        image.add(square_for_date(image, day_date, color, grid_offset=offset, title=title))
-
-    if show_legend:
-        top = image_height - LEGEND_GRID['height']
-
-        draw_legend(image, legend_title, top, max_daily, range_min)
-
-    return image
-
-
-def square_for_date(image, day_date, color, grid_offset=(), title=None):
-    year, week, day = isocalendar_natural(day_date)
-
-    day_square = square_in_grid(image, row=day, column=week, offsets=grid_offset, fill=color, title=title)
-    return day_square
-
-
-def draw_year_labels(image, year, year_top):
-    months = 'JFMAMJJASOND'
-    text_vrt_offset = 9
-    image.add(
-        image.text(
-            '%d' % year,
-            insert=(GRID_BORDERS['left'] - 8, year_top + GRID_BORDERS['top'] + text_vrt_offset - GRID_PITCH - 2),
-            class_='year'
-        )
-    )
-    image.add(
-        image.text(
-            'Mo',
-            insert=(GRID_BORDERS['left'] - 8, year_top + GRID_BORDERS['top'] + text_vrt_offset),
-            class_='day'
-        )
-    )
-    image.add(
-        image.text(
-            'Su',
-            insert=(GRID_BORDERS['left'] - 8, year_top + GRID_BORDERS['top'] + text_vrt_offset + 6 * GRID_PITCH),
-            class_='day'
-        )
-    )
-    # Draw month initials in line with first day of month
-    for month_index, month in enumerate(months):
-        start_location = month_start_location(month_index + 1, year, year_top)
-
-        image.add(
-            image.text(
-                month,
-                insert=(
-                    offset_point(start_location, (GRID_PITCH + (GRID_SQUARE / 2), 0))[0],
-                    year_top + GRID_BORDERS['top'] + text_vrt_offset - GRID_PITCH - 2
+    def draw_month_boundary(self, image, month_number, year, year_top):
+        start_location = self.month_start_location(month_number, year, year_top)
+        end_location = self.offset_point(self.month_end_location(month_number, year, year_top), (0, self.grid_pitch))
+        if date(year, month_number, 1) < date.today():
+            half_pitch = (self.grid_pitch - self.grid_square) / 2
+            points = [
+                (
+                    self.offset_point(start_location, (self.grid_square + half_pitch, half_pitch))[0],
+                    self.grid_square_top(1, year_top) - half_pitch
                 ),
-                class_='month'
-            )
-        )
-    return months
+                self.offset_point(start_location, (self.grid_square + half_pitch, -half_pitch)),
+                self.offset_point(start_location, (-half_pitch, -half_pitch)),
+                (
+                    self.offset_point(start_location, (-half_pitch, -half_pitch))[0],
+                    self.grid_square_top(7, year_top) + self.grid_square + half_pitch
+                ),
+                (
+                    self.offset_point(end_location, (-half_pitch, -half_pitch))[0],
+                    self.grid_square_top(7, year_top) + self.grid_square + half_pitch
+                ),
+                self.offset_point(end_location, (-half_pitch, -half_pitch)),
+                self.offset_point(end_location, (self.grid_square + half_pitch, -half_pitch)),
+                (
+                    self.offset_point(end_location, (self.grid_square + half_pitch, half_pitch))[0],
+                    self.grid_square_top(1, year_top) - half_pitch
+                ),
+                (
+                    self.offset_point(start_location, (self.grid_square + half_pitch, half_pitch))[0],
+                    self.grid_square_top(1, year_top) - half_pitch
+                ),
+            ]
+            image.add(image.polyline(points, fill='#f4f4f4' if month_number % 2 else '#fff'))
 
+    def month_start_location(self, month, year, y_offset):
+        """
+        Return top-left position of grid square on first day of month
 
-def draw_month_boundary(image, month_number, year, year_top):
-    start_location = month_start_location(month_number, year, year_top)
-    end_location = offset_point(month_end_location(month_number, year, year_top), (0, GRID_PITCH))
-    if date(year, month_number, 1) < date.today():
-        half_pitch = (GRID_PITCH - GRID_SQUARE) / 2
-        points = [
-            (
-                offset_point(start_location, (GRID_SQUARE + half_pitch, half_pitch))[0],
-                grid_square_top(1, year_top) - half_pitch
-            ),
-            offset_point(start_location, (GRID_SQUARE + half_pitch, -half_pitch)),
-            offset_point(start_location, (-half_pitch, -half_pitch)),
-            (
-                offset_point(start_location, (-half_pitch, -half_pitch))[0],
-                grid_square_top(7, year_top) + GRID_SQUARE + half_pitch
-            ),
-            (
-                offset_point(end_location, (-half_pitch, -half_pitch))[0],
-                grid_square_top(7, year_top) + GRID_SQUARE + half_pitch
-            ),
-            offset_point(end_location, (-half_pitch, -half_pitch)),
-            offset_point(end_location, (GRID_SQUARE + half_pitch, -half_pitch)),
-            (
-                offset_point(end_location, (GRID_SQUARE + half_pitch, half_pitch))[0],
-                grid_square_top(1, year_top) - half_pitch
-            ),
-            (
-                offset_point(start_location, (GRID_SQUARE + half_pitch, half_pitch))[0],
-                grid_square_top(1, year_top) - half_pitch
-            ),
-        ]
-        image.add(image.polyline(points, fill='#f4f4f4' if month_number % 2 else '#fff'))
+        Args:
+            month:
+            year:
+            y_offset:
 
+        Returns:
 
-def month_start_location(month, year, y_offset):
-    """
-    Return top-left position of grid square on first day of month
+        """
+        month_start_date = date(year, month, 1)
+        return self.date_location(month_start_date, y_offset)
 
-    Args:
-        month:
-        year:
-        y_offset:
+    def month_end_location(self, month, year, y_offset):
+        """
+        Return top-left position of grid square on last day of month
 
-    Returns:
+        Args:
+            month:
+            year:
+            y_offset:
 
-    """
-    month_start_date = date(year, month, 1)
-    return date_location(month_start_date, y_offset)
+        Returns:
 
+        """
+        if month == 12:
+            next_month = 1
+            next_month_year = year + 1
+        else:
+            next_month = month + 1
+            next_month_year = year
 
-def month_end_location(month, year, y_offset):
-    """
-    Return top-left position of grid square on last day of month
+        month_end_date = date(next_month_year, next_month, 1) - timedelta(days=1)
+        return self.date_location(month_end_date, y_offset)
 
-    Args:
-        month:
-        year:
-        y_offset:
+    def date_location(self, when, y_offset) -> tuple:
+        """
+        Return top-left position of grid square on given day
 
-    Returns:
+        Args:
+            when:
+            y_offset:
 
-    """
-    if month == 12:
-        next_month = 1
-        next_month_year = year + 1
-    else:
-        next_month = month + 1
-        next_month_year = year
+        Returns:
+            tuple of x,y position
+        """
+        year, week, day = self.isocalendar_natural(when)
+        return self.grid_square_left(week), self.grid_square_top(day, y_offset)
 
-    month_end_date = date(next_month_year, next_month, 1) - timedelta(days=1)
-    return date_location(month_end_date, y_offset)
+    @staticmethod
+    def isocalendar_natural(when):
+        """
+        Isocalendar week number without crossing month boundaries
 
+        Args:
+            when:
 
-def date_location(when, y_offset) -> tuple:
-    """
-    Return top-left position of grid square on given day
+        Returns:
 
-    Args:
-        when:
-        y_offset:
+        """
+        real_year = when.year
+        (iso_year, week, day) = when.isocalendar()
+        if iso_year > real_year:
+            week = 53
+        elif iso_year < real_year:
+            week = 0
 
-    Returns:
-        tuple of x,y position
-    """
-    year, week, day = isocalendar_natural(when)
-    return grid_square_left(week), grid_square_top(day, y_offset)
+        return real_year, week, day
 
+    @staticmethod
+    def offset_point(point: tuple, by: tuple) -> tuple:
+        return point[0] + by[0], point[1] + by[1]
 
-def isocalendar_natural(when):
-    """
-    Isocalendar week number without crossing month boundaries
+    def draw_legend(self, image: Drawing, legend_title: str, top: int, range_max: float, range_min: int = 0):
+        # Generate up to 5 integer steps
+        step = int(ceil((range_max - range_min) / 5))
 
-    Args:
-        when:
-
-    Returns:
-
-    """
-    real_year = when.year
-    (iso_year, week, day) = when.isocalendar()
-    if iso_year > real_year:
-        week = 53
-    elif iso_year < real_year:
-        week = 0
-
-    return real_year, week, day
-
-
-def offset_point(point: tuple, by: tuple) -> tuple:
-    return point[0] + by[0], point[1] + by[1]
-
-
-def draw_legend(image: Drawing, legend_title: str, top: int, range_max: float, range_min: int = 0):
-    # Generate up to 5 integer steps
-    step = int(ceil((range_max - range_min) / 5))
-
-    image.add(
-        image.text(
-            legend_title,
-            insert=(LEGEND_GRID['left'], top + 3 * LEGEND_GRID['cell_height'] / 4),
-            class_='legend_title'
-        )
-    )
-    steps = list(range(range_min, int(range_max + 1), step))
-    if max(steps) != int(range_max):
-        steps.append(int(range_max))
-
-    for offset, marker in enumerate(steps):
-        left = LEGEND_GRID['left'] + offset * LEGEND_GRID['pitch']
-        image.add(
-            image.rect(
-                (left, top),
-                (LEGEND_GRID['cell_width'], LEGEND_GRID['cell_height']),
-                fill=fractional_fill_color((marker - range_min) / (range_max - range_min))
-            )
-        )
         image.add(
             image.text(
-                marker,
-                insert=(left + LEGEND_GRID['cell_width'] / 2, top + 3 * LEGEND_GRID['cell_height'] / 4),
-                class_='key',
-                fill='#ffffff' if marker > range_max / 2 else '#000000'
+                legend_title,
+                insert=(self.legend_grid['left'], top + 3 * self.legend_grid['cell_height'] / 4),
+                class_='legend_title'
             )
         )
+        steps = list(range(range_min, int(range_max + 1), step))
+        if max(steps) != int(range_max):
+            steps.append(int(range_max))
 
+        for offset, marker in enumerate(steps):
+            left = self.legend_grid['left'] + offset * self.legend_grid['pitch']
+            image.add(
+                image.rect(
+                    (left, top),
+                    (self.legend_grid['cell_width'], self.legend_grid['cell_height']),
+                    fill=self.fractional_fill_color((marker - range_min) / (range_max - range_min))
+                )
+            )
+            image.add(
+                image.text(
+                    marker,
+                    insert=(left + self.legend_grid['cell_width'] / 2, top + 3 * self.legend_grid['cell_height'] / 4),
+                    class_='key',
+                    fill='#ffffff' if marker > range_max / 2 else '#000000'
+                )
+            )
 
-def init_image(width: int, height: int) -> Drawing:
-    image = Drawing(size=('%dpx' % width, '%dpx' % height))
-    image.add(image.rect((0, 0), (width, height), fill='white'))
-    image.defs.add(image.style(CSS))
-    return image
+    @staticmethod
+    def init_image(width: int, height: int) -> Drawing:
+        image = Drawing(size=('%dpx' % width, '%dpx' % height))
+        image.add(image.rect((0, 0), (width, height), fill='white'))
+        image.defs.add(image.style(CSS))
+        return image

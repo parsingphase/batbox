@@ -6,7 +6,7 @@ from django.http import HttpResponse, Http404
 from django.template import loader
 from os import listdir, path
 from tracemap.models import AudioRecording
-from svg_calendar import draw_daily_count_image
+from svg_calendar import GridImage
 
 
 # Create your views here.
@@ -23,7 +23,7 @@ def index(request):
     template = loader.get_template('tracemap/days_index.html')
     counts = list_counts_by_day()
     counts_by_day = {count['day'].strftime('%Y-%m-%d'): count['c'] for count in counts if count['day'] is not None}
-    image = draw_daily_count_image(counts_by_day).tostring()
+    image = GridImage().draw_daily_count_image(counts_by_day, True).tostring()
     context = {
         'days': counts,
         'calendar_svg': image,

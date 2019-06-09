@@ -1,1 +1,1 @@
-from .daily_grid import draw_daily_count_image  # noqa F401
+from .daily_grid import GridImage  # noqa F401
