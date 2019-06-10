@@ -28,6 +28,10 @@
         table.recordings.table thead th.species {
             width: 4em;
         }
+
+        table.recordings.table td.recording-count {
+            text-align: right;
+        }
     </style>
 {% endblock %}
 
@@ -68,11 +72,11 @@
 
                     {% for g,species in genuses.items %}
                         {% for s in species %}
-                            <th>{{ day.genus|dict_key:g|dict_key:s|blank_none }}</th>
+                            <td class="recording-count">{{ day.genus|dict_key:g|dict_key:s|blank_none }}</td>
                         {% endfor %}
                     {% endfor %}
 
-                    <td>
+                    <td class="recording-count">
                         {{ day.count }}
                     </td>
                     {#                    <td>{{ day.genus }}</td>#}
