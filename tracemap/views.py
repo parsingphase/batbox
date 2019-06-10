@@ -4,6 +4,7 @@ from django.db.models import Count
 from django.db.models.functions import TruncDay
 from django.http import HttpResponse, Http404
 from django.template import loader
+from json import dumps
 from os import listdir, path
 from tracemap.models import AudioRecording
 from svg_calendar import GridImage
@@ -32,12 +33,17 @@ def index(request):
 
     """
     template = loader.get_template('tracemap/days_index.html')
-    counts = list_counts_by_day()
-    counts_by_day = {count['day'].strftime('%Y-%m-%d'): count['c'] for count in counts if count['day'] is not None}
+    summary, genuses = summarise_by_day()
+    days = sorted(summary.values(), key=lambda d: d['day'] if d['day'] is not None else '')
+
+    counts_by_day = {d: summary[d]['count'] for d in summary if d is not None}
+
     grid_image = GridImage().set_day_rect_decorator(decorate_rect_with_class)
     image = grid_image.draw_daily_count_image(counts_by_day, True).tostring()
+
     context = {
-        'days': counts,
+        'days': days,
+        'genuses': genuses,
         'calendar_svg': image,
     }
     return HttpResponse(template.render(context, request))
@@ -162,12 +168,37 @@ def list_sessions(sessions_dir):
     return sessions
 
 
-def list_counts_by_day():
-    days = AudioRecording.objects.annotate(day=TruncDay('recorded_at')) \
-        .values('day').annotate(c=Count('id')) \
-        .values('day', 'c').order_by('day')
+def summarise_by_day():
+    f_day = lambda d: d.strftime('%Y-%m-%d') if d is not None else None
 
-    return days
+    # Take all the objects
+    # Annotate them with a day record
+    # Identify (group) by values
+    # Annotate the groups with a count of rows
+    # Spit out the summary
+    days_by_species = AudioRecording.objects \
+        .annotate(day=TruncDay('recorded_at')) \
+        .values('day', 'genus', 'species') \
+        .annotate(count=Count('id')) \
+        .values('day', 'genus', 'species', 'count')
+
+    unique_days = set([f_day(row['day']) for row in days_by_species])
+    unique_genus = set([row['genus'] for row in days_by_species])
+
+    days = {day: {'day': day, 'count': 0, 'genus': {g: {} for g in unique_genus}} for day in unique_days}
+    genus_map = {g: [] for g in unique_genus}
+
+    for row in days_by_species:
+        day_key = f_day(row['day'])
+        days[day_key]['count'] += row['count']
+        for g in unique_genus:
+            if row['genus'] == g:
+                days[day_key]['genus'][g][row['species']] = row['count']
+                genus_map[g].append(row['species'])
+
+    genus_map = { g: sorted(set(genus_map[g])) for g in genus_map}
+
+    return days, genus_map
 
 
 def audio_for_json(audio: AudioRecording) -> dict:

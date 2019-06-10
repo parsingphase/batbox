@@ -1,12 +1,32 @@
 {% extends 'tracemap/base.html' %}
+{% load tracemap_extras %}
 
 {% block head-css %}
     {{ block.super }}
     <style>
+        table.recordings.table {
+            width: auto !important;
+        }
+
         table.recordings a {
             color: black;
             text-decoration: underline;
             text-decoration-style: dotted;
+        }
+
+        table.recordings.table thead th {
+            vertical-align: middle;
+            border: none;
+        }
+
+        table.recordings.table thead th.genus {
+            background-color: #eee;
+            border-right: solid white 4px;
+            border-bottom: none;
+        }
+
+        table.recordings.table thead th.species {
+            width: 4em;
         }
     </style>
 {% endblock %}
@@ -14,12 +34,26 @@
 {% block body-container %}
     <div class="row"><h1>Recordings by day</h1></div>
     {{ calendar_svg|safe }}
+
+    {#    {{ genuses.items }}#}
+
     <div class="row">
         <table class="table recordings">
             <thead>
             <tr>
-                <th>Date</th>
-                <th>Recordings</th>
+                <th rowspan="2">Date</th>
+                {% for g,species in genuses.items %}
+                    <th colspan="{{ species|length }}" class="genus">{% if g %}{{ g }}{% else %}?{% endif %}</th>
+                {% endfor %}
+                <th rowspan="2">Total</th>
+            </tr>
+            <tr>
+                {% for g,species in genuses.items %}
+                    {% for s in species %}
+                        <th class="species">{% if s %}{{ s }}{% else %}?{% endif %}</th>
+                    {% endfor %}
+                {% endfor %}
+            </tr>
             </thead>
             <tbody>
             {% for day in days %}
@@ -28,12 +62,20 @@
                         {% if day.day is None %}
                             <a href="{% url 'day_view' date='undated' %}">Undated</a>
                         {% else %}
-                            <a href="{% url 'day_view' date=day.day|date:'Y-m-d' %}">{{ day.day|date:'Y-m-d' }}</a>
+                            <a href="{% url 'day_view' date=day.day %}">{{ day.day }}</a>
                         {% endif %}
                     </td>
+
+                    {% for g,species in genuses.items %}
+                        {% for s in species %}
+                            <th>{{ day.genus|dict_key:g|dict_key:s|blank_none }}</th>
+                        {% endfor %}
+                    {% endfor %}
+
                     <td>
-                        {{ day.c }} recording{{ day.c|pluralize }}
+                        {{ day.count }}
                     </td>
+                    {#                    <td>{{ day.genus }}</td>#}
                 </tr>
             {% endfor %}
             </tbody>

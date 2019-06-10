@@ -12,3 +12,17 @@ def relpath(path, relative_to):
 
 
 register.filter('relpath', relpath)
+
+
+def dict_key(d: dict, k):
+    return d.get(k)
+
+
+register.filter('dict_key', dict_key)
+
+
+def blank_none(v):
+    return v if v is not None else ''
+
+
+register.filter('blank_none', blank_none)
