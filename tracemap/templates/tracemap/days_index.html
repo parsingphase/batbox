@@ -1,17 +1,42 @@
 {% extends 'tracemap/base.html' %}
+
+{% block head-css %}
+    {{ block.super }}
+    <style>
+        table.recordings a {
+            color: black;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+        }
+    </style>
+{% endblock %}
+
 {% block body-container %}
-    <div class="row"><h1>Available dates</h1></div>
+    <div class="row"><h1>Recordings by day</h1></div>
     {{ calendar_svg|safe }}
-    {% for day in days %}
-        <div class="row">
-            <div class="col">
-                {% if day.day is None %}
-                    <a href="{% url 'day_view' date='undated' %}">Undated</a>
-                {% else %}
-                    <a href="{% url 'day_view' date=day.day|date:'Y-m-d' %}">{{ day.day|date:'Y-m-d' }}</a>
-                {% endif %}
-                ({{ day.c }} trace{{ day.c|pluralize }})
-            </div>
-        </div>
-    {% endfor %}
+    <div class="row">
+        <table class="table recordings">
+            <thead>
+            <tr>
+                <th>Date</th>
+                <th>Recordings</th>
+            </thead>
+            <tbody>
+            {% for day in days %}
+                <tr>
+                    <td>
+                        {% if day.day is None %}
+                            <a href="{% url 'day_view' date='undated' %}">Undated</a>
+                        {% else %}
+                            <a href="{% url 'day_view' date=day.day|date:'Y-m-d' %}">{{ day.day|date:'Y-m-d' }}</a>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ day.c }} recording{{ day.c|pluralize }}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}

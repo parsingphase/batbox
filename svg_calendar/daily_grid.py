@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 from dateutil.parser import parse as parse_date
 from math import ceil
-from svgwrite import Drawing, shapes
+from svgwrite import Drawing, shapes, base
 from typing import Tuple, Callable
 
 # Defaults
@@ -34,7 +34,7 @@ class GridImage:
         self.color_high = COLOR_HIGH
         self.day_rect_decorator = None
 
-    def set_day_rect_decorator(self, decorator: Callable[[shapes.Rect, date, float], None]):
+    def set_day_rect_decorator(self, decorator: Callable[[shapes.Rect, date, float], base.BaseElement]):
         self.day_rect_decorator = decorator
         return self
 
@@ -133,7 +133,7 @@ class GridImage:
 
             square_for_date = self.square_for_date(image, day_date, color, grid_offset=offset, title=title)
             if self.day_rect_decorator is not None:
-                self.day_rect_decorator(square_for_date, day_date, daily_quantity)
+                square_for_date = self.day_rect_decorator(square_for_date, day_date, daily_quantity)
             image.add(square_for_date)
 
         if show_legend:

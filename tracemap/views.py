@@ -7,12 +7,17 @@ from django.template import loader
 from os import listdir, path
 from tracemap.models import AudioRecording
 from svg_calendar import GridImage
+from svgwrite.container import Hyperlink
 from svgwrite import shapes
 
 
 def decorate_rect_with_class(rect: shapes.Rect, day: date, _):
+    day_string = day.strftime('%Y-%m-%d')
+    outer = Hyperlink('/byday/' + day_string, '_self')
     rect.update({'class_': 'dateTrigger'})
-    rect.update({'id': 'calday-' + day.strftime('%Y-%m-%d')})
+    rect.update({'id': 'calday-' + day_string})
+    outer.add(rect)
+    return outer
 
 
 # Create your views here.
