@@ -1,0 +1,14 @@
+{% extends 'tracemap/base.html' %}
+{% load tracemap_extras %}
+
+{% block head-css %}
+    {{ block.super }}
+    <style>
+    </style>
+{% endblock %}
+
+{% block body-container %}
+    <div class="row"><h1>Recordings by day</h1></div>
+    {{ calendar_svg|safe }}
+
+{% endblock %}

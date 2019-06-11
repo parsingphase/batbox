@@ -4,8 +4,7 @@ from django.db.models import Count
 from django.db.models.functions import TruncDay
 from django.http import HttpResponse, Http404
 from django.template import loader
-from json import dumps
-from os import listdir, path
+from os import path
 from tracemap.models import AudioRecording
 from svg_calendar import GridImage
 from svgwrite.container import Hyperlink
@@ -22,7 +21,7 @@ def decorate_rect_with_class(rect: shapes.Rect, day: date, _):
 
 
 # Create your views here.
-def index(request):
+def index_view(request):
     """
     Create a list of days with recordings
 
@@ -36,14 +35,31 @@ def index(request):
     summary, genuses = summarise_by_day()
     days = sorted(summary.values(), key=lambda d: d['day'] if d['day'] is not None else '')
 
-    counts_by_day = {d: summary[d]['count'] for d in summary if d is not None}
+    context = {
+        'days': days,
+        'genuses': genuses,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+def calendar_view(request):
+    """
+    Create a calendar view recordings
+
+    Args:
+        request:
+
+    Returns:
+
+    """
+    template = loader.get_template('tracemap/calendar.html')
+
+    counts_by_day = list_counts_by_day()
 
     grid_image = GridImage().set_day_rect_decorator(decorate_rect_with_class)
     image = grid_image.draw_daily_count_image(counts_by_day, True).tostring()
 
     context = {
-        'days': days,
-        'genuses': genuses,
         'calendar_svg': image,
     }
     return HttpResponse(template.render(context, request))
@@ -64,29 +80,6 @@ def day_view(request, date):
         raise Http404("No records")
 
     return display_recordings_list(files, request, {'title': f'Date: {date}'})
-
-
-def get_session_dir():
-    return settings.MEDIA_ROOT + 'sessions'
-
-
-def display_index(request):
-    """
-    Display a list of session links (directories)
-
-    Args:
-        request:
-
-    Returns:
-
-    """
-    template = loader.get_template('tracemap/index.html')
-    sessions_dir = get_session_dir()
-    sessions = list_sessions(sessions_dir)
-    context = {
-        'sessions': sessions
-    }
-    return HttpResponse(template.render(context, request))
 
 
 def list_view(request):
@@ -160,16 +153,19 @@ def bounds_from_recordings(files):
     return bounds
 
 
-def list_sessions(sessions_dir):
-    sessions = [
-        d for d in listdir(sessions_dir) if path.isdir(sessions_dir + '/' + d)
-    ]
-    sessions.sort()
-    return sessions
+def list_counts_by_day():
+    days = AudioRecording.objects.annotate(day=TruncDay('recorded_at')) \
+        .values('day').annotate(c=Count('id')) \
+        .values('day', 'c').order_by('day')
+
+    days = {day['day'].strftime('%Y-%m-%d'): day['c'] for day in days if day['day'] is not None}
+
+    return days
 
 
 def summarise_by_day():
-    f_day = lambda d: d.strftime('%Y-%m-%d') if d is not None else None
+    def f_day(d):
+        return d.strftime('%Y-%m-%d') if d is not None else None
 
     # Take all the objects
     # Annotate them with a day record
@@ -196,7 +192,7 @@ def summarise_by_day():
                 days[day_key]['genus'][g][row['species']] = row['count']
                 genus_map[g].append(row['species'])
 
-    genus_map = { g: sorted(set(genus_map[g])) for g in genus_map}
+    genus_map = {g: sorted(set(genus_map[g])) for g in genus_map}
 
     return days, genus_map
 
