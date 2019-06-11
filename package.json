@@ -1,0 +1,25 @@
+{
+  "name": "batbox",
+  "version": "0.1.0",
+  "description": "### Visualisation utility for Wildlife Acoustics and GUANO-tagged data exports",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "dependencies": {
+    "bootstrap-datepicker": "^1.9.0",
+    "datepair.js": "^0.4.16",
+    "timepicker": "^1.11.15"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/parsingphase/batbox.git"
+  },
+  "author": "Richard George <richard@parsingphase.dev>",
+  "license": "MIT",
+  "homepage": "https://bitbucket.org/parsingphase/batbox#readme"
+}

@@ -10,3 +10,8 @@ webroot/media/sessions/*
 settings_local.py
 FIRSTPASS.txt
 webroot/static
+assets/css/*
+!assets/css/.gitkeep
+assets/js/*
+!assets/js/.gitkeep
+node_modules
