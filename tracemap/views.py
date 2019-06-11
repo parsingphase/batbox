@@ -9,9 +9,20 @@ from tracemap.models import AudioRecording
 from svg_calendar import GridImage
 from svgwrite.container import Hyperlink
 from svgwrite import shapes
+from typing import List
 
 
 def decorate_rect_with_class(rect: shapes.Rect, day: date, _):
+    """
+    Decorator for day squares for SVG calendar view
+    Args:
+        rect:
+        day:
+        _:
+
+    Returns:
+
+    """
     day_string = day.strftime('%Y-%m-%d')
     outer = Hyperlink('/byday/' + day_string, '_self')
     rect.update({'class_': 'dateTrigger'})
@@ -21,7 +32,7 @@ def decorate_rect_with_class(rect: shapes.Rect, day: date, _):
 
 
 # Create your views here.
-def index_view(request):
+def index(request):
     """
     Create a list of days with recordings
 
@@ -42,7 +53,7 @@ def index_view(request):
     return HttpResponse(template.render(context, request))
 
 
-def calendar_view(request):
+def calendar(request):
     """
     Create a calendar view recordings
 
@@ -65,7 +76,7 @@ def calendar_view(request):
     return HttpResponse(template.render(context, request))
 
 
-def day_view(request, date):
+def day(request, date):
     if date == 'undated':
         files = AudioRecording.objects.filter(recorded_at__isnull=True)
     else:
@@ -82,12 +93,12 @@ def day_view(request, date):
     return display_recordings_list(files, request, {'title': f'Date: {date}'})
 
 
-def list_view(request):
+def list_all(request):
     files = AudioRecording.objects.all()
     return display_recordings_list(files, request)
 
 
-def single_view(request, pk):
+def single(request, pk):
     files = [AudioRecording.objects.get(id=pk)]
     return display_recordings_list(
         files,
@@ -96,25 +107,35 @@ def single_view(request, pk):
     )
 
 
-def genus_view(request, genus):
-    files = AudioRecording.objects.filter(genus=genus)
+def genus(request, genus_name):
+    files = AudioRecording.objects.filter(genus=genus_name)
     return display_recordings_list(
         files,
         request,
-        {'title': f'Genus: {genus}'}
+        {'title': f'Genus: {genus_name}'}
     )
 
 
-def species_view(request, genus, species):
-    files = AudioRecording.objects.filter(genus=genus, species=species)
+def species(request, genus_name, species_name):
+    files = AudioRecording.objects.filter(genus=genus_name, species=species_name)
     return display_recordings_list(
         files,
         request,
-        {'title': f'Species: {genus} ({species})'}
+        {'title': f'Species: {genus_name} ({species_name})'}
     )
 
 
-def display_recordings_list(files, request, context: dict = None):
+def display_recordings_list(files: List[AudioRecording], request, context: dict = None):
+    """
+    Generate page view based on list of files passed
+    Args:
+        files:
+        request:
+        context:
+
+    Returns:
+
+    """
     if context is None:
         context = {}
     traces = [audio_for_json(f) for f in files]
@@ -198,6 +219,14 @@ def summarise_by_day():
 
 
 def audio_for_json(audio: AudioRecording) -> dict:
+    """
+    Repack an audio file such that it can be serialised in JSON
+    Args:
+        audio:
+
+    Returns:
+
+    """
     if audio is not None:
         j = audio.as_serializable()
         j['url'] = settings.MEDIA_URL + path.relpath(

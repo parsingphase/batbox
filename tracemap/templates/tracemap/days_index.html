@@ -5,7 +5,7 @@
     {{ block.super }}
     <style>
         table.recordings.table {
-            width: auto !important;
+            {#width: auto !important;#}
         }
 
         table.recordings a {
@@ -25,12 +25,14 @@
             border-bottom: none;
         }
 
-        table.recordings.table thead th.species {
-            width: 4em;
+        table.recordings.table thead th.species,
+        table.recordings.table thead th.total {
+            min-width: 10%;
         }
 
         table.recordings.table td.recording-count {
             text-align: right;
+            padding-right: 2em;
         }
     </style>
 {% endblock %}
@@ -46,7 +48,7 @@
                 {% for g,species in genuses.items %}
                     <th colspan="{{ species|length }}" class="genus">{% if g %}{{ g }}{% else %}?{% endif %}</th>
                 {% endfor %}
-                <th rowspan="2">Total</th>
+                <th rowspan="2" class="total">Total</th>
             </tr>
             <tr>
                 {% for g,species in genuses.items %}
@@ -76,7 +78,6 @@
                     <td class="recording-count">
                         {{ day.count }}
                     </td>
-                    {#                    <td>{{ day.genus }}</td>#}
                 </tr>
             {% endfor %}
             </tbody>

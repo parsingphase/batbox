@@ -3,15 +3,15 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.index_view, name='index'),
-    path('calendar', views.calendar_view, name='calendar'),
-    path('byday/<str:date>', views.day_view, name='day_view'),
-    path('list', views.list_view, name='list_view'),
-    path('recording/<int:pk>', views.single_view, name='single_view'),
-    path('genus/<str:genus>', views.genus_view, name=' genus_view'),
+    path('', views.index, name='index'),
+    path('calendar', views.calendar, name='calendar'),
+    path('byday/<str:date>', views.day, name='day_view'),
+    path('list', views.list_all, name='list_view'),
+    path('recording/<int:pk>', views.single, name='single_view'),
+    path('genus/<str:genus>', views.genus, name=' genus_view'),
     path(
         'species/<str:genus>.<str:species>',
-        views.species_view,
+        views.species,
         name=' species_view'
     ),
 ]
