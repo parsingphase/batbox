@@ -125,6 +125,12 @@ def species(request, genus_name, species_name):
     )
 
 
+def search(request):
+    template = loader.get_template('tracemap/search.html')
+    context = {}
+    return HttpResponse(template.render(context, request))
+
+
 def display_recordings_list(files: List[AudioRecording], request, context: dict = None):
     """
     Generate page view based on list of files passed

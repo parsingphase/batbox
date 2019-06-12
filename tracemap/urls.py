@@ -14,4 +14,6 @@ urlpatterns = [
         views.species,
         name=' species_view'
     ),
+    path('search', views.search, name=' search_view'),
+
 ]
