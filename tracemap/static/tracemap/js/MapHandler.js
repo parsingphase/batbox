@@ -32,6 +32,35 @@ export default class MapHandler {
      */
     drawMapWithBounds(bounds) {
         this.map = L.map(this.targetElementId).fitBounds(bounds);
+        return this.initMap();
+    }
+
+    /**
+     * Draw a map in-page at the configured DOM id
+     *
+     * @param {Array} centre
+     * @param {int} zoom
+     * @returns {MapHandler}
+     */
+    drawMapWithView(centre, zoom) {
+        document.getElementById(this.targetElementId).textContent = '';
+        this.map = L.map(this.targetElementId);
+        this.initMap();
+        this.map.setView([55, 0], 4);
+        return this;
+    }
+
+    /**
+     * Draw a map in-page at the configured DOM id
+     *
+     * @returns {MapHandler}
+     */
+    drawMapWithWorld() {
+        this.map = L.map(this.targetElementId).fitWorld();
+        return this.initMap();
+    }
+
+    initMap() {
         this.map.addLayer(this.markersLayer);
         L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +

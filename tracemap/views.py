@@ -9,7 +9,7 @@ from tracemap.models import AudioRecording
 from svg_calendar import GridImage
 from svgwrite.container import Hyperlink
 from svgwrite import shapes
-from typing import List
+from typing import List, Tuple
 
 
 def decorate_rect_with_class(rect: shapes.Rect, day: date, _):
@@ -127,7 +127,11 @@ def species(request, genus_name, species_name):
 
 def search(request):
     template = loader.get_template('tracemap/search.html')
-    context = {}
+    _, genii = summarise_by_day()
+    context = {
+        'genii': genii,
+        'mapbox_token': settings.MAPS['mapbox_token'],
+    }
     return HttpResponse(template.render(context, request))
 
 
@@ -190,7 +194,13 @@ def list_counts_by_day():
     return days
 
 
-def summarise_by_day():
+def summarise_by_day() -> Tuple[dict, dict]:
+    """
+    Generate a list of all genus, and the species within, alongside the number of recordings per species
+    Returns:
+
+    """
+
     def f_day(d):
         return d.strftime('%Y-%m-%d') if d is not None else None
 

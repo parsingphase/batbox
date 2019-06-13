@@ -3,42 +3,122 @@
 {% load static %}
 
 {% block subtitle %}Search{% endblock %}
-
-{% block body-container %}
-    <p id="basicExample">
-        <input type="text" class="date start"/>
-        <input type="text" class="time start"/> to
-        <input type="text" class="date end"/>
-        <input type="text" class="time end"/>
-    </p>
+{% block head-css %}
+    {{ block.super }}
 
     <!-- include input widgets; this is independent of Datepair.js -->
     <link rel="stylesheet" type="text/css" href="{% static 'css/jquery.timepicker.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap-datepicker.css' %}"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+          integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+          crossorigin=""/>
+
+    <style>
+        form {
+            margin-top: 10px;
+        }
+    </style>
+
+{% endblock %}
+
+{% block body-container %}
+    {{ mapbox_token|json_script:"mapbox-token" }}
+    <form>
+        <div class="form-row" id="timeRange">
+            <div class="col">
+                Time range
+            </div>
+            <div class="col">
+                <label for="dateStart">From date</label>
+                <input id="dateStart" type="text" class="date start form-control" placeholder="YYYY-MM-DD"/></div>
+            <div class="col">
+                <label for="timeStart">From time</label>
+                <input id="timeStart" type="text" class="time start form-control" placeholder="HH:MM"/></div>
+            <div class="col">
+                <label for="dateEnd">To date</label>
+                <input id="dateEnd" type="text" class="date end form-control" placeholder="YYYY-MM-DD"/></div>
+            <div class="col">
+                <label for="timeEnd">To time</label>
+                <input id="timeEnd" type="text" class="time end form-control" placeholder="HH:MM"/></div>
+        </div>
+        <div class="form-row" id="">
+            <div class="col">
+                Species
+            </div>
+            {% for genus, species in genii.items %}
+                <div class="col">
+                    {% if genus %}{{ genus }}{% else %}Unidentified{% endif %}
+                    {% for s in species %}
+                        <div>
+                            <input type="checkbox"/>
+                            <label for="species-{{ s }}">{% if s %}{{ s }}{% else %} ? {% endif %}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="form-row" id="">
+            <div class="col">
+                Area
+            </div>
+            <div class="col-10">
+                <div id="map-target" style="background-color: lightgray; width: 60%; height: 300px;">
+                    Map loading…
+                </div>
+            </div>
+        </div>
+
+    </form>
 
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
             integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8=" crossorigin="anonymous"></script>
 
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+            integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+            crossorigin=""></script>
 
     <script type="text/javascript" src="{% static 'js/bootstrap-datepicker.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery.timepicker.js' %}"></script>
 
     <script type="text/javascript" src="{% static 'js/datepair.js' %}"></script>
+
+
+    <script type="module">
+        import MapHandler from '{% static 'tracemap/js/MapHandler.js' %}';
+
+        let map;
+
+        /**
+         * @type {Object}
+         * @property {Array} traces
+         * @property {Array} bounds
+         */
+        const mapboxToken = JSON.parse(document.getElementById('mapbox-token').textContent);
+        map = new MapHandler('map-target', mapboxToken).drawMapWithView([0, 55], 12);
+
+        console.log(map.map.getBounds().toBBoxString());
+
+        map.map.on('moveend', function (e) {
+            console.log(map.map.getBounds().toBBoxString())
+        });
+    </script>
+
     <script>
         // initialize input widgets first
-        $('#basicExample .time').timepicker({
+        $('#timeRange .time').timepicker({
             'showDuration': true,
             'timeFormat': 'H:i',
             'orientation': 'rb',
         });
 
-        $('#basicExample .date').datepicker({
-            'format': 'm/d/yyyy',
+        $('#timeRange .date').datepicker({
+            'format': 'yyyy-mm-dd',
             'autoclose': true
         });
 
         // initialize datepair
-        var basicExampleEl = document.getElementById('basicExample');
-        var datepair = new Datepair(basicExampleEl);
+        var timeRangeEl = document.getElementById('timeRange');
+        var datepair = new Datepair(timeRangeEl);
     </script>
 {% endblock %}
