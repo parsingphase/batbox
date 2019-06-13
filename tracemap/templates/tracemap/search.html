@@ -17,6 +17,10 @@
         form {
             margin-top: 10px;
         }
+
+        .datepicker {
+            z-index: 1500 !important;
+        }
     </style>
 
 {% endblock %}
@@ -24,51 +28,83 @@
 {% block body-container %}
     {{ mapbox_token|json_script:"mapbox-token" }}
     <form>
-        <div class="form-row" id="timeRange">
-            <div class="col">
+        <div class="row">
+            <div class="col-2">
                 Time range
             </div>
-            <div class="col">
-                <label for="dateStart">From date</label>
-                <input id="dateStart" type="text" class="date start form-control" placeholder="YYYY-MM-DD"/></div>
-            <div class="col">
-                <label for="timeStart">From time</label>
-                <input id="timeStart" type="text" class="time start form-control" placeholder="HH:MM"/></div>
-            <div class="col">
-                <label for="dateEnd">To date</label>
-                <input id="dateEnd" type="text" class="date end form-control" placeholder="YYYY-MM-DD"/></div>
-            <div class="col">
-                <label for="timeEnd">To time</label>
-                <input id="timeEnd" type="text" class="time end form-control" placeholder="HH:MM"/></div>
+            <div class="col-10">
+                <div class="form-row" id="timeRange">
+                    <div class="col">
+                        <label for="dateStart">From date</label>
+                        <input id="dateStart" type="text" class="date start form-control" placeholder="YYYY-MM-DD"/>
+                    </div>
+                    <div class="col">
+                        <label for="timeStart">From time</label>
+                        <input id="timeStart" type="text" class="time start form-control" placeholder="HH:MM"/></div>
+                    <div class="col">
+                        <label for="dateEnd">To date</label>
+                        <input id="dateEnd" type="text" class="date end form-control" placeholder="YYYY-MM-DD"/></div>
+                    <div class="col">
+                        <label for="timeEnd">To time</label>
+                        <input id="timeEnd" type="text" class="time end form-control" placeholder="HH:MM"/></div>
+                </div>
+            </div>
         </div>
-        <div class="form-row" id="">
-            <div class="col">
+        <div class="row">
+            <div class="col-2">
                 Species
             </div>
-            {% for genus, species in genii.items %}
-                <div class="col">
-                    {% if genus %}{{ genus }}{% else %}Unidentified{% endif %}
-                    {% for s in species %}
-                        <div>
-                            <input type="checkbox"/>
-                            <label for="species-{{ s }}">{% if s %}{{ s }}{% else %} ? {% endif %}</label>
+            <div class="col-10">
+                <div class="form-row" id="">
+                    {% for genus, species in genii.items %}
+                        <div class="col">
+                            {% if genus %}{{ genus }}{% else %}Unidentified{% endif %}
+                            {% for s in species %}
+                                <div>
+                                    <input type="checkbox"/>
+                                    <label for="species-{{ s }}">{% if s %}{{ s }}{% else %} ? {% endif %}</label>
+                                </div>
+                            {% endfor %}
                         </div>
                     {% endfor %}
                 </div>
-            {% endfor %}
+            </div>
         </div>
-
-        <div class="form-row" id="">
-            <div class="col">
+        <div class="row">
+            <div class="col-2">
                 Area
             </div>
             <div class="col-10">
-                <div id="map-target" style="background-color: lightgray; width: 60%; height: 300px;">
-                    Map loading…
+                <div class="form-row" id="">
+                    <div id="map-target"
+                         style="background-color: lightgray; width: 60%; margin-left: 20%; height: 300px;">
+                        Map loading…
+                    </div>
+                </div>
+                <div class="form-row" id="geoRange">
+                    <div class="col">
+                        <label for="east">East</label>
+                        <input type="number" class="form-control" id="east" min="-90" max="90" step="0.001"
+                               placeholder="East"/>
+                    </div>
+                    <div class="col">
+                        <label for="south">South</label>
+                        <input type="number" class="form-control" id="south" min="-180" max="180" step="0.001"
+                               placeholder="South"/>
+                    </div>
+                    <div class="col">
+                        <label for="west">West</label>
+                        <input type="number" class="form-control" id="west" min="-90" max="90" step="0.001"
+                               placeholder="West"/>
+                    </div>
+                    <div class="col">
+                        <label for="north">North</label>
+                        <input type="number" class="form-control" id="north" min="-180" max="180" step="0.001"
+                               placeholder="North"/>
+                    </div>
                 </div>
             </div>
         </div>
-
     </form>
 
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
@@ -80,7 +116,6 @@
 
     <script type="text/javascript" src="{% static 'js/bootstrap-datepicker.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery.timepicker.js' %}"></script>
-
     <script type="text/javascript" src="{% static 'js/datepair.js' %}"></script>
 
 
@@ -97,19 +132,34 @@
         const mapboxToken = JSON.parse(document.getElementById('mapbox-token').textContent);
         map = new MapHandler('map-target', mapboxToken).drawMapWithView([0, 55], 12);
 
-        console.log(map.map.getBounds().toBBoxString());
+        /**
+         *
+         * @param {LatLngBounds} bounds
+         */
+        function updateGeoControls(bounds) {
+            $('#south').val(Number(bounds.getSouth()).toFixed(3));
+            $('#west').val(Number(bounds.getWest()).toFixed(3));
+            $('#north').val(Number(bounds.getNorth()).toFixed(3));
+            $('#east').val(Number(bounds.getEast()).toFixed(3));
+        }
+
+        updateGeoControls(map.map.getBounds());
 
         map.map.on('moveend', function (e) {
-            console.log(map.map.getBounds().toBBoxString())
+            updateGeoControls(map.map.getBounds())
         });
+
+
     </script>
 
     <script>
+    // https://github.com/jonthornton/jquery-timepicker
         // initialize input widgets first
         $('#timeRange .time').timepicker({
             'showDuration': true,
             'timeFormat': 'H:i',
             'orientation': 'rb',
+            'step': 5,
         });
 
         $('#timeRange .date').datepicker({
