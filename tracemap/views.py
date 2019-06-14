@@ -2,7 +2,7 @@ from batbox import settings
 from datetime import datetime, timedelta, date
 from django.db.models import Count
 from django.db.models.functions import TruncDay
-from django.http import HttpResponse, Http404
+from django.http import HttpRequest, HttpResponse, Http404, JsonResponse
 from django.template import loader
 from os import path
 from tracemap.models import AudioRecording
@@ -253,3 +253,7 @@ def audio_for_json(audio: AudioRecording) -> dict:
         j = None
 
     return j
+
+
+def search_api(request: HttpRequest):
+    return HttpResponse(request.GET)
