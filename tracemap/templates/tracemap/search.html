@@ -27,7 +27,7 @@
 
 {% block body-container %}
     {{ mapbox_token|json_script:"mapbox-token" }}
-    <form>
+    <form id="searchParams">
         <div class="row">
             <div class="col-2">
                 Time range
@@ -61,7 +61,9 @@
                             {% if genus %}{{ genus }}{% else %}Unidentified{% endif %}
                             {% for s in species %}
                                 <div>
-                                    <input type="checkbox"/>
+                                    <input type="checkbox" checked="checked" id="species-{{ s }}"
+                                           class="species" data-genus="{{ genus }}" data-species="{{ s }}"
+                                           name="species[{{ s }}]" value="1"/>
                                     <label for="species-{{ s }}">{% if s %}{{ s }}{% else %} ? {% endif %}</label>
                                 </div>
                             {% endfor %}
@@ -103,6 +105,14 @@
                                placeholder="North"/>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-2">
+                Search
+            </div>
+            <div class="col-10">
+                <button class="btn btn-primary" type="button" id="searchTrigger">Search</button>
             </div>
         </div>
     </form>
@@ -153,7 +163,7 @@
     </script>
 
     <script>
-    // https://github.com/jonthornton/jquery-timepicker
+        // https://github.com/jonthornton/jquery-timepicker
         // initialize input widgets first
         $('#timeRange .time').timepicker({
             'showDuration': true,
@@ -170,5 +180,44 @@
         // initialize datepair
         var timeRangeEl = document.getElementById('timeRange');
         var datepair = new Datepair(timeRangeEl);
+
+        const form = $('#searchParams');
+        form.find('input').change(scanForm);
+
+        function scanForm() {
+            const data = {};
+            data.timeRange = {
+                dateStart: form.find('#dateStart').val(),
+                timeStart: form.find('#timeStart').val(),
+                dateEnd: form.find('#dateEnd').val(),
+                timeEnd: form.find('#timeEnd').val(),
+            };
+            data.species = [];
+            form.find('input.species').each(
+                function () {
+                    let t = $(this);
+                    if (t.prop('checked')) {
+                        data.species.push(t.data('species'))
+                    }
+                }
+            );
+            const geoForm = form.find('#geoRange');
+            data.geoRange = {
+                'east': geoForm.find('#east').val(),
+                'south': geoForm.find('#south').val(),
+                'west': geoForm.find('#west').val(),
+                'north': geoForm.find('#north').val(),
+            };
+
+            console.log(data);
+            return data;
+        }
+
+        function doSearch() {
+            console.log('Search');
+            let data = scanForm();
+        }
+
+        $('#searchTrigger').click(doSearch);
     </script>
 {% endblock %}
