@@ -8,9 +8,9 @@ urlpatterns = [
     path('byday/<str:date>', views.day, name='day_view'),
     path('list', views.list_all, name='list_view'),
     path('recording/<int:pk>', views.single, name='single_view'),
-    path('genus/<str:genus>', views.genus, name='genus_view'),
+    path('genus/<str:genus_name>', views.genus, name='genus_view'),
     path(
-        'species/<str:genus>.<str:species>',
+        'species/<str:genus_name>.<str:species_name>',
         views.species,
         name=' species_view'
     ),

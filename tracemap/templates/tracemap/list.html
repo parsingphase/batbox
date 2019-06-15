@@ -248,6 +248,10 @@
             const newAudioList = table.rows({filter: 'applied'}).data().toArray();
             map.replaceAudioMarkers(newAudioList);
             resetRowControlTriggers();
-        })
+        });
+
+        table.on('draw.dt', function () {
+            resetRowControlTriggers();
+        });
     </script>
 {% endblock %}

@@ -2,7 +2,7 @@ from batbox import settings
 from datetime import datetime, timedelta, date
 from django.db.models import Count
 from django.db.models.functions import TruncDay
-from django.http import HttpRequest, HttpResponse, Http404, JsonResponse
+from django.http import HttpRequest, HttpResponse, Http404, JsonResponse  # noqa: F401
 from django.template import loader
 from os import path
 from tracemap.models import AudioRecording
