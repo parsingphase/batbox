@@ -8,11 +8,11 @@ echo
 echo '## Fetching dependencies'
 echo
 source /var/venv/bin/activate
-pipenv install
+make install
 echo
 echo '## Installing frontend assets'
+make collect_static
 echo
-python manage.py collectstatic --noinput
 # Load any files in webroot/media
 echo
 echo '## Refreshing the local database…'

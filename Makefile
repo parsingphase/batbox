@@ -1,8 +1,6 @@
 # Build tools - venv must be initialised beforehand
-# SEE: https://blog.horejsek.com/makefile-with-python/ , https://www.giacomodebidda.com/pipenv/
 
 SHELL := /bin/bash
-VIRTUALENV ?= ./venv
 
 .PHONY: gather_js collect_static install
 
@@ -20,5 +18,4 @@ collect_static: gather_npm_assets
 
 install:
 	npm install
-	source ${VIRTUALENV}/bin/activate; \
 	pipenv install

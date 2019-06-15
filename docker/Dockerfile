@@ -12,11 +12,15 @@ RUN apt-get update && apt-get install -y apache2 \
     python3-venv \
     vim \
     git \
+    nodejs \
+    npm \
  && apt-get clean
+
+# Ubuntu still installs node as nodejs
+RUN ln -s /usr/bin/nodejs /usr/local/bin/node
 
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
-
 
 RUN pip3 install pipenv
 RUN a2enmod headers
