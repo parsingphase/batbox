@@ -14,7 +14,7 @@ urlpatterns = [
         views.species,
         name=' species_view'
     ),
-    path('search', views.search, name=' search_view'),
+    path('search', views.search, name='search_view'),
     path('api/search', views.search_api, name='search_api'),
 
 ]

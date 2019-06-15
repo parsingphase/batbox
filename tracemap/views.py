@@ -1,7 +1,7 @@
 from batbox import settings
 from datetime import datetime, timedelta, date
 from dateutil.parser import parse as parse_date
-from django.db.models import Count
+from django.db.models import Count, Min, Max
 from django.db.models.functions import TruncDay
 from django.http import HttpRequest, HttpResponse, Http404, JsonResponse
 from django.template import loader
@@ -95,7 +95,12 @@ def day(request, date):
 
 
 def list_all(request):
-    files = AudioRecording.objects.all()
+    search_params = request.GET
+    if search_params:
+        search_filter = build_search_filter(search_params)
+        files = AudioRecording.objects.filter(**search_filter)
+    else:
+        files = AudioRecording.objects.all()
     return display_recordings_list(files, request)
 
 
@@ -258,29 +263,28 @@ def audio_for_json(audio: AudioRecording) -> dict:
 
 def search_api(request: HttpRequest):
     # return HttpResponse(dumps(request.GET))
-    search_filter = {}
     search_params = request.GET
-    if 'species' in search_params:
-        search_filter['species__in'] = search_params['species'].split(',')
-
-    if 'west' in search_params:
-        search_filter['longitude__gte'] = search_params['west']
-
-    if 'east' in search_params:
-        search_filter['longitude__lte'] = search_params['east']
-
-    if 'south' in search_params:
-        search_filter['latitude__gte'] = search_params['south']
-
-    if 'north' in search_params:
-        search_filter['latitude__lte'] = search_params['north']
-
-    if 'start' in search_params:
-        search_filter['recorded_at__gte'] = parse_date(search_params['start'])
-
-    if 'end' in search_params:
-        search_filter['recorded_at__lte'] = parse_date(search_params['end'])
+    search_filter = build_search_filter(search_params)
 
     results = AudioRecording.objects.filter(**search_filter)
     results = [{'lat': f.latitude, 'lng': f.longitude, 'value': 1} for f in results]
     return JsonResponse({'data': results, 'search': search_filter}, safe=False)
+
+
+def build_search_filter(search_params):
+    search_filter = {}
+    if 'species' in search_params:
+        search_filter['species__in'] = search_params['species'].split(',')
+    if 'west' in search_params:
+        search_filter['longitude__gte'] = search_params['west']
+    if 'east' in search_params:
+        search_filter['longitude__lte'] = search_params['east']
+    if 'south' in search_params:
+        search_filter['latitude__gte'] = search_params['south']
+    if 'north' in search_params:
+        search_filter['latitude__lte'] = search_params['north']
+    if 'start' in search_params:
+        search_filter['recorded_at__gte'] = parse_date(search_params['start'])
+    if 'end' in search_params:
+        search_filter['recorded_at__lte'] = parse_date(search_params['end'])
+    return search_filter

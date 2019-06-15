@@ -112,7 +112,8 @@
                 Search
             </div>
             <div class="col-10">
-                <button class="btn btn-primary" type="button" id="searchTrigger">Search</button>
+{#                <button class="btn btn-primary" type="button" id="searchTrigger">Search</button>#}
+                <button class="btn btn-secondary" type="button" id="viewTrigger"> <i class="fas fa-list"></i> View</button>
             </div>
         </div>
     </form>
@@ -187,7 +188,7 @@
         var datepair = new Datepair(timeRangeEl);
 
         const form = $('#searchParams');
-        form.find('input').change(scanForm);
+        form.find('input').change(doSearch);
 
         function scanForm() {
             const data = {};
@@ -261,6 +262,11 @@
 
         doSearch();
 
+        function doList() {
+            window.location.href = '/list?'+$.param(scanForm());
+        }
+
         $('#searchTrigger').click(doSearch);
+        $('#viewTrigger').click(doList);
     </script>
 {% endblock %}
