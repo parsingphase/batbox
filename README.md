@@ -24,7 +24,8 @@ Copy this to `settings_local.py` and edit as required.
 
 ### Running the code
 
-While this is a web-based application, it's also set up to easily run on your laptop or desktop - it should work as-is on MacOS or Linux. To run it, you'll need [Docker](https://docker.com). Once that's installed you can run `./run-docker.sh`
+While this is a web-based application, it's also set up to easily run on your laptop or desktop, if you're familiar with the command line - it should work as-is on MacOS or Linux. 
+To run it, you'll need Docker, downloadable at [https://hub.docker.com](https://hub.docker.com) (you'll need to create an account). Once that's installed you can run `./run-docker.sh`
     
 This will:
 
