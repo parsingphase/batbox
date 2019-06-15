@@ -133,9 +133,13 @@ def species(request, genus_name, species_name):
 
 def search(request):
     template = loader.get_template('tracemap/search.html')
+    range = AudioRecording.objects.all().aggregate(min=Min('recorded_at'), max=Max('recorded_at'))
+    range = {k: t.strftime('%Y-%m-%d') if t else None for k, t in range.items()}
+
     _, genii = summarise_by_day()
     context = {
         'genii': genii,
+        'date_range': range,
         'mapbox_token': settings.MAPS['mapbox_token'],
     }
     return HttpResponse(template.render(context, request))
