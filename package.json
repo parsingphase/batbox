@@ -9,6 +9,8 @@
   "dependencies": {
     "bootstrap-datepicker": "^1.9.0",
     "datepair.js": "^0.4.16",
+    "heatmap.js": "^2.0.5",
+    "leaflet-heatmap": "^1.0.0",
     "timepicker": "^1.11.15"
   },
   "devDependencies": {},

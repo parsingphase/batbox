@@ -127,6 +127,8 @@
     <script type="text/javascript" src="{% static 'js/bootstrap-datepicker.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery.timepicker.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/datepair.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/heatmap.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/leaflet-heatmap.js' %}"></script>
 
 
     <script type="module">
@@ -159,10 +161,13 @@
             updateGeoControls(map.map.getBounds())
         });
 
+        const heatmapCfg = {
+            radius: 10
+        };
 
-    </script>
+        var heatmapLayer = new HeatmapOverlay(heatmapCfg);
+        map.map.addLayer(heatmapLayer);
 
-    <script>
         // https://github.com/jonthornton/jquery-timepicker
         // initialize input widgets first
         $('#timeRange .time').timepicker({
@@ -186,28 +191,60 @@
 
         function scanForm() {
             const data = {};
-            data.timeRange = {
-                dateStart: form.find('#dateStart').val(),
-                timeStart: form.find('#timeStart').val(),
-                dateEnd: form.find('#dateEnd').val(),
-                timeEnd: form.find('#timeEnd').val(),
-            };
-            data.species = [];
+
+            let dateStart = form.find('#dateStart').val();
+            let timeStart = form.find('#timeStart').val();
+            let dateEnd = form.find('#dateEnd').val();
+            let timeEnd = form.find('#timeEnd').val();
+            let start;
+            let end;
+
+            {#data.timeRange = {#}
+            {#    dateStart: dateStart,#}
+            {#    timeStart: timeStart,#}
+            {#    dateEnd: dateEnd,#}
+            {#    timeEnd: timeEnd,#}
+            {# }; #}
+
+            if (dateStart) {
+                if (!timeStart) {
+                    timeStart = '00:00';
+                }
+                start = dateStart + ' ' + timeStart; // 'YYYY-MM-DD hh:mm' - ISO8601
+                data.start = start;
+            }
+
+            if (dateEnd) {
+                if (!timeEnd) {
+                    timeEnd = '23:59:59';
+                }
+                end = dateEnd + ' ' + timeEnd; // 'YYYY-MM-DD hh:mm[:ss]' - ISO8601
+                data.end = end;
+            }
+
+            let species = [];
             form.find('input.species').each(
                 function () {
                     let t = $(this);
                     if (t.prop('checked')) {
-                        data.species.push(t.data('species'))
+                        species.push(t.data('species'))
                     }
                 }
             );
+            data.species = species.join(',');
+
             const geoForm = form.find('#geoRange');
-            data.geoRange = {
-                'east': geoForm.find('#east').val(),
-                'south': geoForm.find('#south').val(),
-                'west': geoForm.find('#west').val(),
-                'north': geoForm.find('#north').val(),
-            };
+            {#data.geoRange = {#}
+            {#    'east': geoForm.find('#east').val(),#}
+            {#    'south': geoForm.find('#south').val(),#}
+            {#    'west': geoForm.find('#west').val(),#}
+            {#    'north': geoForm.find('#north').val(),#}
+            {# }; #}
+
+            data.east = geoForm.find('#east').val();
+            data.south = geoForm.find('#south').val();
+            data.west = geoForm.find('#west').val();
+            data.north = geoForm.find('#north').val();
 
             console.log(data);
             return data;
@@ -216,10 +253,13 @@
         function doSearch() {
             console.log('Search');
             let data = scanForm();
-            $.get('/api/search', data, function (data) {
-                console.log(data);
+            $.get('/api/search', data, function (response) {
+                heatmapLayer.setData({data: response.data});
+                console.log(response);
             });
         }
+
+        doSearch();
 
         $('#searchTrigger').click(doSearch);
     </script>

@@ -12,6 +12,8 @@ gather_npm_assets:
 	cp ./node_modules/timepicker/jquery.timepicker.js assets/js/
 	cp ./node_modules/timepicker/jquery.timepicker.css assets/css/
 	cp ./node_modules/datepair.js/dist/datepair.js assets/js
+	cp ./node_modules/heatmap.js/build/heatmap.min.js assets/js
+	cp ./node_modules/leaflet-heatmap/leaflet-heatmap.js assets/js
 
 collect_static: gather_npm_assets
 	python manage.py collectstatic --noinput
