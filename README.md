@@ -2,6 +2,8 @@
 
 ### Visualisation utility for Wildlife Acoustics and GUANO-tagged data exports
 
+Demo site: https://batbox.phase.org
+
 ![Map view](docs/images/mapview.png)         
 
 [Wildlife Acoustics](https://www.wildlifeacoustics.com) are a manufacturer of wildlife audio tracking tools, from hobbyist to professional.
@@ -43,13 +45,14 @@ It should also be possible to run it on Windows, but you'll need to decipher and
 
 ### What you can do
 
-- View a list of dates on which traces are recorded
-- View traces on each date on a map, and play the audio files in your browser
+- Search by time, location and species
+- View a calendar of recording sessions
+- View sets of recordings (by search, date, species) on a map, and play the audio files in your browser
 - View and manage data in an inbuilt admin interface
 
 ### Code status
 
-The code is very much pre-alpha and not presumed ready for production use.
+The code is at an alpha state and needs a fair bit of aesthetic cleanup and refactoring, but it's usable.
 
 ### Feedback
 

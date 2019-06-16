@@ -12,9 +12,38 @@
               integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"
               crossorigin="anonymous">
         <style>
+            html {
+                position: relative;
+                min-height: 100%;
+            }
+
             a i.fas {
                 color: #000
             }
+
+            body {
+                margin-bottom: 70px; /* Margin bottom by footer height + a bit */
+            }
+
+            footer {
+                position: absolute;
+                bottom: 0;
+                width: 100%;
+                margin-top: 20px;
+                height: 56px; /* Set the fixed height of the footer here */
+                line-height: 56px; /* Vertically center the text there */
+            }
+
+            footer a {
+                text-decoration-style: dotted;
+                text-decoration: underline;
+            }
+
+            footer .gh-link {
+                padding-top: 4px;
+                padding-right: 4px;
+            }
+
         </style>
     {% endblock %}
 </head>
@@ -42,10 +71,22 @@
             </li>
         </ul>
     </nav>
-    <div class="container">
+    <div class="container body-container">
         {% block body-container %}
         {% endblock %}
     </div>
+
+    <footer class="footer bg-light">
+        <div class="container-fluid text-muted">
+            <div class="float-right gh-link"><a
+                    title="Get the code from Github"
+                    class="text-dark" href="https://github.com/parsingphase/batbox"><i
+                    class="fab fa-github fa-2x"></i></a></div>
+            <div>
+                Created by <a href="https://parsingphase.dev" class="text-muted">parsingphase</a>
+            </div>
+        </div>
+    </footer>
 {% endblock %}
 </body>
 </html>

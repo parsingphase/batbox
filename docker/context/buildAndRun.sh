@@ -27,8 +27,10 @@ if [[ "$1" != "--buildonly" ]]; then
     echo
     echo '## Looking for new audio files to import…'
     echo
+    set +e
     find webroot/media -name *.wav | xargs -iz python manage.py importaudiofile 'z'
     find webroot/media -name *.kml | xargs -iz python manage.py importkmlfile 'z'
+    set -e
 
     echo
     echo "## Running the web server. Ignore any message about the server's domain name…"
