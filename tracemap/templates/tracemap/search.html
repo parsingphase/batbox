@@ -10,24 +10,14 @@
     <link rel="stylesheet" type="text/css" href="{% static 'vendor/css/jquery.timepicker.min.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'vendor/css/bootstrap-datepicker.min.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'vendor/css/leaflet.css' %}"/>
-
-    <style>
-        form {
-            margin-top: 10px;
-        }
-
-        .datepicker {
-            z-index: 1500 !important;
-        }
-    </style>
-
 {% endblock %}
 
 {% block body-container %}
     {{ mapbox_token|json_script:"mapbox-token" }}
+    <h1>Search all recordings</h1>
     <form id="searchParams">
         <div class="row">
-            <div class="col-2">
+            <div class="col-2 form-row-title">
                 Time range
             </div>
             <div class="col-10">
@@ -57,7 +47,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-2">
+            <div class="col-2 form-row-title">
                 Species
             </div>
             <div class="col-10">
@@ -79,8 +69,9 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-2">
+            <div class="col-2 form-row-title">
                 Area
+                <p><i>Scroll the map to limit the search area</i></p>
             </div>
             <div class="col-10">
                 <div class="form-row" id="">
@@ -114,13 +105,12 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-2">
-                Search
+            <div class="col-2 form-row-title">
+                List results
             </div>
             <div class="col-10">
                 <button class="btn btn-primary" type="button" id="searchTrigger">Search</button>
-                {#                <button class="btn btn-secondary" type="button" id="viewTrigger"><i class="fas fa-list"></i> View#}
-                </button>
+                {# <button class="btn btn-secondary" type="button" id="viewTrigger"><i class="fas fa-list"></i> View </button>#}
             </div>
         </div>
     </form>

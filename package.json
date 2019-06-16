@@ -16,6 +16,7 @@
     "jquery": "^3.4.1",
     "leaflet": "^1.5.1",
     "leaflet-heatmap": "^1.0.0",
+    "less": "^3.9.0",
     "moment": "^2.24.0",
     "timepicker": "^1.11.15"
   },

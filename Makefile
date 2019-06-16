@@ -4,6 +4,9 @@ SHELL := /bin/bash
 
 .PHONY: gather_js collect_static install
 
+site_css: tracemap/static/tracemap/css/recordings.less
+	./node_modules/.bin/lessc tracemap/static/tracemap/css/recordings.less tracemap/static/tracemap/css/recordings.css
+
 gather_npm_assets:
 	rm -rf assets/vendor/js/* assets/vendor/css/* webroot/static/*
 	cp ./node_modules/bootstrap/dist/css/bootstrap.min.css assets/vendor/css/
@@ -25,7 +28,7 @@ gather_npm_assets:
 	cp ./node_modules/datatables.net/js/jquery.dataTables.min.js assets/vendor/js/
 	cp ./node_modules/datatables.net-dt/css/jquery.dataTables.min.css assets/vendor/css/
 
-collect_static: gather_npm_assets
+collect_static: site_css gather_npm_assets
 	python manage.py collectstatic --noinput
 
 install:

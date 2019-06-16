@@ -1,42 +1,6 @@
 {% extends 'tracemap/base.html' %}
 {% load tracemap_extras %}
 
-{% block head-css %}
-    {{ block.super }}
-    <style>
-        table.recordings.table {
-            {#width: auto !important;#}
-        }
-
-        table.recordings a {
-            color: black;
-            text-decoration: underline;
-            text-decoration-style: dotted;
-        }
-
-        table.recordings.table thead th {
-            vertical-align: middle;
-            border: none;
-        }
-
-        table.recordings.table thead th.genus {
-            background-color: #eee;
-            border-right: solid white 4px;
-            border-bottom: none;
-        }
-
-        table.recordings.table thead th.species,
-        table.recordings.table thead th.total {
-            min-width: 10%;
-        }
-
-        table.recordings.table td.recording-count {
-            text-align: right;
-            padding-right: 2em;
-        }
-    </style>
-{% endblock %}
-
 {% block body-container %}
     <div class="row"><h1>Recordings by day</h1></div>
 

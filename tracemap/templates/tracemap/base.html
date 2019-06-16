@@ -1,4 +1,4 @@
-{%  load static %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,41 +7,7 @@
     {% block head-css %}
         <link rel="stylesheet" type="text/css" href="{% static 'vendor/css/bootstrap.min.css' %}"/>
         <link rel="stylesheet" type="text/css" href="{% static 'vendor/css/fontawesome-all.min.css' %}"/>
-
-        <style>
-            html {
-                position: relative;
-                min-height: 100%;
-            }
-
-            a i.fas {
-                color: #000
-            }
-
-            body {
-                margin-bottom: 70px; /* Margin bottom by footer height + a bit */
-            }
-
-            footer {
-                position: absolute;
-                bottom: 0;
-                width: 100%;
-                margin-top: 20px;
-                height: 56px; /* Set the fixed height of the footer here */
-                line-height: 56px; /* Vertically center the text there */
-            }
-
-            footer a {
-                text-decoration-style: dotted;
-                text-decoration: underline;
-            }
-
-            footer .gh-link {
-                padding-top: 4px;
-                padding-right: 4px;
-            }
-
-        </style>
+        <link rel="stylesheet" type="text/css" href="{% static 'tracemap/css/recordings.css' %}"/>
     {% endblock %}
 </head>
 <body>
