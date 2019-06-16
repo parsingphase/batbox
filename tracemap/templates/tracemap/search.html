@@ -7,11 +7,9 @@
     {{ block.super }}
 
     <!-- include input widgets; this is independent of Datepair.js -->
-    <link rel="stylesheet" type="text/css" href="{% static 'css/jquery.timepicker.css' %}"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap-datepicker.css' %}"/>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
-          integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
-          crossorigin=""/>
+    <link rel="stylesheet" type="text/css" href="{% static 'vendor/css/jquery.timepicker.min.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'vendor/css/bootstrap-datepicker.min.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'vendor/css/leaflet.css' %}"/>
 
     <style>
         form {
@@ -120,25 +118,20 @@
                 Search
             </div>
             <div class="col-10">
-                {#                <button class="btn btn-primary" type="button" id="searchTrigger">Search</button>#}
-                <button class="btn btn-secondary" type="button" id="viewTrigger"><i class="fas fa-list"></i> View
+                <button class="btn btn-primary" type="button" id="searchTrigger">Search</button>
+                {#                <button class="btn btn-secondary" type="button" id="viewTrigger"><i class="fas fa-list"></i> View#}
                 </button>
             </div>
         </div>
     </form>
 
-    <script src="http://code.jquery.com/jquery-3.4.1.min.js"
-            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
-
-    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
-            integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
-            crossorigin=""></script>
-
-    <script type="text/javascript" src="{% static 'js/bootstrap-datepicker.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/jquery.timepicker.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/datepair.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/heatmap.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/leaflet-heatmap.js' %}"></script>
+    <script type="text/javascript" src="{% static 'vendor/js/leaflet.js' %}"></script>
+    <script type="text/javascript" src="{% static 'vendor/js/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'vendor/js/bootstrap-datepicker.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'vendor/js/jquery.timepicker.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'vendor/js/datepair.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'vendor/js/heatmap.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'vendor/js/leaflet-heatmap.js' %}"></script>
 
 
     <script type="module">
@@ -271,11 +264,10 @@
 
         doSearch();
 
-        function doList() {
+        function showResults() {
             window.location.href = '/list?' + $.param(scanForm());
         }
 
-        $('#searchTrigger').click(doSearch);
-        $('#viewTrigger').click(doList);
+        $('#searchTrigger').click(showResults);
     </script>
 {% endblock %}

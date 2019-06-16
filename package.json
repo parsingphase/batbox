@@ -7,10 +7,16 @@
     "doc": "docs"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.9.0",
+    "bootstrap": "^4.3.1",
     "bootstrap-datepicker": "^1.9.0",
+    "datatables.net-dt": "^1.10.19",
     "datepair.js": "^0.4.16",
     "heatmap.js": "^2.0.5",
+    "jquery": "^3.4.1",
+    "leaflet": "^1.5.1",
     "leaflet-heatmap": "^1.0.0",
+    "moment": "^2.24.0",
     "timepicker": "^1.11.15"
   },
   "devDependencies": {},

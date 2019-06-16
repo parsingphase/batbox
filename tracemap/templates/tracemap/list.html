@@ -5,10 +5,9 @@
 
 {% block head-css %}
     {{ block.super }}
-    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
-          integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
-          crossorigin=""/>
+    <link rel="stylesheet" type="text/css" href="{% static 'vendor/css/jquery.dataTables.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'vendor/css/leaflet.css' %}"/>
+
     <!--suppress CssUnusedSymbol -->
     <style>
         table.table a {
@@ -44,14 +43,10 @@
 
     <table id="recordingsTable" class="table table-striped">
     </table>
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
-            integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8=" crossorigin="anonymous"></script>
-    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
-    <script type="text/javascript" charset="utf8"
-            src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
-            integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
-            crossorigin=""></script>
+    <script type="text/javascript" src="{% static 'vendor/js/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'vendor/js/jquery.dataTables.min.js' %}"></script>
+    <script type="text/javascript" charset="utf8" src="{% static 'vendor/js/moment.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'vendor/js/leaflet.js' %}"></script>
 
     <script type="module">
         import MapHandler from '{% static 'tracemap/js/MapHandler.js' %}';
