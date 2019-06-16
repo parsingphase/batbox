@@ -49,6 +49,7 @@ gather_npm_assets:
 	cp ./node_modules/moment/min/moment.min.js assets/vendor/js/
 	cp ./node_modules/datatables.net/js/jquery.dataTables.min.js assets/vendor/js/
 	cp ./node_modules/datatables.net-dt/css/jquery.dataTables.min.css assets/vendor/css/
+	cp -r ./node_modules/datatables.net-dt/images assets/vendor/images
 
 collect_static: check_virtualenv site_css gather_npm_assets
 	python manage.py collectstatic --noinput

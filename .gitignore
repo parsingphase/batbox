@@ -16,3 +16,4 @@ assets/vendor/js/*
 !assets/vendor/js/.gitkeep
 node_modules
 assets/vendor/webfonts
+assets/vendor/images
