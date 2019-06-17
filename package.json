@@ -20,9 +20,11 @@
     "moment": "^2.24.0",
     "timepicker": "^1.11.15"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "jshint": "^2.10.2"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npx jshint tracemap/static/tracemap/js"
   },
   "repository": {
     "type": "git",

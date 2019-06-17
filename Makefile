@@ -22,6 +22,7 @@ help:
 
 test:
 	python -m flake8 -v --exclude=.idea,.git,venv
+	npm test
 
 check_virtualenv:
 	test -n "$(VIRTUAL_ENV)"  # Will fail if we're not in a VIRTUAL_ENV

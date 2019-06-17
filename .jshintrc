@@ -1,0 +1,11 @@
+{
+  "globals": {
+    "$": false,
+    "console": false,
+    "L": false,
+    "moment": false
+  },
+  "undef": true,
+  "browser": true,
+  "esversion": 6
+}

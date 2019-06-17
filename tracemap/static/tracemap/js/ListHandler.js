@@ -6,7 +6,7 @@ function renderUnknown(defaultString) {
             return data;
         }
         return data ? data : defaultString;
-    }
+    };
 }
 
 export default class ListHandler {
@@ -31,7 +31,7 @@ export default class ListHandler {
 
     initTable(recordings) {
         if (!this.urlRouter) {
-            throw new Exception("URL router must be configured");
+            throw new Error("URL router must be configured");
         }
 
         const that = this;
@@ -59,7 +59,7 @@ export default class ListHandler {
                         if (type === "sort" || type === "type") {
                             return data;
                         }
-                        return data ? '<span class="duration">' + data.toFixed(2) + ' s </span>' : '-'
+                        return data ? '<span class="duration">' + data.toFixed(2) + ' s </span>' : '-';
                     },
                     className: 'recording-duration',
                 },
@@ -70,7 +70,7 @@ export default class ListHandler {
                             return data;
                         }
                         const url = that.urlRouter['genus_view'](data);
-                        return data ? '<a href="' + url + '">' + data + '</a>' : '-'
+                        return data ? '<a href="' + url + '">' + data + '</a>' : '-';
                     }
                 },
                 {
@@ -79,7 +79,7 @@ export default class ListHandler {
                             return data;
                         }
                         const url = that.urlRouter['species_view'](row.genus, row.species);
-                        return data ? '<a href="' + url + '">' + data + '</a>' : '-'
+                        return data ? '<a href="' + url + '">' + data + '</a>' : '-';
                     }
                 },
                 {
@@ -99,8 +99,8 @@ export default class ListHandler {
                             }
                             let cellContent = '<a title="Play" class="audioTrigger" data-audio-src="' + row.url + '" ' +
                                 'data-audio-ident="' + row.identifier + '">' +
-                                '<i class="fas fa-play"></i></a>'
-                                + ' <a title="Download" href="' + data + '"><i class="fas fa-download"></i></a>';
+                                '<i class="fas fa-play"></i></a> ' +
+                                '<a title="Download" href="' + data + '"><i class="fas fa-download"></i></a>';
 
                             if (row.latlon) {
                                 cellContent = cellContent + ' <a title="Show" href="#" class="panTrigger" data-audio-ident="' + row.identifier + '">' +
