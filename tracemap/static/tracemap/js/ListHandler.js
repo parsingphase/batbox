@@ -17,10 +17,23 @@ export default class ListHandler {
         this.player = null;
         this.playingFile = null;
         this.map = mapHandler; // MapHandler instance
-        this.user_is_authenticated = false;
+        this.userIsAuthenticated = false;
+        this.urlRouter = null;
+    }
+
+    setUserAuthenticated(flag) {
+        this.userIsAuthenticated = flag;
+    }
+
+    setUrlRouter(router) {
+        this.urlRouter = router;
     }
 
     initTable(recordings) {
+        if (!this.urlRouter) {
+            throw new Exception("URL router must be configured");
+        }
+
         const that = this;
         const table = this.targetElement.DataTable({
             data: recordings,
@@ -34,7 +47,8 @@ export default class ListHandler {
                         }
                         if (data) {
                             let date = moment(data).format("YYYY-MM-DD");
-                            return '<a href="/byday/' + date + '">' + date + '</a> ' + moment(data).format('HH:mm');
+                            const url = that.urlRouter['day_view'](date);
+                            return '<a href="' + url + '">' + date + '</a> ' + moment(data).format('HH:mm');
                         }
                         return '(no time available)';
                     }
@@ -55,7 +69,8 @@ export default class ListHandler {
                         if (type === "sort" || type === "type") {
                             return data;
                         }
-                        return data ? '<a href="/genus/' + data + '">' + data + '</a>' : '-'
+                        const url = that.urlRouter['genus_view'](data);
+                        return data ? '<a href="' + url + '">' + data + '</a>' : '-'
                     }
                 },
                 {
@@ -63,7 +78,8 @@ export default class ListHandler {
                         if (type === "sort" || type === "type") {
                             return data;
                         }
-                        return data ? '<a href="/species/' + row.genus + '.' + row.species + '">' + data + '</a>' : '-'
+                        const url = that.urlRouter['species_view'](row.genus, row.species);
+                        return data ? '<a href="' + url + '">' + data + '</a>' : '-'
                     }
                 },
                 {
@@ -93,9 +109,11 @@ export default class ListHandler {
                                     '<i class="fas fa-search-location"></i></a>';
                             }
 
-                            cellContent = cellContent + ' <div class="float-right"><a title="Permalink" href="/recording/' + row.id + '"><i class="fas fa-link"></i></a>';
-                            if (that.user_is_authenticated) {
-                                cellContent = cellContent + ' <a title="Edit" href="/admin/tracemap/audiorecording/' + row.id + '/change/"><i class="fas fa-pencil-alt"></i></a>';
+                            const permaUrl = that.urlRouter['single_view'](row.id);
+                            cellContent = cellContent + ' <div class="float-right"><a title="Permalink" href="' + permaUrl + '"><i class="fas fa-link"></i></a>';
+                            if (that.userIsAuthenticated) {
+                                const editUrl = that.urlRouter['admin:tracemap_audiorecording_change'](row.id);
+                                cellContent = cellContent + ' <a title="Edit" href="' + editUrl + '"><i class="fas fa-pencil-alt"></i></a>';
                             }
                             cellContent = cellContent + '</div>';
 
