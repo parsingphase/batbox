@@ -26,6 +26,11 @@ test:
 check_virtualenv:
 	test -n "$(VIRTUAL_ENV)"  # Will fail if we're not in a VIRTUAL_ENV
 
+check_settings: batbox/settings.py
+	test -f batbox/settings.py || echo 'Please create the settings file at batbox/settings.py'  # Warn
+	test -f batbox/settings.py  # Then fail if it's not there
+	touch batbox/settings.py
+
 site_css: tracemap/static/tracemap/css/recordings.less
 	./node_modules/.bin/lessc tracemap/static/tracemap/css/recordings.less tracemap/static/tracemap/css/recordings.css
 

@@ -21,8 +21,8 @@ This folder and any subfolders are scanned for new WAV and KML files every time 
                    
 ### Configuration
 
-The only configuration required is in [`settings_local.sample.py`](settings_local.sample.py), which is documented internally.
-Copy this to `settings_local.py` and edit as required.
+The only configuration required is in [`settings.sample.py`](settings.sample.py), which is documented internally.
+Copy this to `settings.py` and edit as required.
 
 ### Running the code
 

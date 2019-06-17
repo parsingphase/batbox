@@ -26,12 +26,13 @@ MAPS = {
 }
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'SOME.LONG.COMPLEX.STRING.GOES.HERE'  # Set a long random string
+SECRET_KEY = 'SOME.LONG.COMPLEX.STRING.GOES.HERE'  # Set a long random string (~50 characters)
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]']  # Add any live hostnames here
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
+# This is a safe default for small installations
 
 DATABASES = {
     'default': {

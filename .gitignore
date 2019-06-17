@@ -17,3 +17,4 @@ assets/vendor/js/*
 node_modules
 assets/vendor/webfonts
 assets/vendor/images
+settings.py
