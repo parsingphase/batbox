@@ -57,6 +57,7 @@ gather_npm_assets:
 	cp -r ./node_modules/datatables.net-dt/images assets/vendor/images
 
 collect_static: check_virtualenv site_css gather_npm_assets
+	python manage.py collectstatic_js_reverse
 	python manage.py collectstatic --noinput
 
 install: check_virtualenv

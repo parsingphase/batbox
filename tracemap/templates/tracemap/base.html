@@ -9,6 +9,10 @@
         <link rel="stylesheet" type="text/css" href="{% static 'vendor/css/fontawesome-all.min.css' %}"/>
         <link rel="stylesheet" type="text/css" href="{% static 'tracemap/css/recordings.css' %}"/>
     {% endblock %}
+
+    {% block head-js %}
+        <script src="{% static 'django_js_reverse/js/reverse.js' %}"></script>
+    {% endblock %}
 </head>
 <body>
 {% block body %}

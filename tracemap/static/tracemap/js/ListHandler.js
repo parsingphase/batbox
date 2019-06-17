@@ -17,9 +17,11 @@ export default class ListHandler {
         this.player = null;
         this.playingFile = null;
         this.map = mapHandler; // MapHandler instance
+        this.user_is_authenticated = false;
     }
 
     initTable(recordings) {
+        const that = this;
         const table = this.targetElement.DataTable({
             data: recordings,
             columns: [
@@ -91,7 +93,11 @@ export default class ListHandler {
                                     '<i class="fas fa-search-location"></i></a>';
                             }
 
-                            cellContent = cellContent + ' <a title="Permalink" class="float-right" href="/recording/' + row.id + '"><i class="fas fa-link"></i></a>';
+                            cellContent = cellContent + ' <div class="float-right"><a title="Permalink" href="/recording/' + row.id + '"><i class="fas fa-link"></i></a>';
+                            if (that.user_is_authenticated) {
+                                cellContent = cellContent + ' <a title="Edit" href="/admin/tracemap/audiorecording/' + row.id + '/change/"><i class="fas fa-pencil-alt"></i></a>';
+                            }
+                            cellContent = cellContent + '</div>';
 
                             return cellContent;
                         }
@@ -100,7 +106,6 @@ export default class ListHandler {
         });
         this.resetRowControlTriggers();
 
-        const that = this;
         table.on('search.dt', function () {
             const newAudioList = table.rows({filter: 'applied'}).data().toArray();
             this.map.replaceAudioMarkers(newAudioList);
@@ -115,7 +120,7 @@ export default class ListHandler {
     resetRowControlTriggers() {
         let $panTriggers = this.targetElement.find('.panTrigger');
         $panTriggers.off('click');
-        const that=this;
+        const that = this;
         $panTriggers.click(function () {
             const id = $(this).data('audioIdent');
             that.map.panMapToAudioFile(id);

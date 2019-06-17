@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_js_reverse',
 ]
 
 MIDDLEWARE = [
@@ -138,3 +139,7 @@ MEDIA_ROOT = BASE_DIR + '/webroot/media/'  # Where we put the data files
 STATIC_ROOT = BASE_DIR + '/webroot/static/'  # Where static assets are collected to
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'assets'), ]  # In addition to those in individual apps
+
+JS_REVERSE_OUTPUT_PATH = os.path.join(BASE_DIR, 'assets', 'django_js_reverse', 'js')
+# Send django_js_reverse to our working directory before makefile collects it with all the rest
+# This means it gets served under the debug server in the same way as the other static files

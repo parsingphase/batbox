@@ -14,6 +14,7 @@ assets/vendor/css/*
 !assets/vendor/css/.gitkeep
 assets/vendor/js/*
 !assets/vendor/js/.gitkeep
+assets/django_js_reverse
 node_modules
 assets/vendor/webfonts
 assets/vendor/images

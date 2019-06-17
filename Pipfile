@@ -10,6 +10,7 @@ guano = "*"
 audioread = "*"
 svgwrite = "*"
 python-dateutil = "*"
+django-js-reverse = "*"
 
 [dev-packages]
 flake8 = "*"

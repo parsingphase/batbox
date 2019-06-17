@@ -53,7 +53,13 @@
         import ListHandler from '{% static 'tracemap/js/ListHandler.js' %}';
 
         const listTable = new ListHandler(tableTarget, map);
+        {% if user.is_authenticated %}
+            listTable.user_is_authenticated = true;
+        {% endif %}
         listTable.initTable(recordings);
 
+
+        console.log("Dynamic API url is " + Urls.search_api());
+        console.log("Dynamic ADMIN url is " + Urls['admin:tracemap_audiorecording_change'](33));
     </script>
 {% endblock %}
