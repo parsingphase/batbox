@@ -120,7 +120,10 @@ export default class ListHandler {
                             return cellContent;
                         }
                 },
-            ]
+            ],
+            language: {
+                'search': 'Filter:'
+            }
         });
         this.resetRowControlTriggers();
 
