@@ -9,4 +9,4 @@ install:
   - 'pipenv install --dev'
 # command to run tests
 script:
-  -  python -m flake8 -v --exclude=.idea,.git,venv
+  -  make test

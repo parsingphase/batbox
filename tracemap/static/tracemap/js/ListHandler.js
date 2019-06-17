@@ -1,4 +1,4 @@
-// {# FIXME - set a config for base URL #}
+/* jshint -W069 */ // Url handler uses [] notation for consistency
 
 function renderUnknown(defaultString) {
     return function (data, type, row) {
