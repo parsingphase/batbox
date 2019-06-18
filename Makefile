@@ -2,7 +2,7 @@
 
 SHELL := /bin/bash
 
-.PHONY: gather_js collect_static install check_virtualenv migrate update remind_restart rebuild help test
+.PHONY: gather_js collect_static install check_virtualenv migrate update remind_restart rebuild help test runserver
 
 help:
 	#
@@ -10,13 +10,14 @@ help:
 	#
 	# NOTE: most targets require a virtual env to be activated and will fail if not
 	#
-	# install: Fetch JS and Python dependencies
-	# rebuild: Rebuild project after a code update or git pull
-	# migrate: Run any outstanding DB migrations
-	# test: Run static code tests
-	# collect_static: Rebuild and gather frontend assets
-	# venv: Create a virtual env in ./venv if it's missing.
-	#       This does not activate the environment; use source venv/bin/activate for that
+	# install:         Fetch JS and Python dependencies
+	# rebuild:         Rebuild project after a code update or git pull
+	# migrate:         Run any outstanding DB migrations
+	# test:            Run static code tests
+	# collect_static:  Rebuild and gather frontend assets
+	# runserver:       Run development server on port 80
+	# venv:            Create a virtual env in ./venv if it's missing.
+	#                  This does not activate the environment; use source venv/bin/activate for that
 	#
 	echo "# Help will not be displayed if you use make -s, --silent or --quiet"
 
@@ -25,7 +26,7 @@ test:
 	npm test
 
 check_virtualenv:
-	test -n "$(VIRTUAL_ENV)"  # Will fail if we're not in a VIRTUAL_ENV
+	pipenv --venv
 
 check_settings: batbox/settings.py
 	test -f batbox/settings.py || echo 'Please create the settings file at batbox/settings.py'  # Warn
@@ -76,3 +77,6 @@ remind_restart:
 	echo -n; echo "** Remember to restart the webserver or WSGI server **"; echo -n
 
 rebuild: check_virtualenv install collect_static migrate remind_restart
+
+runserver: check_virtualenv
+	DJANGO_DEBUG=1 python manage.py runserver 0:80

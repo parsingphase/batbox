@@ -10,25 +10,36 @@ import audioread
 
 
 class Command(BaseCommand):
-    help = 'Load an audio file into database'
+    help = 'Load audio files into database'
 
     def add_arguments(self, parser):
+        parser.add_argument('filename', type=str, help='Name of the file or directory to import')
         parser.add_argument(
-            'filename', type=str, help='Name of the file to import'
+            '-r', '--recursive', action='store_true', help='Recurse in directory, finding all .wav files'
         )
 
     def handle(self, *args, **kwargs):
         filename = kwargs['filename']
+        recurse = kwargs['recursive']
 
         if os.path.isfile(filename):
             self.process_file(filename)
         elif os.path.isdir(filename):
-            files = glob(filename + '/*.[wW][aA][vV]')
+            if recurse:
+                target = filename + '/**/*.[wW][aA][vV]'
+            else:
+                target = filename + '/*.[wW][aA][vV]'
+
+            files = glob(target, recursive=recurse)
             for file in files:
                 print(file)
                 self.process_file(file)
+            if not files:
+                print('Found no files')
+
         else:
             print(f'{filename} not found')
+            exit(1)
 
     def process_file(self, filename):
         filepath = os.path.realpath(filename)

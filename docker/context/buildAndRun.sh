@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+## Entrypoint script for the docker development image
+
 set -e
 
 echo '### Setting up the project - this could take a while'
@@ -27,10 +29,8 @@ if [[ "$1" != "--buildonly" ]]; then
     echo
     echo '## Looking for new audio files to import…'
     echo
-    set +e
-    find webroot/media -name *.wav | xargs -iz python manage.py importaudiofile 'z'
-    find webroot/media -name *.kml | xargs -iz python manage.py importkmlfile 'z'
-    set -e
+    python manage.py importaudiofile -r webroot/media
+    python manage.py importkmlfile -r webroot/media
 
     echo
     echo "## Running the web server. Ignore any message about the server's domain name…"
