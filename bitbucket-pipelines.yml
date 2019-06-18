@@ -11,7 +11,7 @@ pipelines:
         caches:
           - pip
         script: # Modify the commands below to build your repository.
-          - apt-get update && apt-get install -y unzip nodejs
+          - apt-get update && apt-get install -y unzip nodejs npm
           - pip install flake8
           - npm install
           - make test
