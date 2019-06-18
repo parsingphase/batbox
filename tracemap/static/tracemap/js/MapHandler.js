@@ -18,6 +18,7 @@ export default class MapHandler {
     constructor(targetElementId, mapboxToken) {
         this.targetElementId = targetElementId;
         this.mapboxToken = mapboxToken;
+        // this.tileSet = 'mapbox.streets';
         this.tileSet = 'mapbox.satellite';
         this.audioMarkers = {};
         this.markersLayer = new L.FeatureGroup();
@@ -81,15 +82,27 @@ export default class MapHandler {
      * @returns {MapHandler}
      */
     addAudioMarkers(audioFiles) {
+        let icon = L.icon({
+            iconUrl: '/static/tracemap/images/marker.svg',
+            shadowUrl: '/static/vendor/css/images/marker-shadow.png',
+
+            iconSize: [36, 44], // size of the icon
+            shadowSize: [41, 41], // size of the shadow
+            iconAnchor: [18, 44], // point of the icon which will correspond to marker's location
+            shadowAnchor: [10, 44],  // the same for the shadow
+            popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
+        });
+
         let marker;
         for (let i = 0; i < audioFiles.length; i++) {
             let trace = audioFiles[i];
             let id = trace.identifier;
             if (trace.latlon) {
-                marker = L.marker(trace.latlon);
+                marker = L.marker(trace.latlon, {icon: icon});
                 marker.bindPopup(trace.identifier);
                 this.audioMarkers[id] = marker;
                 this.markersLayer.addLayer(marker);
+
             }
         }
 

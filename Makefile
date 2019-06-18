@@ -37,7 +37,7 @@ site_css: tracemap/static/tracemap/css/recordings.less
 	./node_modules/.bin/lessc tracemap/static/tracemap/css/recordings.less tracemap/static/tracemap/css/recordings.css
 
 gather_npm_assets:
-	rm -rf assets/vendor/js/* assets/vendor/css/* webroot/static/*
+	rm -rf assets/vendor/js/* assets/vendor/css/* assets/vendor/images webroot/static/*
 	cp ./node_modules/bootstrap/dist/css/bootstrap.min.css assets/vendor/css/
 	cp ./node_modules/bootstrap/dist/js/bootstrap.min.js assets/vendor/js/
 	cp ./node_modules/@fortawesome/fontawesome-free/css/all.min.css assets/vendor/css/fontawesome-all.min.css
