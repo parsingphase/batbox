@@ -82,23 +82,30 @@ export default class MapHandler {
      * @returns {MapHandler}
      */
     addAudioMarkers(audioFiles) {
-        let icon = L.icon({
-            iconUrl: '/static/tracemap/images/marker.svg',
-            shadowUrl: '/static/vendor/css/images/marker-shadow.png',
-
-            iconSize: [36, 44], // size of the icon
-            shadowSize: [41, 41], // size of the shadow
-            iconAnchor: [18, 44], // point of the icon which will correspond to marker's location
-            shadowAnchor: [10, 44],  // the same for the shadow
-            popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
-        });
+        let icon = {};
 
         let marker;
         for (let i = 0; i < audioFiles.length; i++) {
             let trace = audioFiles[i];
             let id = trace.identifier;
             if (trace.latlon) {
-                marker = L.marker(trace.latlon, {icon: icon});
+                let colorKey = trace.genus + trace.species;
+                if (!colorKey) {
+                    colorKey = 'NULNUL';
+                }
+                icon[colorKey] = L.icon({
+                    iconUrl: '/img/species_marker/' + colorKey,
+                    shadowUrl: '/static/vendor/css/images/marker-shadow.png',
+
+                    iconSize: [36, 44], // size of the icon
+                    shadowSize: [41, 41], // size of the shadow
+                    iconAnchor: [18, 44], // point of the icon which will correspond to marker's location
+                    shadowAnchor: [10, 44],  // the same for the shadow
+                    popupAnchor: [0, -40] // point from which the popup should open relative to the iconAnchor
+                });
+
+
+                marker = L.marker(trace.latlon, {icon: icon[colorKey]});
                 marker.bindPopup(trace.identifier);
                 this.audioMarkers[id] = marker;
                 this.markersLayer.addLayer(marker);

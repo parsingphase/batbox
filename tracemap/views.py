@@ -292,3 +292,27 @@ def build_search_filter(search_params):
     if 'end' in search_params:
         search_filter['recorded_at__lte'] = parse_date(search_params['end'])
     return search_filter
+
+
+def species_marker(request, species_key):
+    template = loader.get_template('tracemap/marker.svg')
+    color = species_to_color(species_key)
+    context = {'color': color}
+    return HttpResponse(template.render(context, request), content_type='image/svg+xml')
+
+
+def species_to_color(species_key):
+    def str_to_num(string, scope):
+        string = string.upper()
+        num = 0
+        for i in range(0, len(string)):
+            num += (0xff * i) + 8 * ord(string[i]) - ord('A')
+        return num % scope
+
+    high_bytes = hex(0x888 + str_to_num(species_key[0:3], 0x777))[2:].zfill(3)
+    low_bytes = hex(str_to_num(species_key[3:6], 0xfff))[2:].zfill(3)
+    color = ''
+    for i in range(0, 3):
+        color = color + high_bytes[i] + low_bytes[i]
+
+    return color
