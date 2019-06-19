@@ -1,4 +1,5 @@
 // noinspection JSUnusedGlobalSymbols
+/* jshint -W069 */ // Url handler uses ['string'] notation
 /**
  * @typedef AudioFile
  * @type {Object}
