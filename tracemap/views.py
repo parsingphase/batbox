@@ -297,7 +297,10 @@ def build_search_filter(search_params):
 def species_marker(request, species_key):
     # FIXME Add dot / stroke of color depending on species ?
     template = loader.get_template('tracemap/marker.svg')
-    color = species_to_color(species_key)
+    if species_key == 'NULNUL':
+        color = 'bbbbbb'
+    else:
+        color = species_to_color(species_key)
     context = {'color': color}
     return HttpResponse(template.render(context, request), content_type='image/svg+xml')
 
