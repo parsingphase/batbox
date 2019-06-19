@@ -307,19 +307,37 @@ def species_marker(request, species_key):
     stroke_width = 1
     line_color = 'black'
     marker_color = '#' + color
+    bezier_length = marker_width / 3
 
     width = marker_width + marker_border * 2
     height = marker_height + marker_border * 2
+
+    arc_centre_drop = (marker_height / 4 + marker_border)  # Distance from top of marker to rotation centre
+    arc_radius_vertical = arc_centre_drop
 
     image = Drawing(size=('%dpx' % width, '%dpx' % height))
     # image.add(image.rect((0, 0), (width, height), fill='red'))
     path = Path(stroke=line_color, stroke_width=stroke_width, fill=marker_color)
 
-    path.push(f'M {marker_border} {(height * 1 / 3) + marker_border} ')
-    path.push(f'L {width / 2} {height - marker_border}')
-    path.push(f'L {width - marker_border} {(height * 1 / 3) + marker_border} ')
-    path.push_arc(target=(marker_border, (height * 1 / 3) + marker_border), rotation=180,
-                  r=(marker_width / 2, 0.35 * marker_height), absolute=True, angle_dir='-')
+    path.push(f'M {marker_border} {arc_centre_drop + marker_border} ')  # Left arc edge
+
+    path.push(
+        f'C {marker_border}  {arc_centre_drop + marker_border + bezier_length} '  # Left edge + vrt bez
+        f'{width / 2 - bezier_length / 3} {height - marker_border - bezier_length} '  # Point - (b/3) h, - b v
+        f'{width / 2} {height - marker_border}'  # Point
+    )
+
+    path.push(
+        f'C {width / 2 + bezier_length / 3} {height - marker_border - bezier_length} '  # Point + b/3 h, -b v
+        f'{width - marker_border} {arc_centre_drop + marker_border + bezier_length} '  # Right edge + vrt bez
+        f'{width - marker_border} {arc_centre_drop + marker_border} '  # Right edge
+
+    )  # Right arc edge
+
+    path.push_arc(target=(marker_border, arc_centre_drop + marker_border), rotation=180,
+                  r=(marker_width / 2, arc_radius_vertical), absolute=True, angle_dir='-')
+
+    path.push('z')
     image.add(path)
 
     return HttpResponse(image.tostring(), content_type='image/svg+xml')
