@@ -9,7 +9,8 @@ from os import path
 from tracemap.models import AudioRecording
 from svg_calendar import GridImage
 from svgwrite.container import Hyperlink
-from svgwrite import shapes
+from svgwrite.path import Path
+from svgwrite import shapes, Drawing
 from typing import List, Tuple
 
 
@@ -295,6 +296,36 @@ def build_search_filter(search_params):
 
 
 def species_marker(request, species_key):
+    if species_key == 'NULNUL':
+        color = 'bbbbbb'
+    else:
+        color = species_to_color(species_key)
+
+    marker_width = 60
+    marker_height = 100
+    marker_border = 5
+    stroke_width = 1
+    line_color = 'black'
+    marker_color = '#' + color
+
+    width = marker_width + marker_border * 2
+    height = marker_height + marker_border * 2
+
+    image = Drawing(size=('%dpx' % width, '%dpx' % height))
+    # image.add(image.rect((0, 0), (width, height), fill='red'))
+    path = Path(stroke=line_color, stroke_width=stroke_width, fill=marker_color)
+
+    path.push(f'M {marker_border} {(height * 1 / 3) + marker_border} ')
+    path.push(f'L {width / 2} {height - marker_border}')
+    path.push(f'L {width - marker_border} {(height * 1 / 3) + marker_border} ')
+    path.push_arc(target=(marker_border, (height * 1 / 3) + marker_border), rotation=180,
+                  r=(marker_width / 2, 0.35 * marker_height), absolute=True, angle_dir='-')
+    image.add(path)
+
+    return HttpResponse(image.tostring(), content_type='image/svg+xml')
+
+
+def species_marker_(request, species_key):
     # FIXME Add dot / stroke of color depending on species ?
     template = loader.get_template('tracemap/marker.svg')
     if species_key == 'NULNUL':
