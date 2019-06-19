@@ -22,6 +22,12 @@ export default class MapHandler {
         this.tileSet = 'mapbox.satellite';
         this.audioMarkers = {};
         this.markersLayer = new L.FeatureGroup();
+        this.urlRouter = null;
+        return this;
+    }
+
+    setUrlRouter(router) {
+        this.urlRouter = router;
         return this;
     }
 
@@ -94,7 +100,7 @@ export default class MapHandler {
                     colorKey = 'NULNUL';
                 }
                 icon[colorKey] = L.icon({
-                    iconUrl: '/img/species_marker/' + colorKey,
+                    iconUrl: this.urlRouter['species_marker'](trace.genus || '-', trace.species || '-'),
                     shadowUrl: '/static/vendor/css/images/marker-shadow.png',
 
                     iconSize: [36, 44], // size of the icon

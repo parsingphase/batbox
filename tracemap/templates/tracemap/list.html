@@ -42,6 +42,7 @@
 
         if (mapData.bounds) {
             map = new MapHandler('map-target', mapboxToken)
+                .setUrlRouter(Urls)
                 .drawMapWithBounds(mapData.bounds)
                 .addAudioMarkers(mapData.traces);
         } else {

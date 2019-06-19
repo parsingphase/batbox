@@ -16,5 +16,5 @@ urlpatterns = [
     ),
     path('search', views.search, name='search_view'),
     path('api/search', views.search_api, name='search_api'),
-    path('img/species_marker/<str:species_key>', views.species_marker, name='species_marker'),
+    path('img/species_marker/<str:genus_name>.<str:species_name>', views.species_marker, name='species_marker'),
 ]

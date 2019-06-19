@@ -10,6 +10,7 @@ from tracemap.models import AudioRecording
 from svg_calendar import GridImage
 from svgwrite.container import Hyperlink
 from svgwrite.path import Path
+from svgwrite.text import Text
 from svgwrite import shapes, Drawing
 from typing import List, Tuple
 
@@ -295,11 +296,12 @@ def build_search_filter(search_params):
     return search_filter
 
 
-def species_marker(request, species_key):
-    if species_key == 'NULNUL':
+def species_marker(request, genus_name='-', species_name='-'):
+    if species_name == '-':
         color = 'bbbbbb'
+        species_name = '?'
     else:
-        color = species_to_color(species_key)
+        color = species_to_color(genus_name, species_name)
 
     marker_width = 60
     marker_height = 100
@@ -311,8 +313,9 @@ def species_marker(request, species_key):
 
     width = marker_width + marker_border * 2
     height = marker_height + marker_border * 2
+    font_size = marker_height / 4
 
-    arc_centre_drop = (marker_height / 4 + marker_border)  # Distance from top of marker to rotation centre
+    arc_centre_drop = (marker_height / 3.5)  # Distance from top of marker to rotation centre
     arc_radius_vertical = arc_centre_drop
 
     image = Drawing(size=('%dpx' % width, '%dpx' % height))
@@ -339,29 +342,20 @@ def species_marker(request, species_key):
 
     path.push('z')
     image.add(path)
+    image.add(
+        Text(species_name, (width / 2, marker_border + arc_centre_drop + marker_height / 20), font_family='Arial',
+             font_size=font_size, dominant_baseline="middle", text_anchor="middle")
+    )
 
     return HttpResponse(image.tostring(), content_type='image/svg+xml')
 
 
-def species_marker_(request, species_key):
-    # FIXME Add dot / stroke of color depending on species ?
-    template = loader.get_template('tracemap/marker.svg')
-    if species_key == 'NULNUL':
-        color = 'bbbbbb'
-    else:
-        color = species_to_color(species_key)
-    context = {'color': color}
-    return HttpResponse(template.render(context, request), content_type='image/svg+xml')
-
-
-def species_to_color(species_key: str):
-    species_key = species_key.zfill(6)
-
+def species_to_color(genus_part: str, species_part: str):
     def char_to_num(char):
         return ord(char.upper()) - ord('A')
 
-    genus_part = species_key[0:3]
-    species_part = species_key[3:6]
+    genus_part = genus_part.zfill(3)
+    species_part = species_part.zfill(3)
 
     color = ''
     for i in range(0, 3):
