@@ -2,6 +2,13 @@ from django.core.management.base import BaseCommand
 import csv
 from tracemap.models import Species
 
+# Use various prior knowledge if heuristics aren't adequate
+canon_genus_map = {
+    'myotis': {
+        'canon_genus_3code': 'MYO'
+    }
+}
+
 
 class Command(BaseCommand):
     help = 'Load CSV file from https://mammaldiversity.org into database'
@@ -48,6 +55,12 @@ class Command(BaseCommand):
                         species_record.species = species
                         species_record.genus = genus
                         species_record.common_name = common_name
+
+                        genus_lower = genus.lower()
+                        if genus_lower in canon_genus_map:
+                            for key in canon_genus_map[genus_lower]:
+                                species_record[key] = canon_genus_map[genus_lower][key]
+
                         species_record.save()
                         print(f'Added {genus} {species} ({common_name})')
                         new += 1

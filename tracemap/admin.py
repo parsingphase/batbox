@@ -24,6 +24,11 @@ class SpeciesAdmin(admin.ModelAdmin):
         'species',
         'common_name',
     )
+    search_fields = (
+        'genus',
+        'species',
+        'common_name',
+    )
 
 
 admin.site.register(AudioRecording, AudioRecordingAdmin)
