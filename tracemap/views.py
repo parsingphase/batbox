@@ -13,7 +13,7 @@ from svgwrite.path import Path
 from svgwrite.text import Text
 from svgwrite import shapes, Drawing
 from typing import List, Tuple
-from .repository import SpeciesLookup
+from .repository import SpeciesLookup, NonUniqueSpeciesLookup
 
 
 def decorate_rect_with_class(rect: shapes.Rect, day: date, _):
@@ -170,7 +170,10 @@ def display_recordings_list(files: List[AudioRecording], request, context: dict 
         trace = f.as_serializable()
         trace['url'] = settings.MEDIA_URL + path.relpath(trace['file'], settings.MEDIA_ROOT)
         trace['file'] = None
-        species_info = lookup.species_by_abbreviations(f.genus, f.species)
+        try:
+            species_info = lookup.species_by_abbreviations(f.genus, f.species)
+        except NonUniqueSpeciesLookup:
+            species_info = None
         trace['species_info'] = species_info.as_serializable() if species_info else ''
         traces.append(trace)
 
@@ -260,15 +263,22 @@ def summarise_by_day() -> Tuple[dict, dict]:
 
     genus_map = {}
     for genus_abbr in genus_species:
+        name = gl(genus_abbr)
         genus_map[genus_abbr] = {
-            'name': gl(genus_abbr),
+            'name': name if type(name) is str else None,
             'species': []
         }
         species_abbreviations = sorted(set(genus_species[genus_abbr]))
+
         for species_abbr in species_abbreviations:
+            try:
+                species_data = lookup.species_by_abbreviations(genus_abbr, species_abbr)
+            except NonUniqueSpeciesLookup:
+                species_data = None
+
             species_item = {
                 'abbreviation': species_abbr,
-                'species': lookup.species_by_abbreviations(genus_abbr, species_abbr)
+                'species': species_data
             }
             genus_map[genus_abbr]['species'].append(species_item)
 
