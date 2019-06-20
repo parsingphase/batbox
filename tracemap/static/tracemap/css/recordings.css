@@ -51,8 +51,11 @@ table.recordings a {
   text-decoration-style: dotted;
 }
 table.recordings thead th {
-  vertical-align: middle;
+  vertical-align: top;
   border: none;
+}
+table.recordings thead th .subtitle {
+  font-weight: normal;
 }
 table.recordings thead th.genus {
   background-color: #eee;
@@ -74,3 +77,4 @@ table.recordings tbody td.recording-duration .duration {
   width: 5em;
   display: inline-block;
 }
+/*# sourceMappingURL=recordings.css.map */

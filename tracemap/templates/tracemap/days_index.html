@@ -9,15 +9,32 @@
             <thead>
             <tr>
                 <th rowspan="2">Date</th>
-                {% for g,species in genuses.items %}
-                    <th colspan="{{ species|length }}" class="genus">{% if g %}{{ g }}{% else %}?{% endif %}</th>
+                {% for g,genus_data in genuses.items %}
+                    <th colspan="{{ genus_data.species|length }}" class="genus">
+                        {% if g %}{{ g }}{% else %}?{% endif %}
+                        {% if genus_data.name %}
+                            <div class="subtitle">({{ genus_data.name }})</div>
+                        {% endif %}
+                        {#                       {{ genus_data }}#}
+                    </th>
                 {% endfor %}
                 <th rowspan="2" class="total">Total</th>
             </tr>
             <tr>
-                {% for g,species in genuses.items %}
-                    {% for s in species %}
-                        <th class="species">{% if s %}{{ s }}{% else %}?{% endif %}</th>
+                {% for g,genus_data in genuses.items %}
+                    {% for s in genus_data.species %}
+                        <th class="species">{% if s.abbreviation %}{{ s.abbreviation }}{% else %}?{% endif %}
+                            <div class="subtitle">
+                                {% if  s.species.species %}
+                                    ({{ s.species.species|title }})
+                                {% endif %}
+                                {% if s.species.common_name %}
+                                    <br/><i>{{ s.species.common_name }}</i>
+                                {% endif %}
+                            </div>
+
+
+                        </th>
                     {% endfor %}
                 {% endfor %}
             </tr>
@@ -33,9 +50,9 @@
                         {% endif %}
                     </td>
 
-                    {% for g,species in genuses.items %}
-                        {% for s in species %}
-                            <td class="recording-count">{{ day.genus|dict_key:g|dict_key:s|blank_none }}</td>
+                    {% for g,genus_data in genuses.items %}
+                        {% for s in genus_data.species %}
+                            <td class="recording-count">{{ day.genus|dict_key:g|dict_key:s.abbreviation|blank_none }}</td>
                         {% endfor %}
                     {% endfor %}
 

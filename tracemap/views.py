@@ -13,6 +13,7 @@ from svgwrite.path import Path
 from svgwrite.text import Text
 from svgwrite import shapes, Drawing
 from typing import List, Tuple
+from .repository import SpeciesLookup
 
 
 def decorate_rect_with_class(rect: shapes.Rect, day: date, _):
@@ -45,6 +46,8 @@ def index(request):
     Returns:
 
     """
+
+    # return None
     template = loader.get_template('tracemap/days_index.html')
     summary, genuses = summarise_by_day()
     days = sorted(summary.values(), key=lambda d: d['day'] if d['day'] is not None else '')
@@ -231,17 +234,33 @@ def summarise_by_day() -> Tuple[dict, dict]:
     unique_genus = set([row['genus'] for row in days_by_species])
 
     days = {day: {'day': day, 'count': 0, 'genus': {g: {} for g in unique_genus}} for day in unique_days}
-    genus_map = {g: [] for g in unique_genus}
+    genus_species = {g: [] for g in unique_genus}
 
     for row in days_by_species:
         day_key = f_day(row['day'])
         days[day_key]['count'] += row['count']
-        for g in unique_genus:
-            if row['genus'] == g:
-                days[day_key]['genus'][g][row['species']] = row['count']
-                genus_map[g].append(row['species'])
+        for genus_abbr in unique_genus:
+            if row['genus'] == genus_abbr:
+                days[day_key]['genus'][genus_abbr][row['species']] = row['count']
+                genus_species[genus_abbr].append(row['species'])
 
-    genus_map = {g: sorted(set(genus_map[g])) for g in genus_map}
+    lookup = SpeciesLookup()
+    gl = lookup.genus_name_by_abbreviation
+    # genus_species = Map of (eg) { PYP: [NAT, PIP, PYG], …} - species lists are unsorted here
+
+    genus_map = {}
+    for genus_abbr in genus_species:
+        genus_map[genus_abbr] = {
+            'name': gl(genus_abbr),
+            'species': []
+        }
+        species_abbreviations = sorted(set(genus_species[genus_abbr]))
+        for species_abbr in species_abbreviations:
+            species_item = {
+                'abbreviation': species_abbr,
+                'species': lookup.species_by_abbreviations(genus_abbr, species_abbr)
+            }
+            genus_map[genus_abbr]['species'].append(species_item)
 
     return days, genus_map
 
@@ -362,4 +381,4 @@ def species_to_color(genus_part: str, species_part: str):
         channel = 100 + (6 * char_to_num(genus_part[i])) + char_to_num(species_part[i])
         color += hex(channel)[2:].zfill(2)
 
-    return color
+    return color[0:6]  # FIXME getting 7 chars somehow… DEBUG!

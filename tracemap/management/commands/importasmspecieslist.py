@@ -6,7 +6,10 @@ from tracemap.models import Species
 canon_genus_map = {
     'myotis': {
         'canon_genus_3code': 'MYO'
-    }
+    },
+    'nyctalus': {
+        'canon_genus_3code': 'NYC'
+    },
 }
 
 
@@ -45,6 +48,7 @@ class Command(BaseCommand):
             for row in reader:
                 i += 1
                 if len(row) > o and row[o].lower() == 'chiroptera':  # non-blank
+                    species_record = None
                     genus = row[g]
                     species = row[s]
                     common_name = row[c]
@@ -55,19 +59,20 @@ class Command(BaseCommand):
                         species_record.species = species
                         species_record.genus = genus
                         species_record.common_name = common_name
+                        print(f'Added {genus} {species} ({common_name})')
+                        new += 1
+                    elif hits == 1:
+                        species_record = existing_species[0]
+                        print(f'Found {genus} {species}, potentially updating')
+                    else:
+                        print(f'Already have multiple hits for {genus} {species}')
 
+                    if species_record is not None:
                         genus_lower = genus.lower()
                         if genus_lower in canon_genus_map:
                             for key in canon_genus_map[genus_lower]:
                                 species_record[key] = canon_genus_map[genus_lower][key]
 
                         species_record.save()
-                        print(f'Added {genus} {species} ({common_name})')
-                        new += 1
-                    elif hits == 1:
-                        species_record = existing_species[0]
-                        print(f'Found {genus} {species}, skipping')
-                    else:
-                        print(f'Already have multiple hits for {genus} {species}')
 
         print(f'Read {i} rows, found {new} new bats')

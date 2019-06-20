@@ -63,14 +63,18 @@ table.recordings {
 
   thead {
     th {
-      vertical-align: middle;
+      vertical-align: top;
       border: none;
-    }
 
-    th.genus {
-      background-color: #eee;
-      border-right: solid white 4px;
-      border-bottom: none;
+      .subtitle {
+        font-weight: normal;
+      }
+
+      &.genus {
+        background-color: #eee;
+        border-right: solid white 4px;
+        border-bottom: none;
+      }
     }
 
     th.species, th.total {

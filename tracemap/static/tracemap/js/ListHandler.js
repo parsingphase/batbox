@@ -129,7 +129,7 @@ export default class ListHandler {
 
         table.on('search.dt', function () {
             const newAudioList = table.rows({filter: 'applied'}).data().toArray();
-            this.map.replaceAudioMarkers(newAudioList);
+            that.map.replaceAudioMarkers(newAudioList);
             that.resetRowControlTriggers();
         });
 
