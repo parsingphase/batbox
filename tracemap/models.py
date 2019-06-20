@@ -57,6 +57,7 @@ class Species(models.Model):
     common_name = models.CharField(max_length=64, blank=True)
     canon_genus_3code = models.CharField(max_length=3, blank=True)
     canon_6code = models.CharField(max_length=6, blank=True)
+    mdd_id = models.IntegerField(null=True)
 
     def __setitem__(self, key, value):
         if key in ['genus', 'species', 'common_name', 'canon_genus_3code', 'canon_6code']:

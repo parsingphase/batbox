@@ -69,6 +69,12 @@ Particular credit is due to [David Riggs](https://github.com/riggsd) for both bu
 
 Credit is also due to the creators of [Django](https://www.djangoproject.com), particularly the [Django Admin](https://docs.djangoproject.com/en/2.2/ref/contrib/admin/) project which supplies the whole admin interface to the site.
 
+Species full & common names are from the [Mammal Diversity Database](https://www.mammaldiversity.org):
+ 2019. www.mammaldiversity.org. American Society of Mammalogists. Accessed 2019-06-20 .
+ 
+Please note that mappings from short codes to full species names are heuristic and not entirely foolproof. Any reportings of 
+Malaysian Fruit Bats in Kent should be assumed to be a software error.
+
 ### Licence
 
 The project is currently licenced under the [MIT](LICENCE.txt) licence, which should allow you to do what you need to with it. I reserve the right to change the licence at a later date, but any such change won't be retroactive - if you receive a MIT version, you can keep using it as such.

@@ -20,7 +20,7 @@ class Command(BaseCommand):
         parser.add_argument('filename', type=str, help='Name of the file or directory to import')
 
     def handle(self, *args, **kwargs):
-        required_csv_fields = ['genus', 'species', 'common name', 'linnean order']
+        required_csv_fields = ['genus', 'species', 'common name', 'linnean order', 'internal id']
         filename = kwargs['filename']
         column_map = {}
         i = 0
@@ -42,6 +42,7 @@ class Command(BaseCommand):
             g = column_map['genus']
             s = column_map['species']
             c = column_map['common name']
+            m = column_map['internal id']
 
             new = 0
 
@@ -52,6 +53,7 @@ class Command(BaseCommand):
                     genus = row[g]
                     species = row[s]
                     common_name = row[c]
+                    mdd_id = row[m]
                     existing_species = Species.objects.filter(genus=genus, species=species)
                     hits = len(existing_species)
                     if hits == 0:
@@ -68,6 +70,8 @@ class Command(BaseCommand):
                         print(f'Already have multiple hits for {genus} {species}')
 
                     if species_record is not None:
+                        if len(mdd_id):
+                            species_record.mdd_id = mdd_id
                         genus_lower = genus.lower()
                         if genus_lower in canon_genus_map:
                             for key in canon_genus_map[genus_lower]:
