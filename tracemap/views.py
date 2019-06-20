@@ -163,7 +163,17 @@ def display_recordings_list(files: List[AudioRecording], request, context: dict 
     """
     if context is None:
         context = {}
-    traces = [audio_for_json(f) for f in files]
+
+    lookup = SpeciesLookup()
+    traces = []
+    for f in files:
+        trace = f.as_serializable()
+        trace['url'] = settings.MEDIA_URL + path.relpath(trace['file'], settings.MEDIA_ROOT)
+        trace['file'] = None
+        species_info = lookup.species_by_abbreviations(f.genus, f.species)
+        trace['species_info'] = species_info.as_serializable() if species_info else ''
+        traces.append(trace)
+
     bounds = bounds_from_recordings(files)
     template = loader.get_template('tracemap/list.html')
     local_context = {
@@ -265,29 +275,7 @@ def summarise_by_day() -> Tuple[dict, dict]:
     return days, genus_map
 
 
-def audio_for_json(audio: AudioRecording) -> dict:
-    """
-    Repack an audio file such that it can be serialised in JSON
-    Args:
-        audio:
-
-    Returns:
-
-    """
-    if audio is not None:
-        j = audio.as_serializable()
-        j['url'] = settings.MEDIA_URL + path.relpath(
-            j['file'], settings.MEDIA_ROOT
-        )
-        j['file'] = None
-    else:
-        j = None
-
-    return j
-
-
 def search_api(request: HttpRequest):
-    # return HttpResponse(dumps(request.GET))
     search_params = request.GET
     search_filter = build_search_filter(search_params)
 

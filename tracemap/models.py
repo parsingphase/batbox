@@ -60,7 +60,7 @@ class Species(models.Model):
     mdd_id = models.IntegerField(null=True)
 
     def __setitem__(self, key, value):
-        if key in ['genus', 'species', 'common_name', 'canon_genus_3code', 'canon_6code']:
+        if key in ['genus', 'species', 'common_name', 'canon_genus_3code', 'canon_6code', 'mdd_id']:
             setattr(self, key, value)
         else:
             raise Exception(f'Key "{key}" cannot be set dynamically')
@@ -68,3 +68,12 @@ class Species(models.Model):
     class Meta:
         verbose_name = 'Species'
         verbose_name_plural = 'Species'
+
+    def as_serializable(self):
+        return {
+            'id': self.id,
+            'genus': self.genus,
+            'species': self.species,
+            'common_name': self.common_name,
+            'mdd_id': self.mdd_id,
+        }

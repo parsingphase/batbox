@@ -1,5 +1,10 @@
 /* jshint -W069 */ // Url handler uses [] notation for consistency
 
+function ucFirst(s) {
+    if (typeof s !== 'string') return '';
+    return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 function renderUnknown(defaultString) {
     return function (data, type, row) {
         if (type === "sort" || type === "type") {
@@ -64,13 +69,32 @@ export default class ListHandler {
                     className: 'recording-duration',
                 },
                 {
+                    data: 'species_info', title: 'Name',
+                    render: function (data, type, row) {
+                        let output = '';
+
+                        if (data) {
+                            if (data['common_name']) {
+                                output = data['common_name'];
+                            } else if (data['genus']) {
+                                output = '<i>' + data['genus'] + ' ' + data['species'] + '</i>';
+                            }
+                        }
+                        return output;
+                    }
+                },
+                {
                     data: 'genus', title: 'Genus',
                     render: function (data, type, row) {
                         if (type === "sort" || type === "type") {
                             return data;
                         }
                         const url = that.urlRouter['genus_view'](data);
-                        return data ? '<a href="' + url + '">' + data + '</a>' : '-';
+                        let title = '';
+                        if (row['species_info'] && row['species_info']['genus']) {
+                            title = 'title="' + row['species_info']['genus'] + '"';
+                        }
+                        return data ? '<a ' + title + ' href="' + url + '">' + data + '</a>' : '-';
                     }
                 },
                 {
@@ -78,8 +102,12 @@ export default class ListHandler {
                         if (type === "sort" || type === "type") {
                             return data;
                         }
+                        let title = '';
+                        if (row['species_info'] && row['species_info']['species']) {
+                            title = 'title="' + ucFirst(row['species_info']['species']) + '"';
+                        }
                         const url = that.urlRouter['species_view'](row.genus, row.species);
-                        return data ? '<a href="' + url + '">' + data + '</a>' : '-';
+                        return data ? '<a ' + title + ' href="' + url + '">' + data + '</a>' : '-';
                     }
                 },
                 {
@@ -107,6 +135,12 @@ export default class ListHandler {
                                     '<i class="fas fa-map-marker-alt"></i></a>' +
                                     ' <a title="Focus" href="#" class="panTriggerZoom" data-audio-ident="' + row.identifier + '">' +
                                     '<i class="fas fa-search-location"></i></a>';
+                            }
+
+                            if (row.species_info && row.species_info.mdd_id) {
+                                cellContent += ' <a href="https://mammaldiversity.org/species-account/species-id=' +
+                                    row.species_info.mdd_id + '" title="More into at mammaldiversity.org">' +
+                                    '<i class="fas fa-info-circle"></i></a> ';
                             }
 
                             const permaUrl = that.urlRouter['single_view'](row.id);

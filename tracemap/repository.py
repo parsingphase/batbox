@@ -12,6 +12,10 @@ class NonUniqueSpeciesLookup(Exception):
 class SpeciesLookup:
     model = Species
 
+    def __init__(self) -> None:
+        super().__init__()
+        self._species_lookup_cache = {}
+
     def genus_name_by_abbreviation(self, abbreviation: str) -> Union[None, str, List[str]]:
         """
         Return a list of candidate genus for a given prefix
@@ -42,17 +46,24 @@ class SpeciesLookup:
         if len(genus_abbreviation) == 0 or len(species_abbreviation) == 0:
             return None
 
-        # First try a canon lookup:
-        species_records = self.model.objects.filter(
-            canon_genus_3code=genus_abbreviation.upper(),
-            species__istartswith=species_abbreviation,
-        )
+        composite_key = (genus_abbreviation + species_abbreviation).upper()
+        if composite_key in self._species_lookup_cache:
+            species_records = self._species_lookup_cache[composite_key]
+        else:
 
-        if len(species_records) == 0:  # Else go heuristic
+            # First try a canon lookup:
             species_records = self.model.objects.filter(
-                genus__istartswith=genus_abbreviation,
+                canon_genus_3code=genus_abbreviation.upper(),
                 species__istartswith=species_abbreviation,
             )
+
+            if len(species_records) == 0:  # Else go heuristic
+                species_records = self.model.objects.filter(
+                    genus__istartswith=genus_abbreviation,
+                    species__istartswith=species_abbreviation,
+                )
+
+            self._species_lookup_cache[composite_key] = list(species_records)
 
         if len(species_records) == 1:
             return species_records[0]
