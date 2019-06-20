@@ -52,15 +52,15 @@
             </div>
             <div class="col-10">
                 <div class="form-row" id="">
-                    {% for genus, species in genii.items %}
+                {% for genus,genus_data in genii.items %}
                         <div class="col">
                             {% if genus %}{{ genus }}{% else %}Unidentified{% endif %}
-                            {% for s in species %}
+                            {% for s in genus_data.species %}
                                 <div>
                                     <input type="checkbox" checked="checked" id="species-{{ s }}"
-                                           class="species" data-genus="{{ genus }}" data-species="{{ s }}"
-                                           name="species[{{ s }}]" value="1"/>
-                                    <label for="species-{{ s }}">{% if s %}{{ s }}{% else %} ? {% endif %}</label>
+                                           class="species" data-genus="{{ genus }}" data-species="{{ s.abbreviation }}"
+                                           name="species[{{ s.abbreviation }}]" value="1"/>
+                                    <label for="species-{{ s.abbreviation }}">{% if s.abbreviation %}{{ s.abbreviation }}{% else %} ? {% endif %}</label>
                                 </div>
                             {% endfor %}
                         </div>
