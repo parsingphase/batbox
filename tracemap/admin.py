@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import AudioRecording
+from .models import AudioRecording, Species
 
 
 class AudioRecordingAdmin(admin.ModelAdmin):
@@ -18,4 +18,13 @@ class AudioRecordingAdmin(admin.ModelAdmin):
     )
 
 
+class SpeciesAdmin(admin.ModelAdmin):
+    list_display = (
+        'genus',
+        'species',
+        'common_name',
+    )
+
+
 admin.site.register(AudioRecording, AudioRecordingAdmin)
+admin.site.register(Species, SpeciesAdmin)

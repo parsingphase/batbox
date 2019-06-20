@@ -49,3 +49,13 @@ class AudioRecording(models.Model):
             else None,
             'duration': self.duration
         }
+
+
+class Species(models.Model):
+    genus = models.CharField(max_length=32, blank=True)
+    species = models.CharField(max_length=32, blank=True)
+    common_name = models.CharField(max_length=64, blank=True)
+
+    class Meta:
+        verbose_name = 'Species'
+        verbose_name_plural = 'Species'
