@@ -359,7 +359,7 @@ def species_to_color(genus_part: str, species_part: str):
 
     color = ''
     for i in range(0, 3):
-        channel = 100 + (6 * char_to_num(genus_part[i])) + char_to_num(species_part[i])
+        channel = 80 + (6 * char_to_num(genus_part[i])) + char_to_num(species_part[i])
         color += hex(channel)[2:].zfill(2)
 
     return color
