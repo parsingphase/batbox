@@ -1,0 +1,39 @@
+{% extends 'tracemap/base.html' %}
+{% load static %}
+
+{% block body-container %}
+    <div class="about">
+        <h1>About Batbox</h1>
+        <p>Batbox is an tool for displaying bat recordings tagged with Guano metadata, such as those recorded
+            by devices from Wildlife Acoustics.</p>
+        <p>As it's open source software, you're welcome to download it from
+            <a href="https://github.com/parsingphase/batbox">GitHub</a> and run it on your own server or desktop,
+            with your own recordings.</p>
+        <p>Batbox was created and is developed by Richard George, aka <a
+                href="https://parsingphase.dev">Parsingphase</a>.
+        </p>
+
+        <h2>Using this site</h2>
+        <p>There are four main views on the site: </p>
+
+        <dl>
+            <dt><a href="{% url 'index' %}">Summary View</a></dt>
+            <dd>Displays a breakdown of species observed on each day.</dd>
+            <dt><a href="{% url 'calendar' %}">Calendar View</a></dt>
+            <dd>A visual summary of the density of recordings over time.</dd>
+            <dt><a href="{% url 'list_view' %}">Map View</a></dt>
+            <dd>The main display page, where you can see selected recordings in a map, and play and download them.
+                You can select by Genus, Species or date, or use the Search view for more control.
+            </dd>
+            <dt><a href="{% url 'search_view' %}">Search View</a></dt>
+            <dd>An advanced search form where you can search by time period, location and species.</dd>
+        </dl>
+
+        <h2>Search View</h2>
+        <img class="page-view" src="{% static 'images/search_view.png' %}"/>
+        <p>Select the time range and/or species you're interested in. Scroll and pan the map to limit the search area.
+            You'll get instant feedback in the map view as to where results are found.</p>
+        <p>To view the search results in detail on the map view, hit the search button.</p>
+
+    </div>
+{% endblock %}

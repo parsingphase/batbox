@@ -4,7 +4,7 @@ from dateutil.parser import parse as parse_date
 from django.db.models import Count, Min, Max
 from django.db.models.functions import TruncDay
 from django.http import HttpRequest, HttpResponse, Http404, JsonResponse
-from django.template import loader
+from django.template import loader, response
 from os import path
 from tracemap.models import AudioRecording
 from svg_calendar import GridImage
@@ -397,3 +397,7 @@ def species_to_color(genus_part: str, species_part: str):
         color += hex(channel)[2:].zfill(2)
 
     return color
+
+
+def about(request):
+    return response.SimpleTemplateResponse('tracemap/about.html')

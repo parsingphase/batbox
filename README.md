@@ -4,7 +4,7 @@
 
 Demo site: https://batbox.phase.org
 
-![Map view](docs/images/mapview.png)         
+![Map view](docs/images/map_page.png)         
 
 [Wildlife Acoustics](https://www.wildlifeacoustics.com) are a manufacturer of wildlife audio tracking tools, from hobbyist to professional.
  
