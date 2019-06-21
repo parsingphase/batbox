@@ -139,7 +139,7 @@ export default class ListHandler {
 
                             if (row.species_info && row.species_info.mdd_id) {
                                 cellContent += ' <a href="https://mammaldiversity.org/species-account/species-id=' +
-                                    row.species_info.mdd_id + '" title="More into at mammaldiversity.org">' +
+                                    row.species_info.mdd_id + '" title="More info at mammaldiversity.org">' +
                                     '<i class="fas fa-info-circle"></i></a> ';
                             }
 

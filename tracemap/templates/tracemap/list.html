@@ -43,8 +43,12 @@
         if (mapData.bounds) {
             map = new MapHandler('map-target', mapboxToken)
                 .setUrlRouter(Urls)
-                .drawMapWithBounds(mapData.bounds)
-                .addAudioMarkers(mapData.traces);
+                .drawMapWithBounds(mapData.bounds);
+            {% if user.is_authenticated %}
+                map.setUserAuthenticated(true);
+            {% endif %}
+            map.addAudioMarkers(mapData.traces);
+
         } else {
             $('.map-loader').text('No positioned files available');
         }

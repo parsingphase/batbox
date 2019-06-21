@@ -18,18 +18,24 @@ export default class MapHandler {
      */
     constructor(targetElementId, mapboxToken) {
         this.targetElementId = targetElementId;
+        this.targetElement = $('#' + targetElementId);
         this.mapboxToken = mapboxToken;
         // this.tileSet = 'mapbox.streets';
         this.tileSet = 'mapbox.satellite';
         this.audioMarkers = {};
         this.markersLayer = new L.FeatureGroup();
         this.urlRouter = null;
+        this.userIsAuthenticated = false;
         return this;
     }
 
     setUrlRouter(router) {
         this.urlRouter = router;
         return this;
+    }
+
+    setUserAuthenticated(flag) {
+        this.userIsAuthenticated = flag;
     }
 
     /**
@@ -82,6 +88,58 @@ export default class MapHandler {
         return this;
     }
 
+    enableAudioControlsInMap() {
+        const that = this;
+        let $audioTriggers = this.targetElement.find('.audioTrigger');
+        $audioTriggers.off('click');
+
+        $audioTriggers.click(function () {
+            let sourceElement = $(this);
+            const id = sourceElement.data('audioIdent');
+            const src = sourceElement.data('audioSrc');
+
+            // Reset if we change sample
+            if (that.playingFile !== id) {
+                if (that.player) {
+                    that.player.pause();
+                }
+                that.player = null;
+                that.targetElement.find('.audioTrigger').html('<i class="fas fa-play"></i>');
+            }
+
+            that.playingFile = id;
+
+            if (!that.player) {
+                that.player = new Audio(src);
+            }
+
+            that.player.addEventListener('playing', () => {
+                // The duration variable now holds the duration (in seconds) of the audio clip
+                sourceElement.html('<i class="fas fa-pause"></i>');
+            });
+
+            that.player.addEventListener('ended', () => {
+                // The duration variable now holds the duration (in seconds) of the audio clip
+                sourceElement.html('<i class="fas fa-play"></i>');
+                that.player = null;
+            });
+
+            that.player.addEventListener('error', () => {
+                // The duration variable now holds the duration (in seconds) of the audio clip
+                sourceElement.html('<abbr title="Failed"><i class="fas fa-exclamation-circle"></i></abbr>');
+                that.player = null;
+            });
+
+            if (that.player.paused) {
+                sourceElement.html('<i class="fas fa-spinner fa-pulse"></i>');
+                that.player.play();
+            } else {
+                sourceElement.html('<i class="fas fa-play"></i>');
+                that.player.pause();
+            }
+        });
+    }
+
     /**
      * Add the list of audiofiles as map markers
      *
@@ -90,9 +148,9 @@ export default class MapHandler {
      */
     addAudioMarkers(audioFiles) {
         let icon = {};
+        const that = this;
         this.markersLayer.on('popupopen', function (e) {
-            console.log('popupopen');
-            console.log(e);
+            that.enableAudioControlsInMap();
         });
 
         let marker;
@@ -117,7 +175,7 @@ export default class MapHandler {
 
 
                 marker = L.marker(trace.latlon, {icon: icon[colorKey]});
-                marker.bindPopup(MapHandler.formatTracePopup(trace));
+                marker.bindPopup(this.formatTracePopup(trace));
                 this.audioMarkers[id] = marker;
                 this.markersLayer.addLayer(marker);
 
@@ -128,8 +186,8 @@ export default class MapHandler {
     }
 
 
-    static formatTracePopup(trace) {
-        let output = '';
+    formatTracePopup(trace) {
+        let output = '<div class="recordingPopup">';
         if (trace.species) {
             let latinName = trace.genus + ' ' + trace.species + ' ';
             if (trace.species_info) {
@@ -143,10 +201,35 @@ export default class MapHandler {
         } else {
             output += '(unknown) ';
         }
-        output += moment(trace.recorded_at).format("YYYY-MM-DD HH:mm");
-            if (trace.species_info && trace.species_info.common_name) {
-                output += '<br />' + trace.species_info.common_name;
-            }
+
+        output += moment(trace.recorded_at).format('YYYY-MM-DD HH:mm');
+        output += '<br />' + trace.duration.toFixed(2) + ' s';
+
+        if (trace.species_info && trace.species_info.common_name) {
+            output += '<br />' + trace.species_info.common_name;
+        }
+
+        output += '<br />';
+        output += '<a title="Play" class="audioTrigger" data-audio-src="' + trace.url + '" ' +
+            'data-audio-ident="' + trace.identifier + '">' +
+            '<i class="fas fa-play"></i></a> ' +
+            '<a title="Download" href="' + trace.url + '"><i class="fas fa-download"></i></a>';
+
+        if (trace.species_info && trace.species_info.mdd_id) {
+            output += ' <a href="https://mammaldiversity.org/species-account/species-id=' +
+                trace.species_info.mdd_id + '" title="More into at mammaldiversity.org">' +
+                '<i class="fas fa-info-circle"></i></a> ';
+        }
+
+        const permaUrl = this.urlRouter['single_view'](trace.id);
+        output = output + ' <div class="float-right"><a title="Permalink" href="' + permaUrl + '"><i class="fas fa-link"></i></a>';
+        if (this.userIsAuthenticated) {
+            const editUrl = this.urlRouter['admin:tracemap_audiorecording_change'](trace.id);
+            output = output + ' <a title="Edit" href="' + editUrl + '"><i class="fas fa-pencil-alt"></i></a>';
+        }
+        output = output + '</div>';
+        output = output + '</div>'; // close .recordingPopup
+
         return output;
     }
 
