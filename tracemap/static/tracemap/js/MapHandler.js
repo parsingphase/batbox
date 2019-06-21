@@ -90,6 +90,10 @@ export default class MapHandler {
      */
     addAudioMarkers(audioFiles) {
         let icon = {};
+        this.markersLayer.on('popupopen', function (e) {
+            console.log('popupopen');
+            console.log(e);
+        });
 
         let marker;
         for (let i = 0; i < audioFiles.length; i++) {
@@ -113,7 +117,7 @@ export default class MapHandler {
 
 
                 marker = L.marker(trace.latlon, {icon: icon[colorKey]});
-                marker.bindPopup(trace.identifier);
+                marker.bindPopup(MapHandler.formatTracePopup(trace));
                 this.audioMarkers[id] = marker;
                 this.markersLayer.addLayer(marker);
 
@@ -123,6 +127,28 @@ export default class MapHandler {
         return this;
     }
 
+
+    static formatTracePopup(trace) {
+        let output = '';
+        if (trace.species) {
+            let latinName = trace.genus + ' ' + trace.species + ' ';
+            if (trace.species_info) {
+                output += '<abbr title="' +
+                    trace.species_info.genus + ' ' +
+                    trace.species_info.species +
+                    '">' + latinName + '</abbr>';
+            } else {
+                output += latinName;
+            }
+        } else {
+            output += '(unknown) ';
+        }
+        output += moment(trace.recorded_at).format("YYYY-MM-DD HH:mm");
+            if (trace.species_info && trace.species_info.common_name) {
+                output += '<br />' + trace.species_info.common_name;
+            }
+        return output;
+    }
 
     /**
      * Replace map markers with those specified
