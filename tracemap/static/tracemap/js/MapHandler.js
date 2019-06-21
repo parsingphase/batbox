@@ -166,7 +166,7 @@ export default class MapHandler {
                     iconUrl: this.urlRouter['species_marker'](trace.genus || '-', trace.species || '-'),
                     shadowUrl: '/static/vendor/css/images/marker-shadow.png',
 
-                    iconSize: [36, 44], // size of the icon
+                    iconSize: [28, 44], // size of the icon
                     shadowSize: [41, 41], // size of the shadow
                     iconAnchor: [18, 44], // point of the icon which will correspond to marker's location
                     shadowAnchor: [10, 44],  // the same for the shadow
