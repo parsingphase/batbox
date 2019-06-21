@@ -1,3 +1,13 @@
+html {
+  position: relative;
+  min-height: 100%;
+
+
+  body {
+    margin-bottom: 70px; /* Margin bottom by footer height + a bit */
+  }
+}
+
 form#searchParams {
   margin-top: 10px;
 
@@ -16,26 +26,20 @@ form#searchParams {
   }
 }
 
+#recordingsTable_wrapper {
+  margin-top: 10px;
+}
+
 /* NB - this is appended OUTSIDE the form! */
 .datepicker {
   z-index: 1500 !important;
-}
-
-
-html {
-  position: relative;
-  min-height: 100%;
 }
 
 a i.fas {
   color: #000
 }
 
-body {
-  margin-bottom: 70px; /* Margin bottom by footer height + a bit */
-}
-
-a.audiotrigger {
+a.audioTrigger {
   cursor: pointer;
 }
 
@@ -90,16 +94,18 @@ table.recordings {
     }
   }
 
-  td.recording-count {
-    text-align: right;
-    padding-right: 2em;
-  }
+  tbody {
+    td.recording-count {
+      text-align: right;
+      padding-right: 2em;
+    }
 
-   tbody td.recording-duration .duration {
-            padding-left: 0;
-            padding-right: 0.4em;
-            text-align: right;
-            width: 5em;
-            display: inline-block;
-        }
+    td.recording-duration .duration {
+      padding-left: 0;
+      padding-right: 0.4em;
+      text-align: right;
+      width: 5em;
+      display: inline-block;
+    }
+  }
 }

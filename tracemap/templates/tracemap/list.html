@@ -15,6 +15,7 @@
     {{ mapbox_token|json_script:"mapbox-token" }}
 
     {% if title %}<h1>{{ title }}</h1>{% endif %}
+    {% if subtitle %}<h2>{{ subtitle }}</h2>{% endif %}
 
     <div id="map-target" style="width: 100%; height: 400px; background-color: lightgray">
         <div class="map-loader" style="margin: auto">loading map…</div>

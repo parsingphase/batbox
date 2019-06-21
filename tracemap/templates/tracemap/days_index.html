@@ -2,7 +2,7 @@
 {% load tracemap_extras %}
 
 {% block body-container %}
-    <div class="row"><h1>Recordings by day</h1></div>
+    <div class="row"><h1>Summary</h1></div>
 
     <div class="row">
         <table class="table recordings">
@@ -15,7 +15,6 @@
                         {% if genus_data.name %}
                             <div class="subtitle">({{ genus_data.name }})</div>
                         {% endif %}
-                        {#                       {{ genus_data }}#}
                     </th>
                 {% endfor %}
                 <th rowspan="2" class="total">Total</th>

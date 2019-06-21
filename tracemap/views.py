@@ -106,7 +106,7 @@ def list_all(request):
         files = AudioRecording.objects.filter(**search_filter)
     else:
         files = AudioRecording.objects.all()
-    return display_recordings_list(files, request)
+    return display_recordings_list(files, request, {'title': 'All recordings'})
 
 
 def single(request, pk):
@@ -120,19 +120,36 @@ def single(request, pk):
 
 def genus(request, genus_name):
     files = AudioRecording.objects.filter(genus=genus_name)
+    title = f'Genus: {genus_name}'
+    genus_latin_name = SpeciesLookup().genus_name_by_abbreviation(genus_name)
+    if genus_latin_name is not None and type(genus_latin_name) is not list:
+        title += f' ({genus_latin_name})'
     return display_recordings_list(
         files,
         request,
-        {'title': f'Genus: {genus_name}'}
+        {'title': title}
     )
 
 
 def species(request, genus_name, species_name):
     files = AudioRecording.objects.filter(genus=genus_name, species=species_name)
+    title_genus_case = genus_name[0].upper() + genus_name[1:].lower()
+    title = f'Species: {title_genus_case}. {species_name.lower()}.'
+    context = {}
+    try:
+        species_details = SpeciesLookup().species_by_abbreviations(genus_name, species_name)
+        title += f'({species_details.genus} {species_details.species})'
+        if species_details.common_name is not None:
+            context['subtitle'] = species_details.common_name
+    except NonUniqueSpeciesLookup:
+        pass
+    finally:
+        context['title'] = title
+
     return display_recordings_list(
         files,
         request,
-        {'title': f'Species: {genus_name} ({species_name})'}
+        context
     )
 
 
