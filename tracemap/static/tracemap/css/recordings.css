@@ -20,6 +20,10 @@ form#searchParams .form-row-title {
 form#searchParams .form-row-title i {
   font-weight: normal;
 }
+form#searchParams .genus-header {
+  padding-bottom: 4px;
+  font-weight: bold;
+}
 #recordingsTable_wrapper {
   margin-top: 10px;
 }
