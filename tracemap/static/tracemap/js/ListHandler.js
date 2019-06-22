@@ -225,6 +225,7 @@ export default class ListHandler {
             that.player.addEventListener('error', () => {
                 // The duration variable now holds the duration (in seconds) of the audio clip
                 sourceElement.html('<abbr title="Failed"><i class="fas fa-exclamation-circle"></i></abbr>');
+                alert("Error " + that.player.error.code + "; details: " + that.player.error.message);
                 that.player = null;
             });
 
