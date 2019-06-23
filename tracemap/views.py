@@ -101,13 +101,15 @@ def day(request, date):
 
 
 def list_all(request):
+    title = 'All recordings'
     search_params = request.GET
     if search_params:
         search_filter = build_search_filter(search_params)
         files = AudioRecording.objects.filter(**search_filter)
+        title = 'Search results'
     else:
         files = AudioRecording.objects.filter(hide=False)
-    return display_recordings_list(files, request, {'title': 'All recordings'})
+    return display_recordings_list(files, request, {'title': title})
 
 
 def single(request, pk):

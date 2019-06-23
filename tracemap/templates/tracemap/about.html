@@ -1,39 +1,109 @@
 {% extends 'tracemap/base.html' %}
 {% load static %}
 
+{% block subtitle %}About{% endblock %}
+
 {% block body-container %}
     <div class="about">
         <h1>About Batbox</h1>
         <p>Batbox is an tool for displaying bat recordings tagged with Guano metadata, such as those recorded
             by devices from Wildlife Acoustics.</p>
-        <p>As it's open source software, you're welcome to download it from
-            <a href="https://github.com/parsingphase/batbox">GitHub</a> and run it on your own server or desktop,
-            with your own recordings.</p>
         <p>Batbox was created and is developed by Richard George, aka <a
                 href="https://parsingphase.dev">Parsingphase</a>.
         </p>
 
         <h2>Using this site</h2>
-        <p>There are four main views on the site: </p>
 
-        <dl>
-            <dt><a href="{% url 'index' %}">Summary View</a></dt>
-            <dd>Displays a breakdown of species observed on each day.</dd>
-            <dt><a href="{% url 'calendar' %}">Calendar View</a></dt>
-            <dd>A visual summary of the density of recordings over time.</dd>
-            <dt><a href="{% url 'list_view' %}">Map View</a></dt>
-            <dd>The main display page, where you can see selected recordings in a map, and play and download them.
-                You can select by Genus, Species or date, or use the Search view for more control.
-            </dd>
-            <dt><a href="{% url 'search_view' %}">Search View</a></dt>
-            <dd>An advanced search form where you can search by time period, location and species.</dd>
-        </dl>
-
-        <h2>Search View</h2>
-        <img class="page-view" src="{% static 'images/search_view.png' %}"/>
+        <h3>Search View</h3>
+        <img class="page-view" src="{% static 'images/search_view.png' %}"
+             alt="The search page contains a scrollable map and various controls to filter your search by"/>
         <p>Select the time range and/or species you're interested in. Scroll and pan the map to limit the search area.
             You'll get instant feedback in the map view as to where results are found.</p>
         <p>To view the search results in detail on the map view, hit the search button.</p>
 
+        <h3>Map View</h3>
+        <img class="page-view" src="{% static 'images/map_view.png' %}"
+             alt="The map page shows the location of individual recordings and a table of details"/>
+        <p>The Map view displays selected recordings, whether picked by day or species or produced from a
+            search query.</p>
+        <p>Each recording includes a number of controls:</p>
+        <table class="table-sm col-5">
+            <tr>
+                <th><i class="fas fa-play"></i></th>
+                <td>Play this recording</td>
+            </tr>
+            <tr>
+                <th><i class="fas fa-download"></i></th>
+                <td>Download this recording</td>
+            </tr>
+            <tr>
+                <th><i class="fas fa-map-marker-alt"></i></th>
+                <td>Highlight this recording on the map</td>
+            </tr>
+            <tr>
+                <th><i class="fas fa-search-location"></i></th>
+                <td>Zoom to this recording on the map</td>
+            </tr>
+            <tr>
+                <th><i class="fas fa-info-circle"></i></th>
+                <td>Show species info at MammalDiversity.org</td>
+            </tr>
+            <tr>
+                <th><i class="fas fa-link"></i></th>
+                <td>Permalink: display just this recording</td>
+            </tr>
+            <tr>
+                <th><i class="fas fa-pencil-alt"></i></th>
+                <td>Admin only: edit this recording</td>
+            </tr>
+        </table>
+
+        <p>You can also search within the selected recordings via the Filter input.</p>
+
+        <h2>Information sources</h2>
+        <h3>Species names</h3>
+        <p>The embedded species data in most recordings consists of a 4 or 6 character string, such as MYSO
+            or PIPPYG. This appears to be a truncated form of the latin name of the genus and species of the identified
+            bats. As these abbreviations aren't very meaningful to the casual user, the site attempts to automatically
+            expand them and provide a common name where possible.</p>
+
+        <p>To do so, it uses data from the American Society of Mammalogists'
+            <a href="https://mammaldiversity.org/">Mammal Diversity Database</a>, which is free for download. Please
+            note however that the full names provided are achieved by a simple automated match of the abbreviations,
+            so may not be foolproof. If you see a species in entirely the wrong place on the map
+            (eg a tropical bat in the UK), please let the site operator or developer (<strong>not</strong> the ASM)
+            know! Equally, if you see recordings with no expanded latin names (not all species even have
+            'common names' in English), please let (me) the developer know and I'll try to improve the matching.
+        </p>
+
+        <h3>Further credits</h3>
+        <p>
+            The extraction of embedded data from recordings (locations, species and times) depends heavily on
+            <a href="https://myotisoft.com">David Riggs'</a>
+            <a href="https://github.com/riggsd/guano-py">guano-py</a> library.
+        </p>
+        <p>This site is indebted to, but not affiliated with, David Riggs, Myotisoft and the
+            American Society of Mammalogists</p>
+
+        <h2>Known issues</h2>
+        <p>Safari on the iPhone or iPad (iOS) cannot play the high sample rate (256k - 384k) audio files natively
+            produced by some bat recorders such as the Echo Meter Touch. You will get an error on these devices
+            when trying to play recordings in the site, or play downloaded recordings in Safari. I've yet to find
+            any app on the iPhone that can integrate neatly with a web browser to play these files.</p>
+
+        <p>The only solution to this would be to re-encode all uploaded recordings at a lower sample rate
+            while preserving the embedded metadata
+            - technically possible but it would increase processing times and storage space needed on servers.</p>
+
+        <h2>Using this software with your own data</h2>
+
+        <p>Batbox is open source software, which you can download for free from
+            <a href="https://github.com/parsingphase/batbox">GitHub</a> and run on your own server or desktop,
+            with your own recordings.</p>
+
+        <p>Limited installation instructions are available at the GitHub link; if you have problems, or to report
+            any faults, please <a href="https://github.com/parsingphase/batbox/issues">open a new issue</a>.</p>
+
+        <p>Batbox runs on Python 3.7+ under Django 2.2</p>
     </div>
 {% endblock %}
