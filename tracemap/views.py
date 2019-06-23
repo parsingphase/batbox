@@ -388,8 +388,8 @@ def species_to_color(genus_part: str, species_part: str):
     def char_to_num(char):
         return ord(char.upper()) - ord('A')
 
-    genus_part = genus_part.zfill(3)
-    species_part = species_part.zfill(3)
+    genus_part = genus_part.ljust(3, 'X')
+    species_part = species_part.ljust(3, 'X')
 
     color = ''
     for i in range(0, 3):

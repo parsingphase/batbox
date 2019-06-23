@@ -12,13 +12,15 @@ import audioread
 
 def populate_audio_identification(audio: AudioRecording, raw_ident: str):
     if len(raw_ident) == 6:
-        audio.species = raw_ident[0:3]
-        audio.genus = raw_ident[3:6]
+        audio.genus = raw_ident[0:3]
+        audio.species = raw_ident[3:6]
     elif len(raw_ident) == 4:
-        audio.species = raw_ident[0:2]
-        audio.genus = raw_ident[2:4]
+        audio.genus = raw_ident[0:2]
+        audio.species = raw_ident[2:4]
     else:
-        raise ValueError(f'Identification must be 4 or 6 characters, got "{raw_ident}"')
+        print(f'Identification must be 4 or 6 characters, got "{raw_ident}"')
+    #     raise ValueError(f'Identification must be 4 or 6 characters, got "{raw_ident}"')
+    # Got values like 'No ID' here…
 
 
 class Command(BaseCommand):
@@ -59,7 +61,10 @@ class Command(BaseCommand):
         print(f'Loading {filepath}')
 
         existing_audio = AudioRecording.objects.filter(file=filepath)
-        if len(existing_audio):
+        result_count = len(existing_audio)
+        if result_count:
+            if result_count > 1:
+                print(f'Got duplicate records ({result_count}) for {filepath}')
             audio = existing_audio[0]
             audio.identifier = filestem
             if audio.processed:
@@ -119,8 +124,7 @@ class Command(BaseCommand):
         if 'Length' in guano_file:
             audio.duration = guano_file['Length']
         try:
-            if 'Timestamp' in guano_file \
-                    and guano_file['Timestamp'] is not None:
+            if 'Timestamp' in guano_file and guano_file['Timestamp'] is not None:
                 if guano_file['Timestamp'].utcoffset() is None:
                     print(
                         'Timestamp with no tzinfo from guano '
@@ -160,4 +164,5 @@ class Command(BaseCommand):
         elif 'auto_id' in wamd_file and len(wamd_file['auto_id']) > 0:
             populate_audio_identification(audio, wamd_file['auto_id'])
 
+        audio.guano_data = json.dumps({'Source': 'WAMD data'})
         audio.processed = True
