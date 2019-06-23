@@ -3,6 +3,7 @@
 # Note: the licence of this file is MIT, independent of the overall licence of the project, due to its source
 import chunk
 import struct
+import re
 from datetime import datetime
 from guano import tzoffset
 
@@ -65,7 +66,17 @@ class WamdFile:
             timestamp = timestamp.decode('utf-8')
         if len(timestamp) == 25:
             dt, offset = timestamp[:-6], timestamp[19:]
-            tz = tzoffset(offset)
+            try:
+                tz = tzoffset(offset)
+            except ValueError as e:
+                # WA have an issue with timezones… https://github.com/riggsd/guano-py/issues/17
+                no_colon_match = re.match(r'([+-]?)(\d{2})(\d{2})', offset)
+                if no_colon_match:
+                    sign, hours, minutes = no_colon_match.groups()
+                    tz = tzoffset(float(sign + hours) + float(sign + minutes) / 60)
+                else:
+                    raise e
+
             return datetime.strptime(dt, '%Y-%m-%d %H:%M:%S').replace(tzinfo=tz)
         elif len(timestamp) == 23:
             return datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S.%f')

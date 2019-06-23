@@ -31,13 +31,17 @@ class Command(BaseCommand):
         parser.add_argument(
             '-r', '--recursive', action='store_true', help='Recurse in directory, finding all .wav files'
         )
+        parser.add_argument(
+            '-f', '--force', action='store_true', help='Process files even if already seen'
+        )
 
     def handle(self, *args, **kwargs):
         filename = kwargs['filename']
         recurse = kwargs['recursive']
+        force = kwargs['force']
 
         if os.path.isfile(filename):
-            self.process_file(filename)
+            self.process_file(filename, force)
         elif os.path.isdir(filename):
             if recurse:
                 target = filename + '/**/*.[wW][aA][vV]'
@@ -47,7 +51,7 @@ class Command(BaseCommand):
             files = glob(target, recursive=recurse)
             for file in files:
                 print(file)
-                self.process_file(file)
+                self.process_file(file, force)
             if not files:
                 print('Found no files')
 
@@ -55,7 +59,7 @@ class Command(BaseCommand):
             print(f'{filename} not found')
             exit(1)
 
-    def process_file(self, filename):
+    def process_file(self, filename, force):
         filepath = os.path.realpath(filename)
         filestem = os.path.basename(filename).split('.')[0]
         print(f'Loading {filepath}')
@@ -67,7 +71,7 @@ class Command(BaseCommand):
                 print(f'Got duplicate records ({result_count}) for {filepath}')
             audio = existing_audio[0]
             audio.identifier = filestem
-            if audio.processed:
+            if audio.processed and not force:
                 print("Already processed this file, skipping")
                 return
             print('Found incomplete existing record, trying to update')
@@ -79,6 +83,9 @@ class Command(BaseCommand):
         try:
             # print(f'Looking for GUANO data for {filename}')
             guano_file = GuanoFile(filepath)
+            if not guano_file:
+                # print(f'Empty GUANO data for {filename}')
+                guano_file = None
         except ValueError:
             print(f'Unable to load GUANO data for {filename}')
             guano_file = None
