@@ -11,7 +11,7 @@
                 <th rowspan="2">Date</th>
                 {% for g,genus_data in genuses.items %}
                     <th colspan="{{ genus_data.species|length }}" class="genus">
-                        {% if g %}{{ g }}{% else %}?{% endif %}
+                        {% if g %}<a href="{% url 'genus_view' g %}">{{ g }}</a>{% else %}?{% endif %}
                         {% if genus_data.name %}
                             <div class="subtitle">({{ genus_data.name }})</div>
                         {% endif %}
@@ -22,9 +22,11 @@
             <tr>
                 {% for g,genus_data in genuses.items %}
                     {% for s in genus_data.species %}
-                        <th class="species">{% if s.abbreviation %}{{ s.abbreviation }}{% else %}?{% endif %}
+                        <th class="species">{% if s.abbreviation %}
+                            <a href="{% url 'species_view' g s.abbreviation %}">{{ s.abbreviation }}</a>{% else %}
+                            ?{% endif %}
                             <div class="subtitle">
-                                {% if  s.species.species %}
+                                {% if s.species.species %}
                                     ({{ s.species.species|title }})
                                 {% endif %}
                                 {% if s.species.common_name %}
@@ -62,5 +64,6 @@
             {% endfor %}
             </tbody>
         </table>
+        <p>Select a date, genus or species to view recordings on a map</p>
     </div>
 {% endblock %}
