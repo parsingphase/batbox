@@ -14,7 +14,8 @@ class AudioRecordingAdmin(admin.ModelAdmin):
         'longitude',
         'genus',
         'species',
-        'recorder_serial'
+        'recorder_serial',
+        'hide'
     )
 
 

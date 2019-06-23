@@ -22,7 +22,7 @@ class AudioRecording(models.Model):
     recorder_serial = models.CharField(max_length=16, blank=True)
     guano_data = models.TextField(blank=True)
     duration = models.FloatField(blank=True, null=True)
-    is_noise = models.BooleanField(default=False)  # Allow to flag a file as not containing useful recordings
+    hide = models.BooleanField(default=False)  # Allow to ignore files not containing useful recordings
 
     def path_relative_to(self, base_dir):
         if self.file is not None:
