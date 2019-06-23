@@ -113,6 +113,11 @@ class WamdFile:
             self.process_file()
         return self.metadata.get(item, None)
 
+    def __contains__(self, item):
+        if not self.initialised:
+            self.process_file()
+        return item in self.metadata
+
     def items(self):
         if not self.initialised:
             self.process_file()
@@ -141,7 +146,7 @@ class WamdFile:
                 else:
                     subch.skip()
             if not wamd_chunk:
-                self.metadata = {}
+                raise ValueError('No wamd data chunk found')
 
             metadata = {}
             offset = 0
@@ -157,3 +162,5 @@ class WamdFile:
                     metadata[name] = val
                 offset += 6 + len
             self.metadata = metadata
+
+        self.initialised = True
