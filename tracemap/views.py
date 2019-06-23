@@ -4,6 +4,7 @@ from dateutil.parser import parse as parse_date
 from django.db.models import Count, Min, Max
 from django.db.models.functions import TruncDay
 from django.http import HttpRequest, HttpResponse, Http404, JsonResponse
+from django.core.exceptions import PermissionDenied
 from django.template import loader, response
 from os import path
 from tracemap.models import AudioRecording
@@ -105,12 +106,18 @@ def list_all(request):
         search_filter = build_search_filter(search_params)
         files = AudioRecording.objects.filter(**search_filter)
     else:
-        files = AudioRecording.objects.all()
+        files = AudioRecording.objects.filter(hide=False)
     return display_recordings_list(files, request, {'title': 'All recordings'})
 
 
 def single(request, pk):
     files = [AudioRecording.objects.get(id=pk)]
+    if len(files) == 0:
+        raise Http404('Recording not found')
+
+    if files[0].hide:
+        raise PermissionDenied('Recording not available')
+
     return display_recordings_list(
         files,
         request,
@@ -230,7 +237,9 @@ def bounds_from_recordings(files):
 
 
 def list_counts_by_day():
-    days = AudioRecording.objects.annotate(day=TruncDay('recorded_at')) \
+    days = AudioRecording.objects \
+        .filter(hide=False) \
+        .annotate(day=TruncDay('recorded_at')) \
         .values('day').annotate(c=Count('id')) \
         .values('day', 'c').order_by('day')
 
@@ -255,6 +264,7 @@ def summarise_by_day() -> Tuple[dict, dict]:
     # Annotate the groups with a count of rows
     # Spit out the summary
     days_by_species = AudioRecording.objects \
+        .filter(hide=False) \
         .annotate(day=TruncDay('recorded_at')) \
         .values('day', 'genus', 'species') \
         .annotate(count=Count('id')) \
@@ -312,7 +322,9 @@ def search_api(request: HttpRequest):
 
 
 def build_search_filter(search_params):
-    search_filter = {}
+    search_filter = {
+        'hide': False
+    }
     if 'species' in search_params:
         search_filter['species__in'] = search_params['species'].split(',')
     if 'west' in search_params:
@@ -388,8 +400,8 @@ def species_to_color(genus_part: str, species_part: str):
     def char_to_num(char):
         return ord(char.upper()) - ord('A')
 
-    genus_part = genus_part.zfill(3)
-    species_part = species_part.zfill(3)
+    genus_part = genus_part.ljust(3, 'X')
+    species_part = species_part.ljust(3, 'X')
 
     color = ''
     for i in range(0, 3):
