@@ -27,6 +27,7 @@
     <script type="text/javascript" src="{% static 'vendor/js/jquery.dataTables.min.js' %}"></script>
     <script type="text/javascript" charset="utf8" src="{% static 'vendor/js/moment.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'vendor/js/leaflet.js' %}"></script>
+    <script type="text/javascript" src="{% static 'vendor/js/bootstrap.min.js' %}"></script>
 
     <script type="module">
         import MapHandler from '{% static 'tracemap/js/MapHandler.js' %}';
@@ -40,6 +41,7 @@
          */
         const mapData = JSON.parse(document.getElementById('map-data').textContent);
         const mapboxToken = JSON.parse(document.getElementById('mapbox-token').textContent);
+        const modalTarget = 'imageModalPopup';
 
         if (mapData.bounds) {
             map = new MapHandler('map-target', mapboxToken)
@@ -65,4 +67,24 @@
         listTable.setUrlRouter(Urls);
         listTable.initTable(recordings);
     </script>
+{% endblock %}
+
+{% block body %}
+    {{ block.super }}
+
+    <!-- Modal -->
+    <div class="modal fade" id="imageModalPopup" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    ...
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

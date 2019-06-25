@@ -146,6 +146,13 @@ export default class ListHandler {
                                     '<i class="fas fa-info-circle"></i></a> ';
                             }
 
+                            if (row.spectrogram_url) {
+                                cellContent = cellContent + ' <a title="Spectrum" href="#" class="spectrumTrigger" ' +
+                                    'data-audio-ident="' + row.identifier + '"' +
+                                    'data-spectogram-url="' + row.spectrogram_url + '">' +
+                                    '<i class="far fa-chart-bar"></i></a>';
+                            }
+
                             const permaUrl = that.urlRouter['single_view'](row.id);
                             cellContent = cellContent + ' <div class="float-right"><a title="Permalink" href="' + permaUrl + '"><i class="fas fa-link"></i></a>';
                             if (that.userIsAuthenticated) {
@@ -266,6 +273,18 @@ export default class ListHandler {
             }
 
         });
+
+        let $spectrumTriggers = this.targetElement.find('.spectrumTrigger');
+        $spectrumTriggers.off('click');
+        $spectrumTriggers.click(function () {
+            const url = $(this).data('spectogramUrl');
+            console.log('spectrumTrigger: ' + url);
+            $('#imageModalPopup .modal-body').html('<img src="' + url + '" width="720px"></img>');
+            $('#imageModalPopup').modal();
+            $('#imageModalPopup').show();
+            return false; // prevent link action
+        });
+
     }
 }
 

@@ -33,7 +33,7 @@ class Command(BaseCommand):
         self.sox_executable = 'sox'
         self.force = False
         self.subsample = False
-        self.spectogram = False
+        self.spectrogram = False
 
     def add_arguments(self, parser):
         parser.add_argument('filename', type=str, help='Name of the file or directory to import')
@@ -44,7 +44,7 @@ class Command(BaseCommand):
             '-u', '--subsample', action='store_true', help='Generate subsampled audio files'
         )
         parser.add_argument(
-            '-p', '--spectogram', action='store_true', help='Generate spectogram image files'
+            '-p', '--spectrogram', action='store_true', help='Generate spectrogram image files'
         )
         parser.add_argument(
             '-f', '--force', action='store_true', help='Process files even if already seen'
@@ -55,7 +55,7 @@ class Command(BaseCommand):
         recurse = kwargs['recursive']
         self.force = kwargs['force']
         self.subsample = kwargs['subsample']
-        self.spectogram = kwargs['spectogram']
+        self.spectrogram = kwargs['spectrogram']
 
         if os.path.isfile(filename):
             self.process_file(filename)
@@ -126,6 +126,9 @@ class Command(BaseCommand):
 
         if self.subsample:
             self.subsample_file(audio)
+
+        if self.spectrogram:
+            self.generate_spectrogram_file(audio)
 
         audio.save()
 
@@ -202,3 +205,13 @@ class Command(BaseCommand):
         sox_result = subprocess.run([self.sox_executable, audio.audio_file, '-r44100', dest])
         sox_result.check_returncode()
         audio.subsampled_audio_file = dest
+
+    def generate_spectrogram_file(self, audio: AudioRecording):
+        if not audio.id:
+            audio.save()
+        dest = os.path.join(settings.MEDIA_ROOT, 'processed', 'spectrograms', f'{audio.id}-{audio.identifier}.png')
+        print(f'Plot {audio.audio_file} spectrum to {dest}')
+        #     sox "$file" -n spectrogram -o "$outfile" -t "$ident"
+        sox_result = subprocess.run([self.sox_executable, audio.audio_file, '-n', 'spectrogram', '-o', dest])
+        sox_result.check_returncode()
+        audio.spectrogram_image_file = dest

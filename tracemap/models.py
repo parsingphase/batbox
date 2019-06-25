@@ -21,7 +21,7 @@ class AudioRecording(models.Model):
         blank=True
     )
     spectrogram_image_file = models.FilePathField(
-        path=settings.MEDIA_ROOT + 'processed/spectograms/',
+        path=settings.MEDIA_ROOT + 'processed/spectrograms/',
         recursive=True,
         match=r'^[^.].*\.png',
         null=True,
