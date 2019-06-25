@@ -247,16 +247,13 @@
             data.west = geoForm.find('#west').val();
             data.north = geoForm.find('#north').val();
 
-            console.log(data);
             return data;
         }
 
         function doSearch() {
-            console.log('Search');
             let data = scanForm();
             $.get('/api/search', data, function (response) {
                 heatmapLayer.setData({data: response.data});
-                console.log(response);
             });
         }
 
