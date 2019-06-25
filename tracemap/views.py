@@ -192,10 +192,19 @@ def display_recordings_list(files: List[AudioRecording], request, context: dict 
 
     lookup = SpeciesLookup()
     traces = []
+    urls_map = {
+        'file': 'url',
+        'lo_file': 'lo_url',
+        'spectrogram_file': 'spectrogram_url',
+    }
+
     for f in files:
         trace = f.as_serializable()
-        trace['url'] = settings.MEDIA_URL + path.relpath(trace['file'], settings.MEDIA_ROOT)
-        trace['file'] = None
+        for file_key, url_key in urls_map.items():
+            if trace[file_key]:
+                trace[url_key] = settings.MEDIA_URL + path.relpath(trace[file_key], settings.MEDIA_ROOT)
+            trace[file_key] = None
+
         try:
             species_info = lookup.species_by_abbreviations(f.genus, f.species)
         except NonUniqueSpeciesLookup:

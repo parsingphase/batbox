@@ -20,3 +20,4 @@ assets/vendor/webfonts
 assets/vendor/images
 settings.py
 recordings.css.map
+webroot/media/processed/subsampled

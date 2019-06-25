@@ -8,10 +8,24 @@ import os
 
 class AudioRecording(models.Model):
     identifier = models.CharField(max_length=32, blank=True)
-    file = models.FilePathField(
+    audio_file = models.FilePathField(
         path=settings.MEDIA_ROOT + 'sessions/',
         recursive=True,
         match=r'^[^.].*\.wav'
+    )
+    subsampled_audio_file = models.FilePathField(
+        path=settings.MEDIA_ROOT + 'processed/subsampled/',
+        recursive=True,
+        match=r'^[^.].*\.wav',
+        null=True,
+        blank=True
+    )
+    spectrogram_image_file = models.FilePathField(
+        path=settings.MEDIA_ROOT + 'processed/spectograms/',
+        recursive=True,
+        match=r'^[^.].*\.png',
+        null=True,
+        blank=True
     )
     processed = models.BooleanField(default=False)
     recorded_at = models.DateTimeField(null=True, blank=True)
@@ -25,15 +39,17 @@ class AudioRecording(models.Model):
     hide = models.BooleanField(default=False)  # Allow to ignore files not containing useful recordings
 
     def path_relative_to(self, base_dir):
-        if self.file is not None:
-            return os.path.relpath(self.file, base_dir)
+        if self.audio_file is not None:
+            return os.path.relpath(self.audio_file, base_dir)
         return None
 
     def as_serializable(self):
         return {
             'id': self.id,
             'identifier': self.identifier,
-            'file': self.file,
+            'file': self.audio_file,
+            'lo_file': self.subsampled_audio_file,
+            'spectrogram_file': self.spectrogram_image_file,
             'processed': self.processed,
             'recorded_at': self.recorded_at.isoformat()
             if self.recorded_at is not None else None,

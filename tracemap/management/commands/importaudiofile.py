@@ -2,12 +2,14 @@ from django.core.management.base import BaseCommand
 from tracemap.models import AudioRecording
 import os
 from tracemap.filetools import TraceIdentifier
+from batbox import settings
 from guano import GuanoFile
 from wamd import WamdFile
 from glob import glob
 import json
 from datetime import datetime
 import audioread
+import subprocess
 
 
 def populate_audio_identification(audio: AudioRecording, raw_ident: str):
@@ -26,10 +28,23 @@ def populate_audio_identification(audio: AudioRecording, raw_ident: str):
 class Command(BaseCommand):
     help = 'Load audio files into database'
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.sox_executable = 'sox'
+        self.force = False
+        self.subsample = False
+        self.spectogram = False
+
     def add_arguments(self, parser):
         parser.add_argument('filename', type=str, help='Name of the file or directory to import')
         parser.add_argument(
             '-r', '--recursive', action='store_true', help='Recurse in directory, finding all .wav files'
+        )
+        parser.add_argument(
+            '-u', '--subsample', action='store_true', help='Generate subsampled audio files'
+        )
+        parser.add_argument(
+            '-p', '--spectogram', action='store_true', help='Generate spectogram image files'
         )
         parser.add_argument(
             '-f', '--force', action='store_true', help='Process files even if already seen'
@@ -38,10 +53,12 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         filename = kwargs['filename']
         recurse = kwargs['recursive']
-        force = kwargs['force']
+        self.force = kwargs['force']
+        self.subsample = kwargs['subsample']
+        self.spectogram = kwargs['spectogram']
 
         if os.path.isfile(filename):
-            self.process_file(filename, force)
+            self.process_file(filename)
         elif os.path.isdir(filename):
             if recurse:
                 target = filename + '/**/*.[wW][aA][vV]'
@@ -51,7 +68,7 @@ class Command(BaseCommand):
             files = glob(target, recursive=recurse)
             for file in files:
                 print(file)
-                self.process_file(file, force)
+                self.process_file(file)
             if not files:
                 print('Found no files')
 
@@ -59,24 +76,24 @@ class Command(BaseCommand):
             print(f'{filename} not found')
             exit(1)
 
-    def process_file(self, filename, force):
+    def process_file(self, filename):
         filepath = os.path.realpath(filename)
         filestem = os.path.basename(filename).split('.')[0]
         print(f'Loading {filepath}')
 
-        existing_audio = AudioRecording.objects.filter(file=filepath)
+        existing_audio = AudioRecording.objects.filter(audio_file=filepath)
         result_count = len(existing_audio)
         if result_count:
             if result_count > 1:
                 print(f'Got duplicate records ({result_count}) for {filepath}')
             audio = existing_audio[0]
             audio.identifier = filestem
-            if audio.processed and not force:
+            if audio.processed and not self.force:
                 print("Already processed this file, skipping")
                 return
             print('Found incomplete existing record, trying to update')
         else:
-            audio = AudioRecording(file=filepath, identifier=filestem)
+            audio = AudioRecording(audio_file=filepath, identifier=filestem)
 
         self.populate_audio_from_identifier(audio)
 
@@ -106,6 +123,9 @@ class Command(BaseCommand):
 
         if not audio.duration:
             self.read_file_duration(filename, audio)
+
+        if self.subsample:
+            self.subsample_file(audio)
 
         audio.save()
 
@@ -173,3 +193,12 @@ class Command(BaseCommand):
 
         audio.guano_data = json.dumps({'Source': 'WAMD data'})
         audio.processed = True
+
+    def subsample_file(self, audio: AudioRecording):
+        if not audio.id:
+            audio.save()
+        dest = os.path.join(settings.MEDIA_ROOT, 'processed', 'subsampled', f'{audio.id}-{audio.identifier}.wav')
+        print(f'Subsample {audio.audio_file} to {dest}')
+        sox_result = subprocess.run([self.sox_executable, audio.audio_file, '-r44100', dest])
+        sox_result.check_returncode()
+        audio.subsampled_audio_file = dest
