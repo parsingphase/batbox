@@ -11,6 +11,7 @@ from guano import GuanoFile
 from batbox import settings
 from tracemap.filetools import TraceIdentifier
 from tracemap.models import AudioRecording
+from tracemap.repository import NonUniqueSpeciesLookup, SpeciesLookup
 from wamd import WamdFile
 
 
@@ -36,6 +37,7 @@ class Command(BaseCommand):
         self.force = False
         self.subsample = False
         self.spectrogram = False
+        self.species_lookup = SpeciesLookup()
 
     def add_arguments(self, parser):
         parser.add_argument('filename', type=str, help='Name of the file or directory to import')
@@ -209,13 +211,36 @@ class Command(BaseCommand):
         audio.subsampled_audio_file = dest
 
     def generate_spectrogram_file(self, audio: AudioRecording):
+        spectrogram_prefilter = settings.SPECTROGRAM_PREFILTER
+        spectrogram_credit = settings.SPECTROGRAM_CREDIT
+
+        spectrogram_title = '(unknown) '
+
+        if audio.species:
+            try:
+                species = self.species_lookup.species_by_abbreviations(audio.genus, audio.species)
+            except NonUniqueSpeciesLookup:
+                species = None
+
+            if species:
+                species_ucfirst = species.species[0].upper() + species.species[1:]
+                if species.common_name:
+                    spectrogram_title = f'{species.common_name} ({species.genus} {species_ucfirst}) '
+                else:
+                    spectrogram_title = f'{species.genus} {species_ucfirst} '
+
+        if audio.recorded_at:
+            spectrogram_title += audio.recorded_at.strftime('%Y-%M-%d %H:%m')
+
         if not audio.id:
             audio.save()
         dest = os.path.join(settings.MEDIA_ROOT, 'processed', 'spectrograms', f'{audio.id}-{audio.identifier}.png')
         print(f'Plot {audio.audio_file} spectrum to {dest}')
         #     sox "$file" -n spectrogram -o "$outfile" -t "$ident"
         sox_result = subprocess.run(
-            [self.sox_executable, audio.audio_file, '-n', 'highpass', '25k', 'spectrogram', '-o', dest]
+            [self.sox_executable, audio.audio_file, '-n', ] +
+            spectrogram_prefilter +
+            ['spectrogram', '-o', dest, '-c', spectrogram_credit, '-t', spectrogram_title]
         )
         sox_result.check_returncode()
         audio.spectrogram_image_file = dest

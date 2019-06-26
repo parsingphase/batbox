@@ -42,6 +42,11 @@ DATABASES = {
     }
 }
 
+
+SPECTROGRAM_PREFILTER = ['rate', '200k', 'highpass', '25k', 'lowpass', '75k', ]
+
+SPECTROGRAM_CREDIT = 'Created by SoX'
+
 #########################################################
 # Options below this point won't usually need changing
 #########################################################
