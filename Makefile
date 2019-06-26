@@ -70,10 +70,16 @@ install: check_virtualenv
 	npm install
 	pipenv install
 
+install_dev: check_virtualenv
+	npm install
+	pipenv install --dev
+
 migrate: check_virtualenv
 	python manage.py migrate
 
 venv: venv/bin/activate
+
+venv/bin/activate:
 	test -d venv || python3 -m venv venv
 	touch venv/bin/activate   # update it in case date was old
 
