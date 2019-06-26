@@ -214,6 +214,8 @@ class Command(BaseCommand):
         dest = os.path.join(settings.MEDIA_ROOT, 'processed', 'spectrograms', f'{audio.id}-{audio.identifier}.png')
         print(f'Plot {audio.audio_file} spectrum to {dest}')
         #     sox "$file" -n spectrogram -o "$outfile" -t "$ident"
-        sox_result = subprocess.run([self.sox_executable, audio.audio_file, '-n', 'spectrogram', '-o', dest])
+        sox_result = subprocess.run(
+            [self.sox_executable, audio.audio_file, '-n', 'highpass', '25k', 'spectrogram', '-o', dest]
+        )
         sox_result.check_returncode()
         audio.spectrogram_image_file = dest
