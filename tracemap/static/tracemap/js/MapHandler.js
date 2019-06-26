@@ -243,6 +243,29 @@ export default class MapHandler {
             '<i class="fas fa-play"></i></a> ' +
             '<a title="Download" href="' + trace.url + '"><i class="fas fa-download"></i></a>';
 
+        if (trace.spectrogram_url) {
+            let spectrumTitle = 'Spectrum: ';
+            if (trace.common_name) {
+                spectrumTitle += trace.common_name;
+            } else if (trace.species_info.species) {
+                spectrumTitle += trace.species_info.genus + ' ' + trace.species_info.species;
+            } else if (trace.genus) {
+                spectrumTitle += trace.genus + ' ' + trace.species;
+            } else {
+                spectrumTitle += '(unidentified)';
+            }
+
+            if (trace.recorded_at) {
+                spectrumTitle += ' ' + moment(trace.recorded_at).format("YYYY-MM-DD HH:mm");
+            }
+
+            output += ' <a title="' + spectrumTitle + '" ' +
+                'href="' + trace.spectrogram_url + '" ' +
+                'class="spectrumTrigger" ' +
+                'data-lightbox="' + trace.identifier + '">' +
+                '<i class="far fa-chart-bar"></i></a>';
+        }
+
         if (trace.species_info && trace.species_info.mdd_id) {
             output += ' <a href="https://mammaldiversity.org/species-account/species-id=' +
                 trace.species_info.mdd_id + '" title="More into at mammaldiversity.org">' +

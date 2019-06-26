@@ -40,6 +40,9 @@ a.audioTrigger {
 div.recordingPopup {
   line-height: 1.5;
 }
+div.recordingPopup a {
+  color: black;
+}
 footer {
   position: absolute;
   bottom: 0;
