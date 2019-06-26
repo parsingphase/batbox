@@ -16,6 +16,5 @@ pipelines:
           - echo "deb https://deb.nodesource.com/node_10.x stretch main" | tee /etc/apt/sources.list.d/nodesource.list
           - echo "deb-src https://deb.nodesource.com/node_10.x stretch main" | tee -a /etc/apt/sources.list.d/nodesource.list
           - apt-get update && apt-get install -y unzip nodejs npm
-          - pip install flake8 isort
-          - npm install
-          - make test
+          - pip install pipenv
+          - make venv && source venv/bin/activate && make install test
