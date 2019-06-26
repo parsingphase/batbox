@@ -140,17 +140,33 @@ export default class ListHandler {
                                     '<i class="fas fa-search-location"></i></a>';
                             }
 
+                            if (row.spectrogram_url) {
+                                let spectrumTitle = 'Spectrum: ';
+                                if (row.common_name) {
+                                    spectrumTitle += row.common_name;
+                                } else if (row.species_info.species) {
+                                    spectrumTitle += row.species_info.genus + ' ' + row.species_info.species;
+                                } else if (row.genus) {
+                                    spectrumTitle += row.genus + ' ' + row.species;
+                                } else {
+                                    spectrumTitle += '(unidentified)';
+                                }
+
+                                if (row.recorded_at) {
+                                    spectrumTitle += ' ' + moment(row.recorded_at).format("YYYY-MM-DD HH:mm")
+                                }
+
+                                cellContent = cellContent + ' <a title="' + spectrumTitle + '" ' +
+                                    'href="' + row.spectrogram_url + '" ' +
+                                    'class="spectrumTrigger" ' +
+                                    'data-lightbox="' + row.identifier + '">' +
+                                    '<i class="far fa-chart-bar"></i></a>';
+                            }
+
                             if (row.species_info && row.species_info.mdd_id) {
                                 cellContent += ' <a href="https://mammaldiversity.org/species-account/species-id=' +
                                     row.species_info.mdd_id + '" title="More info at mammaldiversity.org">' +
                                     '<i class="fas fa-info-circle"></i></a> ';
-                            }
-
-                            if (row.spectrogram_url) {
-                                cellContent = cellContent + ' <a title="Spectrum" href="#" class="spectrumTrigger" ' +
-                                    'data-audio-ident="' + row.identifier + '"' +
-                                    'data-spectogram-url="' + row.spectrogram_url + '">' +
-                                    '<i class="far fa-chart-bar"></i></a>';
                             }
 
                             const permaUrl = that.urlRouter['single_view'](row.id);
@@ -274,16 +290,6 @@ export default class ListHandler {
 
         });
 
-        let $spectrumTriggers = this.targetElement.find('.spectrumTrigger');
-        $spectrumTriggers.off('click');
-        $spectrumTriggers.click(function () {
-            const url = $(this).data('spectogramUrl');
-            console.log('spectrumTrigger: ' + url);
-            $('#imageModalPopup .modal-body').html('<img src="' + url + '" width="720px"></img>');
-            $('#imageModalPopup').modal();
-            $('#imageModalPopup').show();
-            return false; // prevent link action
-        });
 
     }
 }

@@ -17,6 +17,7 @@
     "leaflet": "^1.5.1",
     "leaflet-heatmap": "^1.0.0",
     "less": "^3.9.0",
+    "lightbox2": "^2.11.0",
     "moment": "^2.24.0",
     "timepicker": "^1.11.15"
   },
