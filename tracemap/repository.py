@@ -1,5 +1,6 @@
+from typing import List, Optional, Union
+
 from .models import Species
-from typing import List, Union, Optional
 
 
 class NonUniqueSpeciesLookup(Exception):

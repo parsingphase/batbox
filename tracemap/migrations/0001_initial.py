@@ -2,7 +2,9 @@
 # flake8: noqa
 
 from django.db import migrations, models
+
 from batbox import settings
+
 
 class Migration(migrations.Migration):
 

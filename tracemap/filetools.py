@@ -1,9 +1,10 @@
 import re
 from datetime import datetime
 from typing import List
-from tracemap.datatypes import Point
 
 import xmltodict
+
+from tracemap.datatypes import Point
 
 
 class TraceIdentifier:

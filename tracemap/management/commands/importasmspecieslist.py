@@ -1,6 +1,9 @@
-from django.core.management.base import BaseCommand
 import csv
+
+from django.core.management.base import BaseCommand
+
 from tracemap.models import Species
+
 
 # Use various prior knowledge if heuristics aren't adequate
 canon_genus_map = {

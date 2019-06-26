@@ -1,15 +1,17 @@
-from django.core.management.base import BaseCommand
-from tracemap.models import AudioRecording
-import os
-from tracemap.filetools import TraceIdentifier
-from batbox import settings
-from guano import GuanoFile
-from wamd import WamdFile
-from glob import glob
 import json
-from datetime import datetime
-import audioread
+import os
 import subprocess
+from datetime import datetime
+from glob import glob
+
+import audioread
+from django.core.management.base import BaseCommand
+from guano import GuanoFile
+
+from batbox import settings
+from tracemap.filetools import TraceIdentifier
+from tracemap.models import AudioRecording
+from wamd import WamdFile
 
 
 def populate_audio_identification(audio: AudioRecording, raw_ident: str):

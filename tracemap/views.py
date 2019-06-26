@@ -1,20 +1,23 @@
-from batbox import settings
-from datetime import datetime, timedelta, date
-from dateutil.parser import parse as parse_date
-from django.db.models import Count, Min, Max
-from django.db.models.functions import TruncDay
-from django.http import HttpRequest, HttpResponse, Http404, JsonResponse
-from django.core.exceptions import PermissionDenied
-from django.template import loader, response
+from datetime import date, datetime, timedelta
 from os import path
-from tracemap.models import AudioRecording
-from svg_calendar import GridImage
+from typing import List, Tuple
+
+from dateutil.parser import parse as parse_date
+from django.core.exceptions import PermissionDenied
+from django.db.models import Count, Max, Min
+from django.db.models.functions import TruncDay
+from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
+from django.template import loader, response
+from svgwrite import Drawing, shapes
 from svgwrite.container import Hyperlink
 from svgwrite.path import Path
 from svgwrite.text import Text
-from svgwrite import shapes, Drawing
-from typing import List, Tuple
-from .repository import SpeciesLookup, NonUniqueSpeciesLookup
+
+from batbox import settings
+from svg_calendar import GridImage
+from tracemap.models import AudioRecording
+
+from .repository import NonUniqueSpeciesLookup, SpeciesLookup
 
 
 def decorate_rect_with_class(rect: shapes.Rect, day: date, _):

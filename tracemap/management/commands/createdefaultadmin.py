@@ -1,9 +1,10 @@
-from django.core.management.base import BaseCommand
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import User  # Default model
-from django.db import DEFAULT_DB_ALIAS
 import random
 import string
+
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User  # Default model
+from django.core.management.base import BaseCommand
+from django.db import DEFAULT_DB_ALIAS
 
 
 # Create a default admin user (See createsuperuser.py) with a default,

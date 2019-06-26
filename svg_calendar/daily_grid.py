@@ -1,8 +1,10 @@
 from datetime import date, timedelta
-from dateutil.parser import parse as parse_date
 from math import ceil
-from svgwrite import Drawing, shapes, base
-from typing import Tuple, Callable
+from typing import Callable, Tuple
+
+from dateutil.parser import parse as parse_date
+from svgwrite import Drawing, base, shapes
+
 
 # Defaults
 GRID_PITCH = 15

@@ -1,8 +1,10 @@
-from django.core.management.base import BaseCommand
-from tracemap.models import AudioRecording
-from tracemap.filetools import KmlParser
-from glob import glob
 import os
+from glob import glob
+
+from django.core.management.base import BaseCommand
+
+from tracemap.filetools import KmlParser
+from tracemap.models import AudioRecording
 
 
 class Command(BaseCommand):

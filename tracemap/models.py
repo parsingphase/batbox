@@ -1,7 +1,9 @@
-from django.db import models
-from batbox import settings
 import json
 import os
+
+from django.db import models
+
+from batbox import settings
 
 
 # Create your models here.

@@ -1,5 +1,7 @@
-from django import template
 import os
+
+from django import template
+
 
 register = template.Library()
 
