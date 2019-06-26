@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y apache2 \
     git \
     nodejs \
     npm \
+    sox \
  && apt-get clean
 
 # Ubuntu still installs node as nodejs

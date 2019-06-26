@@ -29,7 +29,7 @@ if [[ "$1" != "--buildonly" ]]; then
     echo
     echo '## Looking for new audio files to import…'
     echo
-    python manage.py importaudiofile -r webroot/media
+    python manage.py importaudiofile --subsample --spectrogram -r webroot/media
     python manage.py importkmlfile -r webroot/media
 
     echo

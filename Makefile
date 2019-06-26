@@ -23,6 +23,7 @@ help:
 
 test:
 	python -m flake8 -v --exclude=.idea,.git,venv
+	python -m isort -c
 	npm test
 
 check_virtualenv:

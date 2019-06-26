@@ -153,7 +153,7 @@ export default class ListHandler {
                                 }
 
                                 if (row.recorded_at) {
-                                    spectrumTitle += ' ' + moment(row.recorded_at).format("YYYY-MM-DD HH:mm")
+                                    spectrumTitle += ' ' + moment(row.recorded_at).format("YYYY-MM-DD HH:mm");
                                 }
 
                                 cellContent = cellContent + ' <a title="' + spectrumTitle + '" ' +

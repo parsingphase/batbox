@@ -13,6 +13,14 @@ SCRIPT_DIR="$( get_script_dir )"
 
 cd ${SCRIPT_DIR}
 
+if [[ ! -f "${SCRIPT_DIR}/batbox/settings.py" ]]; then
+    echo
+    echo "No config found - can't run"
+    echo "Please copy batbox/settings.sample.py to batbox/settings.py and configure it as documented in that file"
+    echo
+    exit 1
+fi
+
 echo '### Checking for rebuild...'
 set +e
 docker rm batbox
