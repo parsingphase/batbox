@@ -31,7 +31,8 @@ form#searchParams .genus-header {
 .datepicker {
   z-index: 1500 !important;
 }
-a i.fas {
+a i.fas,
+a i.far {
   color: #000;
 }
 a.audioTrigger {
@@ -39,9 +40,6 @@ a.audioTrigger {
 }
 div.recordingPopup {
   line-height: 1.5;
-}
-div.recordingPopup a {
-  color: black;
 }
 footer {
   position: absolute;
