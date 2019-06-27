@@ -217,6 +217,7 @@ class Command(BaseCommand):
         spectrogram_title = '(unknown) '
 
         if audio.species:
+            spectrogram_title = f'{audio.genus} {audio.species} '
             try:
                 species = self.species_lookup.species_by_abbreviations(audio.genus, audio.species)
             except NonUniqueSpeciesLookup:
