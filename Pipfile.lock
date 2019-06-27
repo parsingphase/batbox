@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "2cfa58cdde4437258bbe6c6212f9ec137efba6bf64caca968cf02be825b242cd"
+            "sha256": "2217b42e53e36714ed404744b85fa962bdf108c251baf57c1902a2b1f17b907b"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -40,12 +40,9 @@
             "version": "==0.9.1"
         },
         "guano": {
-            "hashes": [
-                "sha256:a913804a1844866d74eab3b38ec5b7d7759d8ad6238e6d90b88bfa4fd4e4b235",
-                "sha256:fff5b8a63e713d47c0d8bb438bee989f2afb15c2a5aa95abd6e664f64786279d"
-            ],
-            "index": "pypi",
-            "version": "==1.0.12"
+            "editable": true,
+            "git": "https://github.com/riggsd/guano-py.git",
+            "ref": "c6c81ce979e9499bd695ee385ad8d0f70353780b"
         },
         "pyparsing": {
             "hashes": [
