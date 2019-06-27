@@ -29,12 +29,16 @@ if [[ "$1" != "--buildonly" ]]; then
     echo
     echo '## Looking for new audio files to import…'
     echo
-    python manage.py importaudiofile --subsample --spectrogram -r webroot/media
-    python manage.py importkmlfile -r webroot/media
+    python manage.py importaudiofile --subsample --spectrogram -r webroot/media/sessions
+    python manage.py importkmlfile -r webroot/media/sessions
 
     echo
     echo "## Running the web server. Ignore any message about the server's domain name…"
     echo "## You should now be able to access the project at http://127.0.0.1:8088"
     echo "## To stop the server, hit Control-C at least once"
+
+    set +e # make sure we report if the server errors
     /usr/sbin/apache2ctl -D FOREGROUND
+
+    echo "## Server stopped"
 fi

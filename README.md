@@ -16,32 +16,13 @@ It works best with GUANO-tagged files, but can also WAV files from Wildlife Acou
 So far it's been tested with the output of an 
 [Echo Meter Touch 2 Bat Detector](https://www.wildlifeacoustics.com/products/echo-meter-touch-2).
 
-Your recording files should be stored under the `webroot/media/sessions` folder. 
-This folder and any subfolders are scanned for new WAV and KML files every time the system is restarted.
-                   
-### Configuration
-
-The only configuration required is in [`settings.sample.py`](batbox/settings.sample.py), which is documented internally.
-Copy this to `settings.py` and edit as required.
-
 ### Running the code
 
 While this is a web-based application, it's also set up to easily run on your laptop or desktop, if you're familiar with the command line - it should work as-is on MacOS or Linux. 
-To run it, you'll need Docker, downloadable at [https://hub.docker.com](https://hub.docker.com) (you'll need to create an account). Once that's installed you can run `./run-docker.sh`
-    
-This will:
 
-- Build a small web server as a virtual machine on your desktop
-- Install the libraries that the project needs, inside the VM
-- Configure a database inside the VM
-- Set up an `admin` user for the management interface, with a dummy email address
-  - The default build process will save the `admin` user's (randomly generated) password to a file in the project directory called `FIRSTPASS.txt`. It's good practice to delete this file once you've read it, and change the password inside the admin interface. 
-- Scan the `webroot/media` folder for any relevant WAV or KML files
-- and finally start a server which you can reach in your web browser at http://127.0.0.1:8088, where you can use the project
+For instructions on how to do so, read [RUNNING-LOCALLY.md](docs/RUNNING-LOCALLY.md).
 
-Note that the first build will take a significant time and download a large amount of data. After that, it'll skim through the early steps quite quickly.
-
-It should also be possible to run it on Windows, but you'll need to decipher and replicate `run-docker.sh` to do so.
+If you'd like to run the code on your own server, for public view, see [RUNNING-SERVER.md](docs/RUNNING-SERVER.md)
 
 ### What you can do
 
