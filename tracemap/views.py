@@ -150,9 +150,10 @@ def species(request, genus_name, species_name):
     context = {}
     try:
         species_details = SpeciesLookup().species_by_abbreviations(genus_name, species_name)
-        title += f'({species_details.genus} {species_details.species})'
-        if species_details.common_name is not None:
-            context['subtitle'] = species_details.common_name
+        if species_details:
+            title += f'({species_details.genus} {species_details.species})'
+            if species_details.common_name is not None:
+                context['subtitle'] = species_details.common_name
     except NonUniqueSpeciesLookup:
         pass
     finally:
