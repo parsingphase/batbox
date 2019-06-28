@@ -55,6 +55,13 @@ editor.
 Copy your bat recording audio files into `webroot/media/sessions` inside the project directory.
 The layout doesn't matter so long as all your WAVs are somewhere in the `sessions` folder.
 
+### Adding species data
+
+The software can use the species list from https://mammaldiversity.org to provide full latin and common names for 
+the species detected. Download a copy of the CSV file from that site (either all species, or just bats) and
+save it as `data/asm-species.csv` (you'll probably have to rename the file). It will be processed when the server
+starts.
+
 ### Run the code
 
 Once you've done the above once, you can start here every time you want to run the code.

@@ -32,6 +32,13 @@ if [[ "$1" != "--buildonly" ]]; then
     python manage.py importaudiofile --subsample --spectrogram -r webroot/media/sessions
     python manage.py importkmlfile -r webroot/media/sessions
 
+    if [[ -f "data/asm-species.csv" ]]; then
+        echo "## Loading asm-species.csv"
+        python manage.py importasmspecieslist data/asm-species.csv
+    else
+        echo "## asm-species.csv not found, see docs for details"
+    fi
+
     echo
     echo "## Running the web server. Ignore any message about the server's domain name…"
     echo "## You should now be able to access the project at http://127.0.0.1:8088"
