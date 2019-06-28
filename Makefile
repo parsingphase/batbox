@@ -83,7 +83,7 @@ venv/bin/activate:
 	test -d venv || python3 -m venv venv
 	touch venv/bin/activate   # update it in case date was old
 
-remind_restart:
+remind_restart: check_settings
 	echo -n; echo "** Remember to restart the webserver or WSGI server **"; echo -n
 
 rebuild: check_virtualenv install collect_static migrate remind_restart

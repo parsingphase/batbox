@@ -1,68 +1,90 @@
 Running on a server for public view
 ===================================
 
-Full documentation will follow shortly.
+### Prerequisites
 
-In the meantime, here are some hints:
+Installation has only been tested on Linux servers. If you want to run this under IIS, you're on your own.
 
-- This is a Django site, designed for Python 3.7 and Django 2.2. Django's software is great, but their 
-[deployment guide](https://docs.djangoproject.com/en/2.2/howto/deployment/) is a little lacking.
-
-- You'll need to copy [batbox/settings.sample.py](../batbox/settings.sample.py) to `batbox/settings.py`
-and edit the top section marked
-
-
-    #########################################################
-    # Change these for your own installation:
-    #########################################################
-        
-- You can use the default sqlite database for small installs, but you'll need to make sure that both it
-and the directory containing it (`./data` by default) are writable by the both the web server, and the user that 
-you run any command-line operations as.
-
-- Python WSGI apps can run under various servers - consult the documentation for your own server. But if you just want 
-a working Apache2 config file, take a look at [batbox.conf](prod-config/batbox.conf) and adapt to your needs.
+- Firstly, you'll need Python 3.6+, plus pipenv. You'll also need npm to build the frontend code
 
 - All the clever subsampling and spectrogram generation is done by [SoX](http://sox.sourceforge.net), which will need 
-to be installed on your server.
+to be installed on your server
 
-- Make sure you've activated the Python virtualenv before doing anything below.
+- Make sure you've got a mapbox token from https://account.mapbox.com/access-tokens/
 
+- Download the ASM database (either the whole thing, or just the bats) in CSV format from https://mammaldiversity.org
+
+- You won't need Docker for a production deploy; it can run under most webservers
+
+- Sqlite can be used for a small install, but if you want to use MySQL, create the database as UTF8
+
+### First installation
+
+Clone the code
+
+    git clone git@github.com:parsingphase/batbox.git
+    
+(or download a release build)
+
+Configure the settings
+
+    cp batbox/settings.sample.py batbox/settings.py
+    vim settings.py
+    
+Make sure you set the mapbox token, update the secret, and add your production web hostname to `ALLOWED_HOSTS`
+
+Create a python environment
+
+    make pipenv
+    
+Configure the webserver
+
+This bit's not simple. Python WSGI apps can run under various servers - consult the documentation for your own server.
+This is a Django 2.2 site, so you can also check their [deployment guide](https://docs.djangoproject.com/en/2.2/howto/deployment/) 
+ 
+If you just want a working Apache2 config file, take a look at [batbox.conf](prod-config/batbox.conf) and adapt to your needs.
+
+
+### Build the code
+
+(for subsequent code updates, after you're updated the source, restart from here)
+
+Activate the virtualenv
 
     source venv/bin/activate
-
-- There are a bunch of build tasks in the Makefile in the project directory. Running `make` in that folder will give
-you some hints:
-
-
-    $ make
-    #
-    # BUILD TARGETS:
-    #
-    # NOTE: most targets require a virtual env to be activated and will fail if not
-    #
-    # install:         Fetch JS and Python dependencies
-    # rebuild:         Rebuild project after a code update or git pull
-    # migrate:         Run any outstanding DB migrations
-    # test:            Run static code tests
-    # collect_static:  Rebuild and gather frontend assets
-    # runserver:       Run development server on port 80
-    # venv:            Create a virtual env in ./venv if it's missing.
-    #                  This does not activate the environment; use source venv/bin/activate for that
-    #
-    echo "# Help will not be displayed if you use make -s, --silent or --quiet"
-    # Help will not be displayed if you use make -s, --silent or --quiet
     
-- The importer scripts are standard Django commands accessed via `manage.py`. Running this will give you various clues.
+~~Draw the rest of the owl~~ Run the provided setup script
 
-
-    $ python3 manage.py 
-    Type 'manage.py help <subcommand>' for help on a specific subcommand.
-    Available subcommands:
-    ...
+    make rebuild
     
-    [tracemap]
-        createdefaultadmin
-        importasmspecieslist
-        importaudiofile
-        importkmlfile
+This performs npm and python dependency installs, migrates the database, and moves various files to where they're needed    
+
+### Command-line setup
+
+If you're using a sqlite database, it will be in the `data` directory by default. You'll need to ensure that both the 
+directory and database files (once created) are writable by both the web user and command-line user.
+
+Before making the site public, you'll want to import some data.
+
+Your audio files will need to live inside the project in `webroot/media/sessions`, so that they can be served alongside the site
+
+Once these are in place, import them (make sure the virtualenv is activated) with `./manage.py importaudiofile -r webroot/media/sessions`
+
+If you've got any KML auxiliary files (Wildlife Acoustics recorders produce these, but they're not usually essential), you
+can store them alongside the audio and import them with
+`./manage.py importkmlfile -r webroot/media/sessions` *after* the audio files
+
+You can also import species names from the ASM database with `./manage.py importspecieslist PATH/TO/asm-species.csv`. It
+doesn't matter when you do this.
+
+Finally, you'll probably want to create an admin user with `./manage.py createsuperuser`
+
+### Restart the web server
+
+This depends on your system; it's necessary because the WSGI app won't usually re-read changed files between restarts,
+unlike other interfaces such as FCGI.
+
+
+## Problems?
+
+Open an issue in Github at https://github.com/parsingphase/batbox/issues
