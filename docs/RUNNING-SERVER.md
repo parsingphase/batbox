@@ -20,24 +20,24 @@ to be installed on your server
 
 ### First installation
 
-Clone the code
+#### Clone the code
 
     git clone git@github.com:parsingphase/batbox.git
     
 (or download a release build)
 
-Configure the settings
+#### Configure the settings
 
     cp batbox/settings.sample.py batbox/settings.py
     vim settings.py
     
 Make sure you set the mapbox token, update the secret, and add your production web hostname to `ALLOWED_HOSTS`
 
-Create a python environment
+#### Create a python environment
 
     make pipenv
     
-Configure the webserver
+#### Configure the webserver
 
 This bit's not simple. Python WSGI apps can run under various servers - consult the documentation for your own server.
 This is a Django 2.2 site, so you can also check their [deployment guide](https://docs.djangoproject.com/en/2.2/howto/deployment/) 
@@ -49,11 +49,11 @@ If you just want a working Apache2 config file, take a look at [batbox.conf](pro
 
 (for subsequent code updates, after you're updated the source, restart from here)
 
-Activate the virtualenv
+#### Activate the virtualenv
 
     source venv/bin/activate
     
-~~Draw the rest of the owl~~ Run the provided setup script
+#### ~~Draw the rest of the owl~~ Run the provided setup script
 
     make rebuild
     
