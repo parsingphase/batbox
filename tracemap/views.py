@@ -5,7 +5,7 @@ from typing import List, Tuple
 from dateutil.parser import parse as parse_date
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Max, Min
-from django.db.models.functions import TruncDay
+from django.db.models.functions import Substr
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.template import loader, response
 from svgwrite import Drawing, shapes
@@ -94,7 +94,8 @@ def day(request, date):
         date_start = datetime(int(year), int(month), int(day))
         date_end = date_start + timedelta(days=1)
         files = AudioRecording.objects.filter(
-            recorded_at__range=(date_start, date_end)
+            recorded_at_iso__gte=date_start.isoformat(),
+            recorded_at_iso__lte=date_end.isoformat()
         )
 
     if not len(files):
@@ -168,8 +169,13 @@ def species(request, genus_name, species_name):
 
 def search(request):
     template = loader.get_template('tracemap/search.html')
-    range = AudioRecording.objects.all().aggregate(min=Min('recorded_at'), max=Max('recorded_at'))
-    range = {k: t.strftime('%Y-%m-%d') if t else None for k, t in range.items()}
+    range = AudioRecording.objects.all().aggregate(min=Min('recorded_at_iso'), max=Max('recorded_at_iso'))
+
+    # Clip from start to end of day
+    range = {
+        'min': parse_date(range['min']).strftime('%Y-%m-%d'),
+        'max': (parse_date(range['max']) + timedelta(days=1)).strftime('%Y-%m-%d'),
+    }
 
     _, genii = summarise_by_day()
     context = {
@@ -254,11 +260,11 @@ def bounds_from_recordings(files):
 def list_counts_by_day():
     days = AudioRecording.objects \
         .filter(hide=False) \
-        .annotate(day=TruncDay('recorded_at')) \
+        .annotate(day=Substr('recorded_at_iso', 1, 10)) \
         .values('day').annotate(c=Count('id')) \
         .values('day', 'c').order_by('day')
 
-    days = {day['day'].strftime('%Y-%m-%d'): day['c'] for day in days if day['day'] is not None}
+    days = {day['day'][0:10]: day['c'] for day in days if day['day'] is not None}
 
     return days
 
@@ -271,7 +277,7 @@ def summarise_by_day() -> Tuple[dict, dict]:
     """
 
     def f_day(d):
-        return d.strftime('%Y-%m-%d') if d is not None else None
+        return parse_date(d).strftime('%Y-%m-%d') if d is not None else None
 
     # Take all the objects
     # Annotate them with a day record
@@ -280,7 +286,7 @@ def summarise_by_day() -> Tuple[dict, dict]:
     # Spit out the summary
     days_by_species = AudioRecording.objects \
         .filter(hide=False) \
-        .annotate(day=TruncDay('recorded_at')) \
+        .annotate(day=Substr('recorded_at_iso', 1, 10)) \
         .values('day', 'genus', 'species') \
         .annotate(count=Count('id')) \
         .values('day', 'genus', 'species', 'count')
@@ -351,9 +357,9 @@ def build_search_filter(search_params):
     if 'north' in search_params:
         search_filter['latitude__lte'] = search_params['north']
     if 'start' in search_params:
-        search_filter['recorded_at__gte'] = parse_date(search_params['start'])
+        search_filter['recorded_at_iso__gte'] = search_params['start']
     if 'end' in search_params:
-        search_filter['recorded_at__lte'] = parse_date(search_params['end'])
+        search_filter['recorded_at_iso__lte'] = search_params['end']
     return search_filter
 
 

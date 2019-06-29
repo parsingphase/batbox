@@ -8,7 +8,7 @@ class AudioRecordingAdmin(admin.ModelAdmin):
     list_display = (
         'identifier',
         'processed',
-        'recorded_at',
+        'recorded_at_iso',
         'duration',
         'latitude',
         'longitude',

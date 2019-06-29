@@ -6,6 +6,7 @@ from glob import glob
 
 import audioread
 from django.core.management.base import BaseCommand
+from dateutil import parser as date_parser
 from guano import GuanoFile
 
 from batbox import settings
@@ -165,7 +166,7 @@ class Command(BaseCommand):
                         'cannot be saved'
                     )
                 else:
-                    audio.recorded_at = guano_file['Timestamp']
+                    audio.set_recording_time(guano_file['Timestamp'])
         except ValueError:
             print('Cannot use timestamp from guano - no valid TZ?')
         finally:
@@ -175,7 +176,7 @@ class Command(BaseCommand):
     def populate_audio_from_identifier(audio):
         id_parser = TraceIdentifier(audio.identifier)
         if id_parser.matched:
-            audio.recorded_at = id_parser.datetime
+            audio.set_recording_time(id_parser.datetime)
         if id_parser.genus:
             audio.genus = id_parser.genus
         if id_parser.species:
@@ -230,8 +231,8 @@ class Command(BaseCommand):
                 else:
                     spectrogram_title = f'{species.genus} {species_ucfirst} '
 
-        if audio.recorded_at:
-            spectrogram_title += audio.recorded_at.strftime('%Y-%M-%d %H:%m')
+        if audio.recorded_at_iso:
+            spectrogram_title += date_parser.parse(audio.recorded_at_iso).strftime('%Y-%m-%d %H:%M')
 
         if not audio.id:
             audio.save()

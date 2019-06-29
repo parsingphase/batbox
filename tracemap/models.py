@@ -1,5 +1,6 @@
 import json
 import os
+from datetime import datetime, timezone
 
 from django.db import models
 
@@ -30,7 +31,8 @@ class AudioRecording(models.Model):
         blank=True
     )
     processed = models.BooleanField(default=False)
-    recorded_at = models.DateTimeField(null=True, blank=True)
+    recorded_at_utc = models.DateTimeField(null=True, blank=True)
+    recorded_at_iso = models.CharField(max_length=30, null=True, blank=True)
     latitude = models.FloatField(blank=True, null=True)
     longitude = models.FloatField(blank=True, null=True)
     genus = models.CharField(max_length=16, blank=True)
@@ -53,8 +55,7 @@ class AudioRecording(models.Model):
             'lo_file': self.subsampled_audio_file,
             'spectrogram_file': self.spectrogram_image_file,
             'processed': self.processed,
-            'recorded_at': self.recorded_at.isoformat()
-            if self.recorded_at is not None else None,
+            'recorded_at': self.recorded_at_iso,
             'latitude': self.latitude,
             'longitude': self.longitude,
             'latlon': (self.latitude, self.longitude)
@@ -67,6 +68,10 @@ class AudioRecording(models.Model):
             else None,
             'duration': self.duration
         }
+
+    def set_recording_time(self, recording_time: datetime):
+        self.recorded_at_utc = recording_time.astimezone(timezone.utc)
+        self.recorded_at_iso = recording_time.isoformat()
 
 
 class Species(models.Model):
