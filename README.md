@@ -9,7 +9,7 @@ This documentation can be viewed at [https://parsingphase.dev/batbox/](https://p
 
 See (and hear) it in action: [https://batbox.phase.org](https://batbox.phase.org)
 
-| ![Map view](docs/images/map_page.png) | ![Search view](docs/images/search_page.png) | ![Spectrogram](docs/images/spectrogram.png) |
+| <a href="docs/images/map_page.png"><img src="docs/images/map_page.png" class="screenshot" /></a> | <a href="docs/images/search_page.png"><img src="docs/images/search_page.png" class="screenshot" /></a> | <a href="docs/images/spectrogram.png"><img src="docs/images/spectrogram.png" class="screenshot" /></a> |
 
 [Wildlife Acoustics](https://www.wildlifeacoustics.com) are a manufacturer of wildlife audio tracking tools, from hobbyist to professional.
  
