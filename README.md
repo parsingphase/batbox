@@ -1,8 +1,13 @@
+<div class="hide-gh-pages">
+
 # batbox
 
 ### Visualisation utility for Wildlife Acoustics and GUANO-tagged data exports
 
-Demo site: https://batbox.phase.org
+This documentation can be viewed at [https://parsingphase.dev/batbox/](https://parsingphase.dev/batbox/)
+</div>
+
+Demo site: [https://batbox.phase.org](https://batbox.phase.org)
 
 ![Map view](docs/images/map_page.png)         
 
@@ -24,7 +29,7 @@ For instructions on how to do so, read [RUNNING-LOCALLY.md](docs/RUNNING-LOCALLY
 
 If you'd like to run the code on your own server, for public view, see [RUNNING-SERVER.md](docs/RUNNING-SERVER.md)
 
-To run a development environment, see [docs/RUNNING-DEVELOPMENT.md](docs/RUNNING-DEVELOPMENT.md)
+To run a development environment, see [RUNNING-DEVELOPMENT.md](docs/RUNNING-DEVELOPMENT.md)
 
 ### What you can do
 
@@ -39,7 +44,9 @@ The code is at an alpha state and needs a fair bit of aesthetic cleanup and refa
 
 ### Feedback
 
-For questions or bug reports, email [richard@parsingphase.dev](mailto:parsingphase@parsingphase.dev). 
+Please file any issues or bug reports at [https://github.com/parsingphase/batbox/issues](https://github.com/parsingphase/batbox/issues)
+
+If you have any questions about usage, contact [richard@parsingphase.dev](mailto:parsingphase@parsingphase.dev). 
 
 Please note: 
 
@@ -52,8 +59,8 @@ Particular credit is due to [David Riggs](https://github.com/riggsd) for both bu
 
 Credit is also due to the creators of [Django](https://www.djangoproject.com), particularly the [Django Admin](https://docs.djangoproject.com/en/2.2/ref/contrib/admin/) project which supplies the whole admin interface to the site.
 
-Species full & common names are from the [Mammal Diversity Database](https://www.mammaldiversity.org):
- 2019. www.mammaldiversity.org. American Society of Mammalogists. Accessed 2019-06-20 .
+Species full & common names can be loaded from the [Mammal Diversity Database](https://www.mammaldiversity.org) from the 
+American Society of Mammalogists.   
  
 Please note that mappings from short codes to full species names are heuristic and not entirely foolproof. Any reportings of 
 Malaysian Fruit Bats in Kent should be assumed to be a software error.
