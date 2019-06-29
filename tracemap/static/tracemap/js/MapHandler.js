@@ -196,7 +196,7 @@ export default class MapHandler {
                     shadowSize: [41, 41], // size of the shadow
                     iconAnchor: [18, 44], // point of the icon which will correspond to marker's location
                     shadowAnchor: [10, 44],  // the same for the shadow
-                    popupAnchor: [0, -40] // point from which the popup should open relative to the iconAnchor
+                    popupAnchor: [-4, -42] // point from which the popup should open relative to the iconAnchor
                 });
 
 
