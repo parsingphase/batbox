@@ -24,6 +24,8 @@ For instructions on how to do so, read [RUNNING-LOCALLY.md](docs/RUNNING-LOCALLY
 
 If you'd like to run the code on your own server, for public view, see [RUNNING-SERVER.md](docs/RUNNING-SERVER.md)
 
+To run a development environment, see [docs/RUNNING-DEVELOPMENT.md](docs/RUNNING-DEVELOPMENT.md)
+
 ### What you can do
 
 - Search by time, location and species

@@ -95,4 +95,5 @@ https://github.com/parsingphase/batbox/issues
 
 What you've built above is exactly the environment that the code is developed in - with one exception. 
 The default server for the above environment doesn't reload the code when you edit it, so you won't
-see any changes as you edit files. Instructions on how to run the development server locally will follow shortly.
+see any changes as you edit files. Instructions on how to run the development server locally 
+can be found in [RUNNING-DEVELOPMENT.md].
