@@ -5,8 +5,8 @@ from datetime import datetime
 from glob import glob
 
 import audioread
-from django.core.management.base import BaseCommand
 from dateutil import parser as date_parser
+from django.core.management.base import BaseCommand
 from guano import GuanoFile
 
 from batbox import settings
