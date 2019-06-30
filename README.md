@@ -1,8 +1,10 @@
 <div class="hide-gh-pages">
 
-# batbox
+# batbox 
 
 ### Visualisation utility for Wildlife Acoustics and GUANO-tagged data exports
+
+[![Build Status](https://travis-ci.org/parsingphase/batbox.svg?branch=master)](https://travis-ci.org/parsingphase/batbox)
 
 This documentation can be viewed at [https://parsingphase.dev/batbox/](https://parsingphase.dev/batbox/)
 </div>
