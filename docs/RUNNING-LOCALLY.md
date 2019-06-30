@@ -11,7 +11,8 @@ It should be technically possible to run this under Windows, but I don't have a 
 
 Before you start, you'll need a copy of Docker running on your system:
 
-Visit https://www.docker.com/products/docker-desktop, and download, install and run "Docker Desktop" for your system.
+Visit [https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop), 
+and download, install and run "Docker Desktop" for your system.
 You may need to create an account to be able to download Docker.
 
 
@@ -19,7 +20,8 @@ You may need to create an account to be able to download Docker.
 
 First, get a copy of the code - either:
  
- - download and unpack the latest zipfile from https://github.com/parsingphase/batbox/releases
+ - download and unpack the latest zipfile from 
+ [https://github.com/parsingphase/batbox/releases](https://github.com/parsingphase/batbox/releases)
 
  - or fetch it with git:
  
@@ -38,7 +40,8 @@ and open it in a text editor (Mac console shortcut: `open -e batbox/settings.py`
     
 To enable the maps in the site, you'll need a token from Mapbox. These are free for personal use.
 
-To get one, visit https://account.mapbox.com/access-tokens/ in your browser and follow thw instructions - you may need to create an account first.
+To get one, visit [https://account.mapbox.com/access-tokens/](https://account.mapbox.com/access-tokens/) 
+in your browser and follow thw instructions - you may need to create an account first.
 
 (Mac console shortcut: `open https://account.mapbox.com/access-tokens/`)
 
@@ -57,10 +60,10 @@ The layout doesn't matter so long as all your WAVs are somewhere in the `session
 
 ### Adding species data
 
-The software can use the species list from https://mammaldiversity.org to provide full latin and common names for 
-the species detected. Download a copy of the CSV file from that site (either all species, or just bats) and
-save it as `data/asm-species.csv` (you'll probably have to rename the file). It will be processed when the server
-starts.
+The software can use the species list from [https://mammaldiversity.org](https://mammaldiversity.org) to provide 
+full latin and common names for  the species detected. Download a copy of the CSV file from that site (either all 
+species, or just bats) and save it as `data/asm-species.csv` (you'll probably have to rename the file). It will be 
+processed when the server starts.
 
 ### Run the code
 
@@ -89,7 +92,7 @@ that goes with this is `admin`.
 ### If you have problems
 
 First, check that you've not missed any steps out above. Then, feel free to open an issue in Github at
-https://github.com/parsingphase/batbox/issues
+[https://github.com/parsingphase/batbox/issues](https://github.com/parsingphase/batbox/issues)
 
 ### Finally, a note for developers
 
