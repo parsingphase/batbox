@@ -22,8 +22,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 #########################################################
 
 MAPS = {
-    'mapbox_token': 'YOUR.TOKEN.HERE'  # Get a token from https://account.mapbox.com/access-tokens/
+    # Get a token from https://account.mapbox.com/access-tokens/
     # For details of how it's used, see https://leafletjs.com/examples/quick-start/
+    'mapbox_token': 'YOUR.TOKEN.HERE',
+    # Search map default view: centred on UK
+    'search_default': {
+        'center': [55, 0],
+        'zoom': 4
+    }
 }
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -41,7 +47,6 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'data', 'db.sqlite3'),
     }
 }
-
 
 SPECTROGRAM_PREFILTER = ['rate', '200k', 'highpass', '25k', 'lowpass', '75k', ]
 

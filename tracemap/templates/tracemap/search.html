@@ -14,6 +14,7 @@
 
 {% block body-container %}
     {{ mapbox_token|json_script:"mapbox-token" }}
+    {{ search_defaults|json_script:"search-defaults" }}
     <h1>Search all recordings</h1>
     <form id="searchParams">
         <div class="row">
@@ -143,7 +144,9 @@
          * @property {Array} bounds
          */
         const mapboxToken = JSON.parse(document.getElementById('mapbox-token').textContent);
-        map = new MapHandler('map-target', mapboxToken).drawMapWithView([0, 55], 12);
+        const searchDefaults = JSON.parse(document.getElementById('search-defaults').textContent);
+        console.log(searchDefaults.center, searchDefaults.zoom);
+        map = new MapHandler('map-target', mapboxToken).drawMapWithView(searchDefaults.center, searchDefaults.zoom);
 
         /**
          *
@@ -200,13 +203,6 @@
             let start;
             let end;
 
-            {#data.timeRange = {#}
-            {#    dateStart: dateStart,#}
-            {#    timeStart: timeStart,#}
-            {#    dateEnd: dateEnd,#}
-            {#    timeEnd: timeEnd,#}
-            {# }; #}
-
             if (dateStart) {
                 if (!timeStart) {
                     timeStart = '00:00';
@@ -235,12 +231,6 @@
             data.species = species.join(',');
 
             const geoForm = form.find('#geoRange');
-            {#data.geoRange = {#}
-            {#    'east': geoForm.find('#east').val(),#}
-            {#    'south': geoForm.find('#south').val(),#}
-            {#    'west': geoForm.find('#west').val(),#}
-            {#    'north': geoForm.find('#north').val(),#}
-            {# }; #}
 
             data.east = geoForm.find('#east').val();
             data.south = geoForm.find('#south').val();

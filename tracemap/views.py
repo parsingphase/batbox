@@ -177,11 +177,17 @@ def search(request):
         'max': (parse_date(range['max']) + timedelta(days=1)).strftime('%Y-%m-%d'),
     }
 
+    default_range = {
+        'center': [55, 0],
+        'zoom': 4
+    }
+
     _, genii = summarise_by_day()
     context = {
         'genii': genii,
         'date_range': range,
         'mapbox_token': settings.MAPS['mapbox_token'],
+        'search_defaults': settings.MAPS['search_defaults'] if 'search_defaults' in settings.MAPS else default_range
     }
     return HttpResponse(template.render(context, request))
 

@@ -60,7 +60,7 @@ export default class MapHandler {
         document.getElementById(this.targetElementId).textContent = '';
         this.map = L.map(this.targetElementId);
         this.initMap();
-        this.map.setView([55, 0], 4);
+        this.map.setView(centre, zoom);
         return this;
     }
 
