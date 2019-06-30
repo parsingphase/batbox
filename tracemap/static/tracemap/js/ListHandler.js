@@ -52,9 +52,9 @@ export default class ListHandler {
                             return data;
                         }
                         if (data) {
-                            let date = moment(data).format("YYYY-MM-DD");
+                            let date = moment.parseZone(data).format("YYYY-MM-DD");
                             const url = that.urlRouter['day_view'](date);
-                            return '<a href="' + url + '">' + date + '</a> ' + moment(data).format('HH:mm');
+                            return '<a href="' + url + '">' + date + '</a> ' + moment.parseZone(data).format('HH:mm');
                         }
                         return '(no time available)';
                     }
@@ -153,7 +153,8 @@ export default class ListHandler {
                                 }
 
                                 if (row.recorded_at) {
-                                    spectrumTitle += ' ' + moment(row.recorded_at).format("YYYY-MM-DD HH:mm");
+                                    // spectrumTitle += ' RA: ' + row.recorded_at;
+                                    spectrumTitle += ' ' + moment.parseZone(row.recorded_at).format("YYYY-MM-DD HH:mm");
                                 }
 
                                 cellContent = cellContent + ' <a title="' + spectrumTitle + '" ' +

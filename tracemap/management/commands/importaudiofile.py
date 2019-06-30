@@ -124,7 +124,10 @@ class Command(BaseCommand):
                 print(f'Unable to load WAMD data for {filename}')
 
         if wamd_file is not None:
-            self.populate_audio_from_wamd(audio, wamd_file)
+            try:
+                self.populate_audio_from_wamd(audio, wamd_file)
+            except ValueError:
+                print("Could not load fallback WAMD data")
 
         if not audio.duration:
             self.read_file_duration(filename, audio)

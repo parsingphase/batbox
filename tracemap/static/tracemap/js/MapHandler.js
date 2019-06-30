@@ -228,7 +228,7 @@ export default class MapHandler {
             output += '(unknown) ';
         }
 
-        output += moment(trace.recorded_at).format('YYYY-MM-DD HH:mm');
+        output += moment.parseZone(trace.recorded_at).format('YYYY-MM-DD HH:mm');
         output += '<br />' + trace.duration.toFixed(2) + ' s';
 
         if (trace.species_info && trace.species_info.common_name) {
@@ -256,7 +256,7 @@ export default class MapHandler {
             }
 
             if (trace.recorded_at) {
-                spectrumTitle += ' ' + moment(trace.recorded_at).format("YYYY-MM-DD HH:mm");
+                spectrumTitle += ' ' + moment.parseZone(trace.recorded_at).format("YYYY-MM-DD HH:mm");
             }
 
             output += ' <a title="' + spectrumTitle + '" ' +
