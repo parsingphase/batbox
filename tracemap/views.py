@@ -88,14 +88,15 @@ def calendar(request):
 
 def day(request, date):
     if date == 'undated':
-        files = AudioRecording.objects.filter(recorded_at__isnull=True)
+        files = AudioRecording.objects.filter(recorded_at__isnull=True, hide=False)
     else:
         (year, month, day) = date.split('-')
         date_start = datetime(int(year), int(month), int(day))
         date_end = date_start + timedelta(days=1)
         files = AudioRecording.objects.filter(
             recorded_at_iso__gte=date_start.isoformat(),
-            recorded_at_iso__lte=date_end.isoformat()
+            recorded_at_iso__lte=date_end.isoformat(),
+            hide=False
         )
 
     if not len(files):
@@ -132,7 +133,7 @@ def single(request, pk):
 
 
 def genus(request, genus_name):
-    files = AudioRecording.objects.filter(genus=genus_name)
+    files = AudioRecording.objects.filter(genus=genus_name, hide=False)
     title = f'Genus: {genus_name}'
     genus_latin_name = SpeciesLookup().genus_name_by_abbreviation(genus_name)
     if genus_latin_name is not None and type(genus_latin_name) is not list:
@@ -145,7 +146,7 @@ def genus(request, genus_name):
 
 
 def species(request, genus_name, species_name):
-    files = AudioRecording.objects.filter(genus=genus_name, species=species_name)
+    files = AudioRecording.objects.filter(genus=genus_name, species=species_name, hide=False)
     title_genus_case = genus_name[0].upper() + genus_name[1:].lower()
     title = f'Species: {title_genus_case}. {species_name.lower()}.'
     context = {}
