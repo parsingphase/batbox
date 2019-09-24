@@ -126,6 +126,7 @@ export default class ListHandler {
                             if (type === "sort" || type === "type") {
                                 return data;
                             }
+
                             let cellContent = '<a title="Play" class="audioTrigger" ' +
                                 'data-audio-src="' + row.url + '" ' +
                                 'data-audio-src-lo="' + row.lo_url + '" ' +
@@ -157,9 +158,13 @@ export default class ListHandler {
                                     spectrumTitle += ' ' + moment.parseZone(row.recorded_at).format("YYYY-MM-DD HH:mm");
                                 }
 
-                                cellContent = cellContent + ' <a title="' + spectrumTitle + '" ' +
+
+                                cellContent = cellContent + ' <a data-descr="' + spectrumTitle + '" ' +
                                     'href="' + row.spectrogram_url + '" ' +
                                     'class="spectrumTrigger" ' +
+                                    'data-audio-src="' + row.url + '" ' +
+                                    'data-audio-src-lo="' + row.lo_url + '" ' +
+                                    'data-audio-ident="' + row.identifier + '" ' +
                                     'data-lightbox="' + row.identifier + '">' +
                                     '<i class="far fa-chart-bar"></i></a>';
                             }
@@ -215,11 +220,39 @@ export default class ListHandler {
             that.map.panMapToAudioFile(id, 15);
             return false; // prevent link action
         });
+
+
+        let $spectrumTriggers = this.targetElement.find('.spectrumTrigger');
+        $spectrumTriggers.each(
+            function () {
+                const e = $(this);
+                const origTitle = e.data('descr');
+                const anchor = $(
+                    '<a/>',
+                    {
+                        href: "javascript:playSpectrogramAudio(\'" + e.data('audioIdent') + "\')",
+                        'data-audio-src': e.data('audioSrc'),
+                        'data-audio-src-lo': e.data('audioSrcLo'),
+                        'data-audio-ident': e.data('audioIdent'),
+                    }
+                );
+                anchor.html('<i style="color: white" class="fas fa-play"></i>');
+
+                const anchorHolder = $('<div/>');
+                anchor.appendTo(anchorHolder);
+
+                e.attr(
+                    'title',
+                    origTitle + ' | ' + anchorHolder.html()
+                );
+            }
+        );
+
         let $audioTriggers = this.targetElement.find('.audioTrigger');
         $audioTriggers.off('click');
 
         $audioTriggers.click(function () {
-            let sourceElement = $(this);
+            let sourceElement = $(this); // the 'a' tag
             const src = sourceElement.data('audioSrc');
             const loSrc = sourceElement.data('audioSrcLo');
             let playSrc;
@@ -290,7 +323,6 @@ export default class ListHandler {
             }
 
         });
-
 
     }
 }
