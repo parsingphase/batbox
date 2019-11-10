@@ -24,6 +24,7 @@ help:
 test:
 	python -m flake8 -v --exclude=.idea,.git,venv
 	python -m isort -c
+	python -m pylint --load-plugins=pylint_django --ignore=settings.py batbox
 	npm test
 
 check_virtualenv:

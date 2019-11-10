@@ -15,6 +15,7 @@ django-js-reverse = "*"
 [dev-packages]
 flake8 = "*"
 isort = "*"
+pylint-django = "*"
 
 [requires]
 python_version = "3.7"
