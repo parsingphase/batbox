@@ -13,7 +13,9 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('filename', type=str, help='Name of the file or directory to import')
         parser.add_argument(
-            '-r', '--recursive', action='store_true', help='Recurse in directory, finding all .kml files'
+            '-r', '--recursive',
+            action='store_true',
+            help='Recurse in directory, finding all .kml files'
         )
 
     def handle(self, *args, **kwargs):

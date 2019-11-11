@@ -22,9 +22,9 @@ help:
 	echo "# Help will not be displayed if you use make -s, --silent or --quiet"
 
 test:
-	python -m flake8 -v --exclude=.idea,.git,venv
+	python -m flake8
 	python -m isort -c
-	python -m pylint --load-plugins=pylint_django --ignore=settings.py batbox
+	python -m pylint batbox
 	npm test
 
 check_virtualenv:
