@@ -1,15 +1,20 @@
+"""
+Django entity models for bat recording data
+"""
 import json
 import os
 from datetime import datetime, timezone
+from typing import Dict, Optional
 
 from django.db import models
 
 from batbox import settings
 
 
-# Create your models here.
-
 class AudioRecording(models.Model):
+    """
+    Entity representing an audio recording file
+    """
     identifier = models.CharField(max_length=32, blank=True)
     audio_file = models.FilePathField(
         path=settings.MEDIA_ROOT + 'sessions/',
@@ -40,14 +45,31 @@ class AudioRecording(models.Model):
     recorder_serial = models.CharField(max_length=16, blank=True)
     guano_data = models.TextField(blank=True)
     duration = models.FloatField(blank=True, null=True)
-    hide = models.BooleanField(default=False)  # Allow to ignore files not containing useful recordings
+    hide = models.BooleanField(default=False)  # Ignore files not containing useful recordings
 
-    def path_relative_to(self, base_dir):
+    def path_relative_to(self, base_dir: str) -> Optional[str]:
+        """
+        Helper function to subtract a base directory from a path
+        Args:
+            base_dir: Base directory to remove
+
+        Returns:
+            Relative path
+        """
         if self.audio_file is not None:
             return os.path.relpath(self.audio_file, base_dir)
         return None
 
-    def as_serializable(self):
+    def as_serializable(self) -> Dict:
+        """
+        Return object data in a format that can be json-serialized
+        Returns:
+            Dictionary of data
+        """
+        if self.latitude is not None and self.longitude is not None:
+            lat_lon = (self.latitude, self.longitude)
+        else:
+            lat_lon = None
         return {
             'id': self.id,
             'identifier': self.identifier,
@@ -58,23 +80,31 @@ class AudioRecording(models.Model):
             'recorded_at': self.recorded_at_iso,
             'latitude': self.latitude,
             'longitude': self.longitude,
-            'latlon': (self.latitude, self.longitude)
-            if self.latitude is not None and self.longitude is not None
-            else None,
+            'latlon': lat_lon,
             'genus': self.genus,
             'species': self.species,
             'recorder_serial': self.recorder_serial,
-            'guano_data': json.loads(self.guano_data) if self.guano_data
-            else None,
+            'guano_data': json.loads(self.guano_data) if self.guano_data else None,
             'duration': self.duration
         }
 
     def set_recording_time(self, recording_time: datetime):
+        """
+        Set recording time in human-readable and timezone-aware formats
+        Args:
+            recording_time: datetime recording time
+
+        Returns:
+            void
+        """
         self.recorded_at_utc = recording_time.astimezone(timezone.utc)
         self.recorded_at_iso = recording_time.isoformat()
 
 
 class Species(models.Model):
+    """
+    Entity representing a single species of bat
+    """
     genus = models.CharField(max_length=32, blank=True)
     species = models.CharField(max_length=32, blank=True)
     common_name = models.CharField(max_length=64, blank=True)
@@ -92,7 +122,12 @@ class Species(models.Model):
         verbose_name = 'Species'
         verbose_name_plural = 'Species'
 
-    def as_serializable(self):
+    def as_serializable(self) -> Dict:
+        """
+        Return object data in a format that can be json-serialized
+        Returns:
+            Dictionary of data
+        """
         return {
             'id': self.id,
             'genus': self.genus,

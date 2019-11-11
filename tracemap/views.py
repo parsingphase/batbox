@@ -1,3 +1,8 @@
+"""
+Module views, responding to routed URLs
+"""
+# pylint: disable=R0914
+# - Can't modify number of views - can we refactor to class?
 from datetime import date, datetime, timedelta
 from os import path
 from typing import List, Tuple
@@ -20,18 +25,18 @@ from tracemap.models import AudioRecording
 from .repository import NonUniqueSpeciesLookup, SpeciesLookup
 
 
-def decorate_rect_with_class(rect: shapes.Rect, day: date, _):
+def decorate_rect_with_class(rect: shapes.Rect, day_date: date, _):
     """
     Decorator for day squares for SVG calendar view
     Args:
         rect:
-        day:
+        day_date:
         _:
 
     Returns:
 
     """
-    day_string = day.strftime('%Y-%m-%d')
+    day_string = day_date.strftime('%Y-%m-%d')
     outer = Hyperlink('/byday/' + day_string, '_self')
     rect.update({'class_': 'dateTrigger'})
     rect.update({'id': 'calday-' + day_string})
@@ -86,25 +91,43 @@ def calendar(request):
     return HttpResponse(template.render(context, request))
 
 
-def day(request, date):
-    if date == 'undated':
-        files = AudioRecording.objects.filter(recorded_at__isnull=True)
+def day(request, date_string):
+    """
+    Render list+map view for a single day
+    Args:
+        request:
+        date_string: date in yyyy-mm-dd format
+
+    Returns:
+        HTTP response containing formatted output
+    """
+    if date_string == 'undated':
+        files = AudioRecording.objects.filter(recorded_at__isnull=True, hide=False)
     else:
-        (year, month, day) = date.split('-')
-        date_start = datetime(int(year), int(month), int(day))
+        (year, month, day_number) = date_string.split('-')
+        date_start = datetime(int(year), int(month), int(day_number))
         date_end = date_start + timedelta(days=1)
         files = AudioRecording.objects.filter(
             recorded_at_iso__gte=date_start.isoformat(),
-            recorded_at_iso__lte=date_end.isoformat()
+            recorded_at_iso__lte=date_end.isoformat(),
+            hide=False
         )
 
-    if not len(files):
+    if len(files) == 0:
         raise Http404("No records")
 
-    return display_recordings_list(files, request, {'title': f'Date: {date}'})
+    return display_recordings_list(files, request, {'title': f'Date: {date_string}'})
 
 
 def list_all(request):
+    """
+    Render list view for all recordings
+    Args:
+        request:
+
+    Returns:
+        HTTP response containing formatted output
+    """
     title = 'All recordings'
     search_params = request.GET
     if search_params:
@@ -116,8 +139,17 @@ def list_all(request):
     return display_recordings_list(files, request, {'title': title})
 
 
-def single(request, pk):
-    files = [AudioRecording.objects.get(id=pk)]
+def single(request, primary_key):
+    """
+    Render list+map view for a single recording
+    Args:
+        request:
+        primary_key: ID of recording
+
+    Returns:
+        HTTP response containing formatted output
+    """
+    files = [AudioRecording.objects.get(id=primary_key)]
     if len(files) == 0:
         raise Http404('Recording not found')
 
@@ -132,10 +164,19 @@ def single(request, pk):
 
 
 def genus(request, genus_name):
-    files = AudioRecording.objects.filter(genus=genus_name)
+    """
+    Render list+map view for a single genus
+    Args:
+        request:
+        genus_name: Genus name abbreviation
+
+    Returns:
+        HTTP response containing formatted output
+    """
+    files = AudioRecording.objects.filter(genus=genus_name, hide=False)
     title = f'Genus: {genus_name}'
     genus_latin_name = SpeciesLookup().genus_name_by_abbreviation(genus_name)
-    if genus_latin_name is not None and type(genus_latin_name) is not list:
+    if genus_latin_name is not None and not isinstance(genus_latin_name, list):
         title += f' ({genus_latin_name})'
     return display_recordings_list(
         files,
@@ -145,7 +186,17 @@ def genus(request, genus_name):
 
 
 def species(request, genus_name, species_name):
-    files = AudioRecording.objects.filter(genus=genus_name, species=species_name)
+    """
+    Render list+map view for a single genus
+    Args:
+        request:
+        genus_name: Genus name abbreviation
+        species_name: Species name abbreviation
+
+    Returns:
+        HTTP response containing formatted output
+    """
+    files = AudioRecording.objects.filter(genus=genus_name, species=species_name, hide=False)
     title_genus_case = genus_name[0].upper() + genus_name[1:].lower()
     title = f'Species: {title_genus_case}. {species_name.lower()}.'
     context = {}
@@ -168,13 +219,22 @@ def species(request, genus_name, species_name):
 
 
 def search(request):
+    """
+    Generate the search view
+    Args:
+        request:
+
+    Returns:
+
+    """
     template = loader.get_template('tracemap/search.html')
-    range = AudioRecording.objects.all().aggregate(min=Min('recorded_at_iso'), max=Max('recorded_at_iso'))
+    time_range = AudioRecording.objects.all(). \
+        aggregate(min=Min('recorded_at_iso'), max=Max('recorded_at_iso'))
 
     # Clip from start to end of day
-    range = {
-        'min': parse_date(range['min']).strftime('%Y-%m-%d'),
-        'max': (parse_date(range['max']) + timedelta(days=1)).strftime('%Y-%m-%d'),
+    time_range = {
+        'min': parse_date(time_range['min']).strftime('%Y-%m-%d'),
+        'max': (parse_date(time_range['max']) + timedelta(days=1)).strftime('%Y-%m-%d'),
     }
 
     default_range = {
@@ -185,9 +245,10 @@ def search(request):
     _, genii = summarise_by_day()
     context = {
         'genii': genii,
-        'date_range': range,
+        'date_range': time_range,
         'mapbox_token': settings.MAPS['mapbox_token'],
-        'search_defaults': settings.MAPS['search_defaults'] if 'search_defaults' in settings.MAPS else default_range
+        'search_defaults': settings.MAPS[
+            'search_defaults'] if 'search_defaults' in settings.MAPS else default_range
     }
     return HttpResponse(template.render(context, request))
 
@@ -214,15 +275,16 @@ def display_recordings_list(files: List[AudioRecording], request, context: dict 
         'spectrogram_file': 'spectrogram_url',
     }
 
-    for f in files:
-        trace = f.as_serializable()
+    for file in files:
+        trace = file.as_serializable()
         for file_key, url_key in urls_map.items():
             if trace[file_key]:
-                trace[url_key] = settings.MEDIA_URL + path.relpath(trace[file_key], settings.MEDIA_ROOT)
+                trace[url_key] = settings.MEDIA_URL + path.relpath(trace[file_key],
+                                                                   settings.MEDIA_ROOT)
             trace[file_key] = None
 
         try:
-            species_info = lookup.species_by_abbreviations(f.genus, f.species)
+            species_info = lookup.species_by_abbreviations(file.genus, file.species)
         except NonUniqueSpeciesLookup:
             species_info = None
         trace['species_info'] = species_info.as_serializable() if species_info else ''
@@ -238,9 +300,17 @@ def display_recordings_list(files: List[AudioRecording], request, context: dict 
     return HttpResponse(template.render(context, request))
 
 
-def bounds_from_recordings(files):
+def bounds_from_recordings(files: List[AudioRecording]) -> Tuple:
+    """
+    Generate map bounds from a list of recordings
+    Args:
+        files:
+
+    Returns:
+
+    """
     positioned_files = [f for f in files if f.latitude is not None]
-    if len(positioned_files):
+    if positioned_files:
         bounds = (
             (
                 min([t.latitude for t in positioned_files]),
@@ -264,6 +334,11 @@ def bounds_from_recordings(files):
 
 
 def list_counts_by_day():
+    """
+    Generate a count of records by day
+    Returns:
+
+    """
     days = AudioRecording.objects \
         .filter(hide=False) \
         .annotate(day=Substr('recorded_at_iso', 1, 10)) \
@@ -277,13 +352,13 @@ def list_counts_by_day():
 
 def summarise_by_day() -> Tuple[dict, dict]:
     """
-    Generate a list of all genus, and the species within, alongside the number of recordings per species
+    Generate a list of all genus, and the species within, plus number of recordings per species
     Returns:
 
     """
 
-    def f_day(d):
-        return parse_date(d).strftime('%Y-%m-%d') if d is not None else None
+    def f_day(date_string):
+        return parse_date(date_string).strftime('%Y-%m-%d') if date_string is not None else None
 
     # Take all the objects
     # Annotate them with a day record
@@ -297,10 +372,16 @@ def summarise_by_day() -> Tuple[dict, dict]:
         .annotate(count=Count('id')) \
         .values('day', 'genus', 'species', 'count')
 
+    # FIXME:  R1718: Consider using a set comprehension (consider-using-set-comprehension)
+    # pylint: disable=R1718
     unique_days = set([f_day(row['day']) for row in days_by_species])
     unique_genus = set([row['genus'] for row in days_by_species])
 
-    days = {day: {'day': day, 'count': 0, 'genus': {g: {} for g in unique_genus}} for day in unique_days}
+    days = {
+        day: {'day': day, 'count': 0, 'genus': {g: {} for g in unique_genus}}
+        for day in unique_days
+    }
+
     genus_species = {g: [] for g in unique_genus}
 
     for row in days_by_species:
@@ -312,14 +393,14 @@ def summarise_by_day() -> Tuple[dict, dict]:
                 genus_species[genus_abbr].append(row['species'])
 
     lookup = SpeciesLookup()
-    gl = lookup.genus_name_by_abbreviation
+    genus_lookup = lookup.genus_name_by_abbreviation
     # genus_species = Map of (eg) { PYP: [NAT, PIP, PYG], …} - species lists are unsorted here
 
     genus_map = {}
     for genus_abbr in genus_species:
-        name = gl(genus_abbr)
+        name = genus_lookup(genus_abbr)
         genus_map[genus_abbr] = {
-            'name': name if type(name) is str else None,
+            'name': name if isinstance(name, str) else None,
             'species': []
         }
         species_abbreviations = sorted(set(genus_species[genus_abbr]))
@@ -340,6 +421,14 @@ def summarise_by_day() -> Tuple[dict, dict]:
 
 
 def search_api(request: HttpRequest):
+    """
+    API call handler for search
+    Args:
+        request:
+
+    Returns:
+
+    """
     search_params = request.GET
     search_filter = build_search_filter(search_params)
 
@@ -348,7 +437,16 @@ def search_api(request: HttpRequest):
     return JsonResponse({'data': results, 'search': search_filter}, safe=False)
 
 
-def build_search_filter(search_params):
+def build_search_filter(search_params: dict):
+    """
+    Build a search filter for the django ORM from a dictionary of query params
+
+    Args:
+        search_params:
+
+    Returns:
+
+    """
     search_filter = {
         'hide': False
     }
@@ -370,6 +468,16 @@ def build_search_filter(search_params):
 
 
 def species_marker(request, genus_name='-', species_name='-'):
+    """
+    Generate a SVG marker for a given species
+    Args:
+        request:
+        genus_name:
+        species_name:
+
+    Returns:
+
+    """
     if species_name == '-':
         color = 'bbbbbb'
         species_name = '?'
@@ -392,31 +500,35 @@ def species_marker(request, genus_name='-', species_name='-'):
     arc_radius_vertical = arc_centre_drop
 
     image = Drawing(size=('%dpx' % width, '%dpx' % height))
-    # image.add(image.rect((0, 0), (width, height), fill='red'))
-    path = Path(stroke=line_color, stroke_width=stroke_width, fill=marker_color)
+    marker = Path(stroke=line_color, stroke_width=stroke_width, fill=marker_color)
 
-    path.push(f'M {marker_border} {arc_centre_drop + marker_border} ')  # Left arc edge
+    marker.push(f'M {marker_border} {arc_centre_drop + marker_border} ')  # Left arc edge
 
-    path.push(
-        f'C {marker_border}  {arc_centre_drop + marker_border + bezier_length} '  # Left edge + vrt bez
-        f'{width / 2 - bezier_length / 3} {height - marker_border - bezier_length} '  # Point - (b/3) h, - b v
+    marker.push(
+        f'C {marker_border} {arc_centre_drop + marker_border + bezier_length} '
+        f'{width / 2 - bezier_length / 3} {height - marker_border - bezier_length} '
         f'{width / 2} {height - marker_border}'  # Point
     )
 
-    path.push(
-        f'C {width / 2 + bezier_length / 3} {height - marker_border - bezier_length} '  # Point + b/3 h, -b v
-        f'{width - marker_border} {arc_centre_drop + marker_border + bezier_length} '  # Right edge + vrt bez
+    marker.push(
+        f'C {width / 2 + bezier_length / 3} {height - marker_border - bezier_length} '
+        f'{width - marker_border} {arc_centre_drop + marker_border + bezier_length} '
         f'{width - marker_border} {arc_centre_drop + marker_border} '  # Right edge
-
     )  # Right arc edge
 
-    path.push_arc(target=(marker_border, arc_centre_drop + marker_border), rotation=180,
-                  r=(marker_width / 2, arc_radius_vertical), absolute=True, angle_dir='-')
+    marker.push_arc(
+        target=(marker_border, arc_centre_drop + marker_border),
+        rotation=180,
+        r=(marker_width / 2, arc_radius_vertical),
+        absolute=True,
+        angle_dir='-'
+    )
 
-    path.push('z')
-    image.add(path)
+    marker.push('z')
+    image.add(marker)
     image.add(
-        Text(species_name, (width / 2, marker_border + arc_centre_drop + marker_height / 20), font_family='Arial',
+        Text(species_name, (width / 2, marker_border + arc_centre_drop + marker_height / 20),
+             font_family='Arial',
              font_size=font_size, dominant_baseline="middle", text_anchor="middle")
     )
 
@@ -424,6 +536,18 @@ def species_marker(request, genus_name='-', species_name='-'):
 
 
 def species_to_color(genus_part: str, species_part: str):
+    """
+    Create a unique-ish color from a species name
+    Species from same genus will be more similar
+
+    Args:
+        genus_part:
+        species_part:
+
+    Returns:
+
+    """
+
     def char_to_num(char):
         return ord(char.upper()) - ord('A')
 
@@ -439,4 +563,12 @@ def species_to_color(genus_part: str, species_part: str):
 
 
 def about(request):
+    """
+    Render the "about" page
+    Args:
+        request:
+
+    Returns:
+
+    """
     return response.SimpleTemplateResponse('tracemap/about.html')

@@ -1,3 +1,6 @@
+"""
+Django URL configuration for the tracemap module
+"""
 from django.urls import path
 
 from . import views
@@ -6,9 +9,9 @@ from . import views
 urlpatterns = [
     path('', views.index, name='index'),
     path('calendar', views.calendar, name='calendar'),
-    path('byday/<str:date>', views.day, name='day_view'),
+    path('byday/<str:date_string>', views.day, name='day_view'),
     path('list', views.list_all, name='list_view'),
-    path('recording/<int:pk>', views.single, name='single_view'),
+    path('recording/<int:primary_key>', views.single, name='single_view'),
     path('genus/<str:genus_name>', views.genus, name='genus_view'),
     path(
         'species/<str:genus_name>.<str:species_name>',
@@ -17,6 +20,10 @@ urlpatterns = [
     ),
     path('search', views.search, name='search_view'),
     path('api/search', views.search_api, name='search_api'),
-    path('img/species_marker/<str:genus_name>.<str:species_name>', views.species_marker, name='species_marker'),
+    path(
+        'img/species_marker/<str:genus_name>.<str:species_name>',
+        views.species_marker,
+        name='species_marker'
+    ),
     path('about', views.about, name='about'),
 ]
