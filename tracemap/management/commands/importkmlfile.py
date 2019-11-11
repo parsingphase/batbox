@@ -44,7 +44,7 @@ class Command(BaseCommand):
         parser = KmlParser(filename)
         points = parser.get_recording_points()
         for point in points:
-            ident = point.id
+            ident = point.name
             audio_files = AudioRecording.objects.filter(identifier=ident)
             if len(audio_files) == 1:
                 audio = audio_files[0]  # type: AudioRecording
