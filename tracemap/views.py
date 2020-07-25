@@ -306,10 +306,8 @@ def display_recordings_list(files: List[AudioRecording], request, context: dict 
         trace = file.as_serializable()
         for file_key, url_key in urls_map.items():
             if trace[file_key]:
-                file_path = path.realpath(trace[file_key])
-                trace[url_key] = settings.MEDIA_URL + \
-                                 path.relpath(file_path, settings.MEDIA_ROOT)
-                # print(f'URL: {file_path}, {settings.MEDIA_ROOT} => {trace[url_key]}')
+                trace[url_key] = settings.MEDIA_URL + path.relpath(trace[file_key],
+                                                                   settings.MEDIA_ROOT)
             trace[file_key] = None
 
         try:
