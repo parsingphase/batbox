@@ -8,9 +8,9 @@ import audioread
 from dateutil import parser as date_parser
 from django.core.management.base import BaseCommand
 from guano import GuanoFile
+from png import Reader
 
 from batbox import settings
-from png import Reader
 from tracemap.filetools import TraceIdentifier
 from tracemap.models import AudioRecording
 from tracemap.repository import NonUniqueSpeciesLookup, SpeciesLookup

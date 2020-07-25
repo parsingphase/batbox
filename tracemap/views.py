@@ -175,7 +175,8 @@ def single(request, primary_key):
 
     if species_details:
         species_name = title_case(species_details.species)
-        context['og_title'] = f'{species_details.common_name} ({species_details.genus} {species_name}) recording from {when}'
+        context['og_title'] = f'{species_details.common_name} ({species_details.genus} ' \
+                              f'{species_name}) recording from {when}'
         context['title'] = f'{species_details.common_name} ({species_details.genus} {species_name})'
 
     return display_recordings_list(
@@ -251,7 +252,8 @@ def species(request, genus_name, species_name):
     finally:
         context['title'] = title
 
-    safe_species_name = f'{safe_common_name} ({safe_latin_name})' if safe_common_name else safe_latin_name
+    safe_species_name = f'{safe_common_name} ({safe_latin_name})' \
+        if safe_common_name else safe_latin_name
 
     context['og_title'] = f'Bat echolocation recordings from {safe_species_name}'
 
@@ -295,7 +297,8 @@ def search(request):
         'genii': genii,
         'date_range': time_range,
         'mapbox_token': settings.MAPS['mapbox_token'],
-        'search_defaults': settings.MAPS['search_defaults'] if 'search_defaults' in settings.MAPS else default_range
+        'search_defaults': settings.MAPS['search_defaults']
+        if 'search_defaults' in settings.MAPS else default_range
     }
     return HttpResponse(template.render(context, request))
 
@@ -350,7 +353,8 @@ def display_recordings_list(files: List[AudioRecording], request, context: dict 
     if len(files_with_spectrogram):
         first_file = files_with_spectrogram[0]
         print(first_file)
-        og_context['og_image'] = f'{request.scheme}://{request.get_host()}{first_file["spectrogram_url"]}'
+        og_context['og_image'] = \
+            f'{request.scheme}://{request.get_host()}{first_file["spectrogram_url"]}'
         if first_file['spectrogram_width']:
             og_context['og_image_width'] = first_file['spectrogram_width']
             og_context['og_image_height'] = first_file['spectrogram_height']
