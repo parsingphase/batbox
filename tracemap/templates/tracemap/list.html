@@ -10,6 +10,12 @@
     <link rel="stylesheet" type="text/css" href="{% static 'vendor/css/lightbox.min.css' %}"/>
 {% endblock %}
 
+{% block social-graph %}
+    {% if title %}<meta property="og:url" content="{{ request.build_absolute_uri }}" />{% endif %}
+    {% if title %}<meta property="og:title" content="{{ title }}" />{% endif %}
+    {% if subtitle %}<meta property="og:description" content="{{ subtitle }}" />{% endif %}
+    {% if first_spectrogram %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ first_spectrogram }}" />{% endif %}
+{% endblock %}
 
 {% block body-container %}
     {{ map_data|json_script:"map-data" }}

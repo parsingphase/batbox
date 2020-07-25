@@ -295,6 +295,7 @@ def display_recordings_list(files: List[AudioRecording], request, context: dict 
     local_context = {
         'map_data': {'traces': traces, 'bounds': bounds},
         'mapbox_token': settings.MAPS['mapbox_token'],
+        'first_spectrogram': next((x['spectrogram_url'] for x in traces if x['spectrogram_url']), None)
     }
     context = {**context, **local_context}
     return HttpResponse(template.render(context, request))
