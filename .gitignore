@@ -21,3 +21,4 @@ settings.py
 recordings.css.map
 webroot/media/processed/subsampled
 webroot/media/processed/spectrograms
+data/*
