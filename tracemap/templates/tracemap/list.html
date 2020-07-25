@@ -5,38 +5,39 @@
 
 {% block head-css %}
     {{ block.super }}
-    <link rel="stylesheet" type="text/css" href="{% static 'vendor/css/jquery.dataTables.min.css' %}">
+    <link rel="stylesheet" type="text/css"
+          href="{% static 'vendor/css/jquery.dataTables.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'vendor/css/leaflet.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'vendor/css/lightbox.min.css' %}"/>
 {% endblock %}
 
 {% block social-graph %}
     {% spaceless %}
-    <meta name="twitter:card" content="summary" />
-    <meta property="og:url" content="{{ request.build_absolute_uri }}" />
-    {% if og_title %}
-        <meta property="og:title" content="{{ og_title }}" />
-        <meta name="twitter:title" content="{{ og_title }}"/>
-    {% elif title %}
-        <meta property="og:title" content="{{ title }}" />
-        <meta name="twitter:title" content="{{ title }}"/>
-    {% endif %}
-    {% if og_description %}
-        <meta property="og:description" content="{{ og_description }}" />
-        <meta property="twitter:description" content="{{ og_description }}" />
-    {% elif subtitle %}
-        <meta property="og:description" content="{{ subtitle }}" />
-        <meta property="twitter:description" content="{{ subtitle }}" />
-    {% endif %}
-    {% if og_image %}
-        <meta property="og:image" content="{{ og_image }}" />
-        <meta property="og:image:type" content="image/png" />
-        <meta name="twitter:image" content="{{ og_image }}" />
-        {% if og_image_width %}
-            <meta property="og:image:width" content="{{ og_image_width }}" />
-            <meta property="og:image:height" content="{{ og_image_height }}" />
+        <meta name="twitter:card" content="summary"/>
+        <meta property="og:url" content="{{ request.build_absolute_uri }}"/>
+        {% if og_title %}
+            <meta property="og:title" content="{{ og_title }}"/>
+            <meta name="twitter:title" content="{{ og_title }}"/>
+        {% elif title %}
+            <meta property="og:title" content="{{ title }}"/>
+            <meta name="twitter:title" content="{{ title }}"/>
         {% endif %}
-    {% endif %}
+        {% if og_description %}
+            <meta property="og:description" content="{{ og_description }}"/>
+            <meta property="twitter:description" content="{{ og_description }}"/>
+        {% elif subtitle %}
+            <meta property="og:description" content="{{ subtitle }}"/>
+            <meta property="twitter:description" content="{{ subtitle }}"/>
+        {% endif %}
+        {% if og_image %}
+            <meta property="og:image" content="{{ og_image }}"/>
+            <meta property="og:image:type" content="image/png"/>
+            <meta name="twitter:image" content="{{ og_image }}"/>
+            {% if og_image_width %}
+                <meta property="og:image:width" content="{{ og_image_width }}"/>
+                <meta property="og:image:height" content="{{ og_image_height }}"/>
+            {% endif %}
+        {% endif %}
     {% endspaceless %}
 
 {% endblock %}
@@ -56,7 +57,8 @@
     </table>
     <script type="text/javascript" src="{% static 'vendor/js/jquery.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'vendor/js/jquery.dataTables.min.js' %}"></script>
-    <script type="text/javascript" charset="utf8" src="{% static 'vendor/js/moment.min.js' %}"></script>
+    <script type="text/javascript" charset="utf8"
+            src="{% static 'vendor/js/moment.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'vendor/js/leaflet.js' %}"></script>
     <script type="text/javascript" src="{% static 'vendor/js/bootstrap.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'vendor/js/lightbox.min.js' %}"></script>
@@ -98,7 +100,13 @@
         {% endif %}
         listTable.setUrlRouter(Urls);
         listTable.initTable(recordings);
+
+        // we need a function in the global scope that we can trigger from late html
+        window.playSpectrogramAudio = function (id) {
+            listTable.playElementAudio(id, listTable);
+        }
     </script>
+
 {% endblock %}
 
 {% block body %}
