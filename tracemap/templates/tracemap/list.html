@@ -11,10 +11,28 @@
 {% endblock %}
 
 {% block social-graph %}
-    {% if title %}<meta property="og:url" content="{{ request.build_absolute_uri }}" />{% endif %}
-    {% if title %}<meta property="og:title" content="{{ title }}" />{% endif %}
-    {% if subtitle %}<meta property="og:description" content="{{ subtitle }}" />{% endif %}
-    {% if first_spectrogram %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ first_spectrogram }}" />{% endif %}
+    {% spaceless %}
+    <meta name="twitter:card" content="summary" />
+    <meta property="og:url" content="{{ request.build_absolute_uri }}" />
+    {% if og_title %}
+        <meta property="og:title" content="{{ og_title }}" />
+        <meta name="twitter:title" content="{{ og_title }}"/>
+    {% elif title %}
+        <meta property="og:title" content="{{ title }}" />
+        <meta name="twitter:title" content="{{ title }}"/>
+    {% endif %}
+    {% if og_description %}
+        <meta property="og:description" content="{{ og_description }}" />
+        <meta property="twitter:description" content="{{ og_description }}" />
+    {% elif subtitle %}
+        <meta property="twitter:description" content="{{ subtitle }}" />
+    {% endif %}
+    {% if first_spectrogram %}
+        <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ first_spectrogram }}" />
+        <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ first_spectrogram }}" />
+    {% endif %}
+    {% endspaceless %}
+
 {% endblock %}
 
 {% block body-container %}

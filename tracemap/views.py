@@ -116,7 +116,12 @@ def day(request, date_string):
     if len(files) == 0:
         raise Http404("No records")
 
-    return display_recordings_list(files, request, {'title': f'Date: {date_string}'})
+    context = {
+        'title': f'Date: {date_string}',
+        'og_title': f'Bat echolocation recordings from {date_string}',
+        'og_description': f'Visualisation, location and playback'
+    }
+    return display_recordings_list(files, request, context)
 
 
 def list_all(request):
@@ -175,13 +180,24 @@ def genus(request, genus_name):
     """
     files = AudioRecording.objects.filter(genus=genus_name, hide=False)
     title = f'Genus: {genus_name}'
+    safe_genus_name = genus_name
+
     genus_latin_name = SpeciesLookup().genus_name_by_abbreviation(genus_name)
+
     if genus_latin_name is not None and not isinstance(genus_latin_name, list):
         title += f' ({genus_latin_name})'
+        safe_genus_name = genus_latin_name
+
+    context = {
+        'title': title,
+        'og_title': f'Bat echolocation recordings from {safe_genus_name}',
+        'og_description': f'Visualisation, location and playback'
+    }
+
     return display_recordings_list(
         files,
         request,
-        {'title': title}
+        context
     )
 
 
@@ -198,18 +214,29 @@ def species(request, genus_name, species_name):
     """
     files = AudioRecording.objects.filter(genus=genus_name, species=species_name, hide=False)
     title_genus_case = genus_name[0].upper() + genus_name[1:].lower()
-    title = f'Species: {title_genus_case}. {species_name.lower()}.'
-    context = {}
+    safe_latin_name = f'{title_genus_case}. {species_name.lower()}.'
+    safe_common_name = None
+
+    title = f'Species: {safe_latin_name}'
+    context = {
+        'og_description': f'Visualisation, location and playback'
+    }
     try:
         species_details = SpeciesLookup().species_by_abbreviations(genus_name, species_name)
         if species_details:
-            title += f'({species_details.genus} {species_details.species})'
+            safe_latin_name = f'{species_details.genus} {species_details.species}'
+            title += f' ({safe_latin_name})'
             if species_details.common_name is not None:
-                context['subtitle'] = species_details.common_name
+                safe_common_name = species_details.common_name
+                context['subtitle'] = safe_common_name
     except NonUniqueSpeciesLookup:
         pass
     finally:
         context['title'] = title
+
+    safe_species_name = f'{safe_common_name} ({safe_latin_name})' if safe_common_name else safe_latin_name
+
+    context['og_title'] = f'Bat echolocation recordings from {safe_species_name}'
 
     return display_recordings_list(
         files,
@@ -279,8 +306,10 @@ def display_recordings_list(files: List[AudioRecording], request, context: dict 
         trace = file.as_serializable()
         for file_key, url_key in urls_map.items():
             if trace[file_key]:
-                trace[url_key] = settings.MEDIA_URL + path.relpath(trace[file_key],
-                                                                   settings.MEDIA_ROOT)
+                file_path = path.realpath(trace[file_key])
+                trace[url_key] = settings.MEDIA_URL + \
+                                 path.relpath(file_path, settings.MEDIA_ROOT)
+                # print(f'URL: {file_path}, {settings.MEDIA_ROOT} => {trace[url_key]}')
             trace[file_key] = None
 
         try:
