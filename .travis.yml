@@ -8,6 +8,7 @@ install:
   - 'pip install pipenv'
   - 'pipenv install --dev'
   - 'npm install'
+  - 'cp batbox/settings.sample.py batbox/settings.py'
 # command to run tests
 script:
   -  make test

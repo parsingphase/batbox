@@ -45,9 +45,9 @@
                 <tr>
                     <td>
                         {% if day.day is None %}
-                            <a href="{% url 'day_view' date='undated' %}">Undated</a>
+                            <a href="{% url 'day_view' date_string='undated' %}">Undated</a>
                         {% else %}
-                            <a href="{% url 'day_view' date=day.day %}">{{ day.day }}</a>
+                            <a href="{% url 'day_view' date_string=day.day %}">{{ day.day }}</a>
                         {% endif %}
                     </td>
 

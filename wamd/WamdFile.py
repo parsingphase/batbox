@@ -1,6 +1,7 @@
 # Simpler WAMD equivalent of GuanoFile - read only
 # Largely taken from on https://github.com/riggsd/guano-py/blob/master/bin/wamd2guano.py
-# Note: the licence of this file is MIT, independent of the overall licence of the project, due to its source
+# Note: the licence of this file is MIT, independent of the overall licence of the project,
+# due to its source
 import chunk
 import re
 import struct

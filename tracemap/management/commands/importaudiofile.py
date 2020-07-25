@@ -8,6 +8,7 @@ import audioread
 from dateutil import parser as date_parser
 from django.core.management.base import BaseCommand
 from guano import GuanoFile
+from png import Reader
 
 from batbox import settings
 from tracemap.filetools import TraceIdentifier
@@ -43,7 +44,8 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('filename', type=str, help='Name of the file or directory to import')
         parser.add_argument(
-            '-r', '--recursive', action='store_true', help='Recurse in directory, finding all .wav files'
+            '-r', '--recursive', action='store_true',
+            help='Recurse in directory, finding all .wav files'
         )
         parser.add_argument(
             '-u', '--subsample', action='store_true', help='Generate subsampled audio files'
@@ -208,20 +210,25 @@ class Command(BaseCommand):
     def subsample_file(self, audio: AudioRecording):
         if not audio.id:
             audio.save()
-        dest = os.path.join(settings.MEDIA_ROOT, 'processed', 'subsampled', f'{audio.id}-{audio.identifier}.wav')
+        dest = os.path.join(
+            settings.MEDIA_ROOT,
+            'processed',
+            'subsampled',
+            f'{audio.id}-{audio.identifier}.wav'
+        )
         print(f'Subsample {audio.audio_file} to {dest}')
         sox_result = subprocess.run([self.sox_executable, audio.audio_file, '-r44100', dest])
         sox_result.check_returncode()
         audio.subsampled_audio_file = dest
 
     def generate_spectrogram_file(self, audio: AudioRecording):
-        spectrogram_prefilter = settings.SPECTROGRAM_PREFILTER
-        spectrogram_credit = settings.SPECTROGRAM_CREDIT
+        prefilter = settings.SPECTROGRAM_PREFILTER
+        credit = settings.SPECTROGRAM_CREDIT
 
-        spectrogram_title = '(unknown) '
+        title = '(unknown) '
 
         if audio.species:
-            spectrogram_title = f'{audio.genus} {audio.species} '
+            title = f'{audio.genus} {audio.species} '
             try:
                 species = self.species_lookup.species_by_abbreviations(audio.genus, audio.species)
             except NonUniqueSpeciesLookup:
@@ -230,22 +237,27 @@ class Command(BaseCommand):
             if species:
                 species_ucfirst = species.species[0].upper() + species.species[1:]
                 if species.common_name:
-                    spectrogram_title = f'{species.common_name} ({species.genus} {species_ucfirst}) '
+                    title = f'{species.common_name} ({species.genus} {species_ucfirst}) '
                 else:
-                    spectrogram_title = f'{species.genus} {species_ucfirst} '
+                    title = f'{species.genus} {species_ucfirst} '
 
         if audio.recorded_at_iso:
-            spectrogram_title += date_parser.parse(audio.recorded_at_iso).strftime('%Y-%m-%d %H:%M')
+            title += date_parser.parse(audio.recorded_at_iso).strftime('%Y-%m-%d %H:%M')
 
         if not audio.id:
             audio.save()
-        dest = os.path.join(settings.MEDIA_ROOT, 'processed', 'spectrograms', f'{audio.id}-{audio.identifier}.png')
+        dest = os.path.join(settings.MEDIA_ROOT, 'processed', 'spectrograms',
+                            f'{audio.id}-{audio.identifier}.png')
         print(f'Plot {audio.audio_file} spectrum to {dest}')
         #     sox "$file" -n spectrogram -o "$outfile" -t "$ident"
         sox_result = subprocess.run(
             [self.sox_executable, audio.audio_file, '-n', ] +
-            spectrogram_prefilter +
-            ['spectrogram', '-o', dest, '-c', spectrogram_credit, '-t', spectrogram_title]
+            prefilter +
+            ['spectrogram', '-o', dest, '-c', credit, '-t', title]
         )
         sox_result.check_returncode()
+        png_reader = Reader(filename=dest)
+        (width, height, _, _) = png_reader.read()
         audio.spectrogram_image_file = dest
+        audio.spectrogram_image_width = width
+        audio.spectrogram_image_height = height

@@ -17,4 +17,5 @@ pipelines:
           - echo "deb-src https://deb.nodesource.com/node_10.x stretch main" | tee -a /etc/apt/sources.list.d/nodesource.list
           - apt-get update && apt-get install -y unzip nodejs npm
           - pip install pipenv
+          - cp batbox/settings.sample.py batbox/settings.py
           - make venv && source venv/bin/activate && make install_dev test

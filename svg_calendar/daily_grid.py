@@ -36,7 +36,10 @@ class GridImage:
         self.color_high = COLOR_HIGH
         self.day_rect_decorator = None
 
-    def set_day_rect_decorator(self, decorator: Callable[[shapes.Rect, date, float], base.BaseElement]):
+    def set_day_rect_decorator(
+            self,
+            decorator: Callable[[shapes.Rect, date, float], base.BaseElement]
+    ):
         self.day_rect_decorator = decorator
         return self
 
@@ -83,12 +86,14 @@ class GridImage:
         """
         color = []
         for k in range(0, 3):
-            color.append(self.color_low[k] + int(fraction * (self.color_high[k] - self.color_low[k])))
+            color.append(
+                self.color_low[k] + int(fraction * (self.color_high[k] - self.color_low[k])))
 
         color_string = '#' + (''.join(map(lambda c: "%02x" % c, color)))
         return color_string
 
-    def draw_daily_count_image(self, daily_count: dict, show_legend: bool = False, legend_title: str = '',
+    def draw_daily_count_image(self, daily_count: dict, show_legend: bool = False,
+                               legend_title: str = '',
                                range_min=0) -> Drawing:
         """
 
@@ -126,14 +131,16 @@ class GridImage:
             if daily_quantity is None:
                 color = '#e0e0e0'
             else:
-                color = self.fractional_fill_color((daily_quantity - range_min) / (max_daily - range_min))
+                color = self.fractional_fill_color(
+                    (daily_quantity - range_min) / (max_daily - range_min))
 
             year = day_date.year
             offset = (0, (year - min_year) * height_per_year)
             amount_string = round(daily_quantity, 1) if daily_quantity else '?'
             title = day_date.strftime('%b') + (' %d: %s' % (day_date.day, amount_string))
 
-            square_for_date = self.square_for_date(image, day_date, color, grid_offset=offset, title=title)
+            square_for_date = self.square_for_date(image, day_date, color, grid_offset=offset,
+                                                   title=title)
             if self.day_rect_decorator is not None:
                 square_for_date = self.day_rect_decorator(square_for_date, day_date, daily_quantity)
             image.add(square_for_date)
@@ -145,10 +152,12 @@ class GridImage:
 
         return image
 
-    def square_for_date(self, image: Drawing, day_date: date, color: str, grid_offset=(), title=None):
+    def square_for_date(self, image: Drawing, day_date: date, color: str, grid_offset=(),
+                        title=None):
         year, week, day = self.isocalendar_natural(day_date)
 
-        day_square = self.square_in_grid(image, row=day, column=week, offsets=grid_offset, fill=color, title=title)
+        day_square = self.square_in_grid(image, row=day, column=week, offsets=grid_offset,
+                                         fill=color, title=title)
         return day_square
 
     def draw_year_labels(self, image, year, year_top):
@@ -158,14 +167,16 @@ class GridImage:
             image.text(
                 '%d' % year,
                 insert=(self.grid_borders['left'] - 8,
-                        year_top + self.grid_borders['top'] + text_vrt_offset - self.grid_pitch - 2),
+                        year_top + self.grid_borders[
+                            'top'] + text_vrt_offset - self.grid_pitch - 2),
                 class_='year'
             )
         )
         image.add(
             image.text(
                 'Mo',
-                insert=(self.grid_borders['left'] - 8, year_top + self.grid_borders['top'] + text_vrt_offset),
+                insert=(self.grid_borders['left'] - 8,
+                        year_top + self.grid_borders['top'] + text_vrt_offset),
                 class_='day'
             )
         )
@@ -173,7 +184,8 @@ class GridImage:
             image.text(
                 'Su',
                 insert=(self.grid_borders['left'] - 8,
-                        year_top + self.grid_borders['top'] + text_vrt_offset + 6 * self.grid_pitch),
+                        year_top + self.grid_borders[
+                            'top'] + text_vrt_offset + 6 * self.grid_pitch),
                 class_='day'
             )
         )
@@ -185,7 +197,8 @@ class GridImage:
                 image.text(
                     month,
                     insert=(
-                        self.offset_point(start_location, (self.grid_pitch + (self.grid_square / 2), 0))[0],
+                        self.offset_point(start_location,
+                                          (self.grid_pitch + (self.grid_square / 2), 0))[0],
                         year_top + self.grid_borders['top'] + text_vrt_offset - self.grid_pitch - 2
                     ),
                     class_='month'
@@ -195,12 +208,14 @@ class GridImage:
 
     def draw_month_boundary(self, image, month_number, year, year_top):
         start_location = self.month_start_location(month_number, year, year_top)
-        end_location = self.offset_point(self.month_end_location(month_number, year, year_top), (0, self.grid_pitch))
+        end_location = self.offset_point(self.month_end_location(month_number, year, year_top),
+                                         (0, self.grid_pitch))
         if date(year, month_number, 1) < date.today():
             half_pitch = (self.grid_pitch - self.grid_square) / 2
             points = [
                 (
-                    self.offset_point(start_location, (self.grid_square + half_pitch, half_pitch))[0],
+                    self.offset_point(start_location, (self.grid_square + half_pitch, half_pitch))[
+                        0],
                     self.grid_square_top(1, year_top) - half_pitch
                 ),
                 self.offset_point(start_location, (self.grid_square + half_pitch, -half_pitch)),
@@ -220,7 +235,8 @@ class GridImage:
                     self.grid_square_top(1, year_top) - half_pitch
                 ),
                 (
-                    self.offset_point(start_location, (self.grid_square + half_pitch, half_pitch))[0],
+                    self.offset_point(start_location, (self.grid_square + half_pitch, half_pitch))[
+                        0],
                     self.grid_square_top(1, year_top) - half_pitch
                 ),
             ]
@@ -301,7 +317,8 @@ class GridImage:
     def offset_point(point: tuple, by: tuple) -> tuple:
         return point[0] + by[0], point[1] + by[1]
 
-    def draw_legend(self, image: Drawing, legend_title: str, top: int, range_max: float, range_min: int = 0):
+    def draw_legend(self, image: Drawing, legend_title: str, top: int, range_max: float,
+                    range_min: int = 0):
         # Generate up to 5 integer steps
         step = int(ceil((range_max - range_min) / 5))
 
@@ -328,7 +345,8 @@ class GridImage:
             image.add(
                 image.text(
                     marker,
-                    insert=(left + self.legend_grid['cell_width'] / 2, top + 3 * self.legend_grid['cell_height'] / 4),
+                    insert=(left + self.legend_grid['cell_width'] / 2,
+                            top + 3 * self.legend_grid['cell_height'] / 4),
                     class_='key',
                     fill='#ffffff' if marker > range_max / 2 else '#000000'
                 )

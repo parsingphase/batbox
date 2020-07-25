@@ -23,11 +23,11 @@ class Command(BaseCommand):
         parser.add_argument('filename', type=str, help='Name of the file or directory to import')
 
     def handle(self, *args, **kwargs):
-        required_csv_fields = ['genus', 'species', 'common name', 'linnean order', 'internal id']
+        required_fields = ['genus', 'species', 'common name', 'linnean order', 'internal id']
         filename = kwargs['filename']
         column_map = {}
         i = 0
-        with open(filename, newline='', encoding='ISO-8859–1') as csvfile:  # Export is currently not utf8
+        with open(filename, newline='', encoding='ISO-8859–1') as csvfile:  # Export is not utf8
             reader = csv.reader(csvfile)
 
             row = next(reader)
@@ -36,9 +36,9 @@ class Command(BaseCommand):
                 column_map[row[index].lower()] = index
 
             print(column_map)
-            for field in required_csv_fields:
+            for field in required_fields:
                 if field not in column_map.keys():
-                    print(f"Can't find all required headers in CSV: {', '.join(required_csv_fields)}")
+                    print(f"Can't find all required headers in CSV: {', '.join(required_fields)}")
                     exit(1)
 
             o = column_map['linnean order']

@@ -1,3 +1,6 @@
+"""
+Configuration of django admin interface
+"""
 from django.contrib import admin
 
 # Register your models here.
@@ -5,6 +8,9 @@ from .models import AudioRecording, Species
 
 
 class AudioRecordingAdmin(admin.ModelAdmin):
+    """
+    Configuration of AudioRecording management interface
+    """
     list_display = (
         'identifier',
         'processed',
@@ -20,6 +26,9 @@ class AudioRecordingAdmin(admin.ModelAdmin):
 
 
 class SpeciesAdmin(admin.ModelAdmin):
+    """
+    Configuration of Species management interface
+    """
     list_display = (
         'genus',
         'species',
