@@ -10,6 +10,7 @@ from django.core.management.base import BaseCommand
 from guano import GuanoFile
 
 from batbox import settings
+from png import Reader
 from tracemap.filetools import TraceIdentifier
 from tracemap.models import AudioRecording
 from tracemap.repository import NonUniqueSpeciesLookup, SpeciesLookup
@@ -255,4 +256,8 @@ class Command(BaseCommand):
             ['spectrogram', '-o', dest, '-c', credit, '-t', title]
         )
         sox_result.check_returncode()
+        png_reader = Reader(filename=dest)
+        (width, height, _, _) = png_reader.read()
         audio.spectrogram_image_file = dest
+        audio.spectrogram_image_width = width
+        audio.spectrogram_image_height = height

@@ -158,13 +158,27 @@ def single(request, primary_key):
     if len(files) == 0:
         raise Http404('Recording not found')
 
-    if files[0].hide:
+    file = files[0]  # type: AudioRecording
+
+    if file.hide:
         raise PermissionDenied('Recording not available')
+
+    context = {
+        'title': file.identifier,
+        'og_description': f'Visualisation, location and playback'
+    }
+
+    species_details = SpeciesLookup().species_by_abbreviations(file.genus, file.species)
+
+    if species_details:
+        when = parse_date(file.recorded_at_iso).strftime('%Y-%m-%d %H:%M')
+        species = title_case(species_details.species)
+        context['og_title'] = f'{species_details.common_name} ({species_details.genus} {species}) recording from {when}'
 
     return display_recordings_list(
         files,
         request,
-        {'title': files[0].identifier}
+        context
     )
 
 
@@ -213,7 +227,7 @@ def species(request, genus_name, species_name):
         HTTP response containing formatted output
     """
     files = AudioRecording.objects.filter(genus=genus_name, species=species_name, hide=False)
-    title_genus_case = genus_name[0].upper() + genus_name[1:].lower()
+    title_genus_case = title_case(genus_name)
     safe_latin_name = f'{title_genus_case}. {species_name.lower()}.'
     safe_common_name = None
 
@@ -245,6 +259,10 @@ def species(request, genus_name, species_name):
     )
 
 
+def title_case(in_string):
+    return in_string[0].upper() + in_string[1:].lower()
+
+
 def search(request):
     """
     Generate the search view
@@ -274,8 +292,7 @@ def search(request):
         'genii': genii,
         'date_range': time_range,
         'mapbox_token': settings.MAPS['mapbox_token'],
-        'search_defaults': settings.MAPS[
-            'search_defaults'] if 'search_defaults' in settings.MAPS else default_range
+        'search_defaults': settings.MAPS['search_defaults'] if 'search_defaults' in settings.MAPS else default_range
     }
     return HttpResponse(template.render(context, request))
 
@@ -306,8 +323,8 @@ def display_recordings_list(files: List[AudioRecording], request, context: dict 
         trace = file.as_serializable()
         for file_key, url_key in urls_map.items():
             if trace[file_key]:
-                trace[url_key] = settings.MEDIA_URL + path.relpath(trace[file_key],
-                                                                   settings.MEDIA_ROOT)
+                tracefile = trace[file_key]
+                trace[url_key] = media_path_to_relative_url(tracefile)
             trace[file_key] = None
 
         try:
@@ -322,10 +339,36 @@ def display_recordings_list(files: List[AudioRecording], request, context: dict 
     local_context = {
         'map_data': {'traces': traces, 'bounds': bounds},
         'mapbox_token': settings.MAPS['mapbox_token'],
-        'first_spectrogram': next((x['spectrogram_url'] for x in traces if x['spectrogram_url']), None)
     }
-    context = {**context, **local_context}
+
+    og_context = {}
+
+    files_with_spectrogram = [x for x in traces if x['spectrogram_url']]
+    if len(files_with_spectrogram):
+        first_file = files_with_spectrogram[0]
+        print(first_file)
+        og_context['og_image'] = f'{request.scheme}://{request.get_host()}{first_file["spectrogram_url"]}'
+        if first_file['spectrogram_width']:
+            og_context['og_image_width'] = first_file['spectrogram_width']
+            og_context['og_image_height'] = first_file['spectrogram_height']
+
+    context = {**context, **og_context, **local_context}
     return HttpResponse(template.render(context, request))
+
+
+def media_path_to_relative_url(tracefile):
+    """
+    Handle path matching, whether there's a symlink in the stored or actual path
+    Args:
+        tracefile:
+
+    Returns:
+
+    """
+    relpath = path.relpath(tracefile, settings.MEDIA_ROOT)
+    if '..' in relpath:
+        relpath = path.relpath(path.realpath(tracefile), settings.MEDIA_ROOT)
+    return settings.MEDIA_URL + relpath
 
 
 def bounds_from_recordings(files: List[AudioRecording]) -> Tuple:

@@ -35,6 +35,8 @@ class AudioRecording(models.Model):
         null=True,
         blank=True
     )
+    spectrogram_image_width = models.IntegerField(null=True)
+    spectrogram_image_height = models.IntegerField(null=True)
     processed = models.BooleanField(default=False)
     recorded_at_utc = models.DateTimeField(null=True, blank=True)
     recorded_at_iso = models.CharField(max_length=30, null=True, blank=True)
@@ -76,6 +78,8 @@ class AudioRecording(models.Model):
             'file': self.audio_file,
             'lo_file': self.subsampled_audio_file,
             'spectrogram_file': self.spectrogram_image_file,
+            'spectrogram_height': self.spectrogram_image_height,
+            'spectrogram_width': self.spectrogram_image_width,
             'processed': self.processed,
             'recorded_at': self.recorded_at_iso,
             'latitude': self.latitude,
