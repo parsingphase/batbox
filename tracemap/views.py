@@ -116,7 +116,12 @@ def day(request, date_string):
     if len(files) == 0:
         raise Http404("No records")
 
-    return display_recordings_list(files, request, {'title': f'Date: {date_string}'})
+    context = {
+        'title': f'Date: {date_string}',
+        'og_title': f'Bat echolocation recordings from {date_string}',
+        'og_description': 'Visualisation, location and playback'
+    }
+    return display_recordings_list(files, request, context)
 
 
 def list_all(request):
@@ -153,13 +158,31 @@ def single(request, primary_key):
     if len(files) == 0:
         raise Http404('Recording not found')
 
-    if files[0].hide:
+    file = files[0]  # type: AudioRecording
+
+    if file.hide:
         raise PermissionDenied('Recording not available')
+
+    when = parse_date(file.recorded_at_iso).strftime('%Y-%m-%d %H:%M')
+
+    context = {
+        'title': file.identifier,
+        'subtitle': when,
+        'og_description': 'Visualisation, location and playback'
+    }
+
+    species_details = SpeciesLookup().species_by_abbreviations(file.genus, file.species)
+
+    if species_details:
+        species_name = title_case(species_details.species)
+        context['og_title'] = f'{species_details.common_name} ({species_details.genus} ' \
+                              f'{species_name}) recording from {when}'
+        context['title'] = f'{species_details.common_name} ({species_details.genus} {species_name})'
 
     return display_recordings_list(
         files,
         request,
-        {'title': files[0].identifier}
+        context
     )
 
 
@@ -175,13 +198,24 @@ def genus(request, genus_name):
     """
     files = AudioRecording.objects.filter(genus=genus_name, hide=False)
     title = f'Genus: {genus_name}'
+    safe_genus_name = genus_name
+
     genus_latin_name = SpeciesLookup().genus_name_by_abbreviation(genus_name)
+
     if genus_latin_name is not None and not isinstance(genus_latin_name, list):
         title += f' ({genus_latin_name})'
+        safe_genus_name = genus_latin_name
+
+    context = {
+        'title': title,
+        'og_title': f'Bat echolocation recordings from {safe_genus_name}',
+        'og_description': 'Visualisation, location and playback'
+    }
+
     return display_recordings_list(
         files,
         request,
-        {'title': title}
+        context
     )
 
 
@@ -197,25 +231,41 @@ def species(request, genus_name, species_name):
         HTTP response containing formatted output
     """
     files = AudioRecording.objects.filter(genus=genus_name, species=species_name, hide=False)
-    title_genus_case = genus_name[0].upper() + genus_name[1:].lower()
-    title = f'Species: {title_genus_case}. {species_name.lower()}.'
-    context = {}
+    title_genus_case = title_case(genus_name)
+    safe_latin_name = f'{title_genus_case}. {species_name.lower()}.'
+    safe_common_name = None
+
+    title = f'Species: {safe_latin_name}'
+    context = {
+        'og_description': 'Visualisation, location and playback'
+    }
     try:
         species_details = SpeciesLookup().species_by_abbreviations(genus_name, species_name)
         if species_details:
-            title += f'({species_details.genus} {species_details.species})'
+            safe_latin_name = f'{species_details.genus} {species_details.species}'
+            title += f' ({safe_latin_name})'
             if species_details.common_name is not None:
-                context['subtitle'] = species_details.common_name
+                safe_common_name = species_details.common_name
+                context['subtitle'] = safe_common_name
     except NonUniqueSpeciesLookup:
         pass
     finally:
         context['title'] = title
+
+    safe_species_name = f'{safe_common_name} ({safe_latin_name})' \
+        if safe_common_name else safe_latin_name
+
+    context['og_title'] = f'Bat echolocation recordings from {safe_species_name}'
 
     return display_recordings_list(
         files,
         request,
         context
     )
+
+
+def title_case(in_string):
+    return in_string[0].upper() + in_string[1:].lower()
 
 
 def search(request):
@@ -247,8 +297,8 @@ def search(request):
         'genii': genii,
         'date_range': time_range,
         'mapbox_token': settings.MAPS['mapbox_token'],
-        'search_defaults': settings.MAPS[
-            'search_defaults'] if 'search_defaults' in settings.MAPS else default_range
+        'search_defaults': settings.MAPS['search_defaults']
+        if 'search_defaults' in settings.MAPS else default_range
     }
     return HttpResponse(template.render(context, request))
 
@@ -279,8 +329,8 @@ def display_recordings_list(files: List[AudioRecording], request, context: dict 
         trace = file.as_serializable()
         for file_key, url_key in urls_map.items():
             if trace[file_key]:
-                trace[url_key] = settings.MEDIA_URL + path.relpath(trace[file_key],
-                                                                   settings.MEDIA_ROOT)
+                tracefile = trace[file_key]
+                trace[url_key] = media_path_to_relative_url(tracefile)
             trace[file_key] = None
 
         try:
@@ -296,8 +346,36 @@ def display_recordings_list(files: List[AudioRecording], request, context: dict 
         'map_data': {'traces': traces, 'bounds': bounds},
         'mapbox_token': settings.MAPS['mapbox_token'],
     }
-    context = {**context, **local_context}
+
+    og_context = {}
+
+    files_with_spectrogram = [x for x in traces if x['spectrogram_url']]
+    if len(files_with_spectrogram):
+        first_file = files_with_spectrogram[0]
+        print(first_file)
+        og_context['og_image'] = \
+            f'{request.scheme}://{request.get_host()}{first_file["spectrogram_url"]}'
+        if first_file['spectrogram_width']:
+            og_context['og_image_width'] = first_file['spectrogram_width']
+            og_context['og_image_height'] = first_file['spectrogram_height']
+
+    context = {**context, **og_context, **local_context}
     return HttpResponse(template.render(context, request))
+
+
+def media_path_to_relative_url(tracefile):
+    """
+    Handle path matching, whether there's a symlink in the stored or actual path
+    Args:
+        tracefile:
+
+    Returns:
+
+    """
+    relpath = path.relpath(tracefile, settings.MEDIA_ROOT)
+    if '..' in relpath:
+        relpath = path.relpath(path.realpath(tracefile), settings.MEDIA_ROOT)
+    return settings.MEDIA_URL + relpath
 
 
 def bounds_from_recordings(files: List[AudioRecording]) -> Tuple:

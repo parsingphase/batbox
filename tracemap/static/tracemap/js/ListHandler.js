@@ -126,6 +126,7 @@ export default class ListHandler {
                             if (type === "sort" || type === "type") {
                                 return data;
                             }
+
                             let cellContent = '<a title="Play" class="audioTrigger" ' +
                                 'data-audio-src="' + row.url + '" ' +
                                 'data-audio-src-lo="' + row.lo_url + '" ' +
@@ -157,9 +158,13 @@ export default class ListHandler {
                                     spectrumTitle += ' ' + moment.parseZone(row.recorded_at).format("YYYY-MM-DD HH:mm");
                                 }
 
-                                cellContent = cellContent + ' <a title="' + spectrumTitle + '" ' +
+
+                                cellContent = cellContent + ' <a data-descr="' + spectrumTitle + '" ' +
                                     'href="' + row.spectrogram_url + '" ' +
                                     'class="spectrumTrigger" ' +
+                                    'data-audio-src="' + row.url + '" ' +
+                                    'data-audio-src-lo="' + row.lo_url + '" ' +
+                                    'data-audio-ident="' + row.identifier + '" ' +
                                     'data-lightbox="' + row.identifier + '">' +
                                     '<i class="far fa-chart-bar"></i></a>';
                             }
@@ -199,10 +204,81 @@ export default class ListHandler {
         });
     }
 
+    playSourceElementAction(sourceElement) {
+        const that = this;
+        const src = sourceElement.data('audioSrc');
+        const loSrc = sourceElement.data('audioSrcLo');
+        let playSrc;
+
+        if (loSrc && that.defaultLowResAudio) {
+            playSrc = loSrc;
+        } else {
+            playSrc = src;
+        }
+
+        if (that.playingFile !== playSrc) {
+            if (that.player) {
+                that.player.pause();
+            }
+            that.player = null;
+            that.targetElement.find('.audioTrigger').html('<i class="fas fa-play"></i>');
+        }
+
+        that.playingFile = playSrc;
+
+        if (!that.player) {
+            that.player = new Audio(playSrc);
+        }
+
+        that.player.addEventListener('playing', () => {
+            // The duration variable now holds the duration (in seconds) of the audio clip
+            sourceElement.html('<i class="fas fa-pause"></i>');
+        });
+
+        that.player.addEventListener('ended', () => {
+            // The duration variable now holds the duration (in seconds) of the audio clip
+            sourceElement.html('<i class="fas fa-play"></i>');
+            that.player = null;
+        });
+
+        that.player.addEventListener('error', () => {
+            // The duration variable now holds the duration (in seconds) of the audio clip
+            sourceElement.html('<abbr title="Failed"><i class="fas fa-exclamation-circle"></i></abbr>');
+            let code = that.player.error.code;
+            if (console) {
+                console.log('Error: ' + code + ' playing ' + playSrc);
+                if (!that.defaultLowResAudio) {
+                    console.log('Device may not be able to play high sample rate files');
+                }
+            }
+            if ((code === 4) && !that.defaultLowResAudio && loSrc) {
+                if (console) {
+                    console.log('Trying to play low rate file instead');
+                }
+                // if we failed to play full res, see if we've got a low-res file to try
+                playSrc = loSrc;
+                that.defaultLowResAudio = true;
+                that.playingFile = loSrc;
+                that.player.src = loSrc;
+                that.player.load();
+                that.player.play();
+            } else {
+                that.player = null;
+            }
+        });
+
+        if (that.player.paused) {
+            sourceElement.html('<i class="fas fa-spinner fa-pulse"></i>');
+            that.player.play();
+        } else {
+            sourceElement.html('<i class="fas fa-play"></i>');
+            that.player.pause();
+        }
+    }
+
     resetRowControlTriggers() {
         let $panTriggers = this.targetElement.find('.panTrigger');
         $panTriggers.off('click');
-        const that = this;
         $panTriggers.click(function () {
             const id = $(this).data('audioIdent');
             that.map.panMapToAudioFile(id);
@@ -215,83 +291,49 @@ export default class ListHandler {
             that.map.panMapToAudioFile(id, 15);
             return false; // prevent link action
         });
+
+        let $spectrumTriggers = this.targetElement.find('.spectrumTrigger');
+        $spectrumTriggers.each(
+            function () {
+                const e = $(this);
+                const origTitle = e.data('descr');
+                const anchor = $(
+                    '<a/>',
+                    {
+                        id: 'specTrigger_' + e.data('audioIdent'),
+                        /*jshint -W107 */
+                        // Have to use script url in lightbox as it doesn't share a code context at generation
+                        href: "javascript:playSpectrogramAudio(\'specTrigger_" + e.data('audioIdent') + "\')",
+                        /*jshint +W107 */
+                        'data-audio-src': e.data('audioSrc'),
+                        'data-audio-src-lo': e.data('audioSrcLo'),
+                        'data-audio-ident': e.data('audioIdent'),
+                    }
+                );
+                anchor.html('<i class="fas fa-play"></i>');
+
+                const anchorHolder = $('<div/>');
+                anchor.appendTo(anchorHolder);
+
+                e.attr(
+                    'title',
+                    origTitle + ' | ' + anchorHolder.html()
+                );
+            }
+        );
+
         let $audioTriggers = this.targetElement.find('.audioTrigger');
         $audioTriggers.off('click');
 
+        const that = this;
         $audioTriggers.click(function () {
-            let sourceElement = $(this);
-            const src = sourceElement.data('audioSrc');
-            const loSrc = sourceElement.data('audioSrcLo');
-            let playSrc;
-
-            if (loSrc && that.defaultLowResAudio) {
-                playSrc = loSrc;
-            } else {
-                playSrc = src;
-            }
-
-            if (that.playingFile !== playSrc) {
-                if (that.player) {
-                    that.player.pause();
-                }
-                that.player = null;
-                that.targetElement.find('.audioTrigger').html('<i class="fas fa-play"></i>');
-            }
-
-            that.playingFile = playSrc;
-
-            if (!that.player) {
-                that.player = new Audio(playSrc);
-            }
-
-            that.player.addEventListener('playing', () => {
-                // The duration variable now holds the duration (in seconds) of the audio clip
-                sourceElement.html('<i class="fas fa-pause"></i>');
-            });
-
-            that.player.addEventListener('ended', () => {
-                // The duration variable now holds the duration (in seconds) of the audio clip
-                sourceElement.html('<i class="fas fa-play"></i>');
-                that.player = null;
-            });
-
-            that.player.addEventListener('error', () => {
-                // The duration variable now holds the duration (in seconds) of the audio clip
-                sourceElement.html('<abbr title="Failed"><i class="fas fa-exclamation-circle"></i></abbr>');
-                let code = that.player.error.code;
-                if (console) {
-                    console.log('Error: ' + code + ' playing ' + playSrc);
-                    if (!that.defaultLowResAudio) {
-                        console.log('Device may not be able to play high sample rate files');
-                    }
-                }
-                if ((code === 4) && !that.defaultLowResAudio && loSrc) {
-                    if (console) {
-                        console.log('Trying to play low rate file instead');
-                    }
-                    // if we failed to play full res, see if we've got a low-res file to try
-                    playSrc = loSrc;
-                    that.defaultLowResAudio = true;
-                    that.playingFile = loSrc;
-                    that.player.src = loSrc;
-                    that.player.load();
-                    that.player.play();
-                } else {
-                    that.player = null;
-                }
-            });
-
-            if (that.player.paused) {
-                sourceElement.html('<i class="fas fa-spinner fa-pulse"></i>');
-                that.player.play();
-            } else {
-                sourceElement.html('<i class="fas fa-play"></i>');
-                that.player.pause();
-            }
-
+            let sourceElement = $(this); // the 'a' tag
+            that.playSourceElementAction(sourceElement);
         });
+    }
 
-
+    playElementAudio(id, that) {
+        that.playSourceElementAction($('#' + id));
     }
 }
 

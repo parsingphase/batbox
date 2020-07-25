@@ -11,6 +11,7 @@ audioread = "*"
 svgwrite = "*"
 python-dateutil = "*"
 django-js-reverse = "*"
+pypng = "*"
 
 [dev-packages]
 flake8 = "*"
