@@ -143,8 +143,11 @@ export default class ListHandler {
 
                             if (row.spectrogram_url) {
                                 let spectrumTitle = 'Spectrum: ';
-                                if (row.common_name) {
-                                    spectrumTitle += row.common_name;
+                                if (row.species_info.common_name) {
+                                    spectrumTitle += row.species_info.common_name;
+                                    if (row.species_info.species) {
+                                        spectrumTitle += ' (' + row.species_info.genus + ' ' + row.species_info.species + ')';
+                                    }
                                 } else if (row.species_info.species) {
                                     spectrumTitle += row.species_info.genus + ' ' + row.species_info.species;
                                 } else if (row.genus) {
@@ -155,7 +158,7 @@ export default class ListHandler {
 
                                 if (row.recorded_at) {
                                     // spectrumTitle += ' RA: ' + row.recorded_at;
-                                    spectrumTitle += ' ' + moment.parseZone(row.recorded_at).format("YYYY-MM-DD HH:mm");
+                                    spectrumTitle += ', ' + moment.parseZone(row.recorded_at).format("YYYY-MM-DD HH:mm");
                                 }
 
                                 cellContent = cellContent + ' <a data-descr="' + spectrumTitle + '" ' +
