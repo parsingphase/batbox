@@ -158,8 +158,8 @@ export default class ListHandler {
                                     spectrumTitle += ' ' + moment.parseZone(row.recorded_at).format("YYYY-MM-DD HH:mm");
                                 }
 
-
                                 cellContent = cellContent + ' <a data-descr="' + spectrumTitle + '" ' +
+                                    'title="Spectrogram" ' +
                                     'href="' + row.spectrogram_url + '" ' +
                                     'class="spectrumTrigger" ' +
                                     'data-audio-src="' + row.url + '" ' +
@@ -316,7 +316,7 @@ export default class ListHandler {
                 anchor.appendTo(anchorHolder);
 
                 e.attr(
-                    'title',
+                    'data-title',
                     origTitle + ' | ' + anchorHolder.html()
                 );
             }
