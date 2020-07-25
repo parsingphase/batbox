@@ -119,7 +119,7 @@ def day(request, date_string):
     context = {
         'title': f'Date: {date_string}',
         'og_title': f'Bat echolocation recordings from {date_string}',
-        'og_description': f'Visualisation, location and playback'
+        'og_description': 'Visualisation, location and playback'
     }
     return display_recordings_list(files, request, context)
 
@@ -168,7 +168,7 @@ def single(request, primary_key):
     context = {
         'title': file.identifier,
         'subtitle': when,
-        'og_description': f'Visualisation, location and playback'
+        'og_description': 'Visualisation, location and playback'
     }
 
     species_details = SpeciesLookup().species_by_abbreviations(file.genus, file.species)
@@ -209,7 +209,7 @@ def genus(request, genus_name):
     context = {
         'title': title,
         'og_title': f'Bat echolocation recordings from {safe_genus_name}',
-        'og_description': f'Visualisation, location and playback'
+        'og_description': 'Visualisation, location and playback'
     }
 
     return display_recordings_list(
@@ -237,7 +237,7 @@ def species(request, genus_name, species_name):
 
     title = f'Species: {safe_latin_name}'
     context = {
-        'og_description': f'Visualisation, location and playback'
+        'og_description': 'Visualisation, location and playback'
     }
     try:
         species_details = SpeciesLookup().species_by_abbreviations(genus_name, species_name)

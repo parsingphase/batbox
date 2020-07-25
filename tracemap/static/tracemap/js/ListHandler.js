@@ -301,7 +301,10 @@ export default class ListHandler {
                     '<a/>',
                     {
                         id: 'specTrigger_' + e.data('audioIdent'),
+                        /*jshint -W107 */
+                        // Have to use script url in lightbox as it doesn't share a code context at generation
                         href: "javascript:playSpectrogramAudio(\'specTrigger_" + e.data('audioIdent') + "\')",
+                        /*jshint +W107 */
                         'data-audio-src': e.data('audioSrc'),
                         'data-audio-src-lo': e.data('audioSrcLo'),
                         'data-audio-ident': e.data('audioIdent'),
