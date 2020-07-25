@@ -163,17 +163,20 @@ def single(request, primary_key):
     if file.hide:
         raise PermissionDenied('Recording not available')
 
+    when = parse_date(file.recorded_at_iso).strftime('%Y-%m-%d %H:%M')
+
     context = {
         'title': file.identifier,
+        'subtitle': when,
         'og_description': f'Visualisation, location and playback'
     }
 
     species_details = SpeciesLookup().species_by_abbreviations(file.genus, file.species)
 
     if species_details:
-        when = parse_date(file.recorded_at_iso).strftime('%Y-%m-%d %H:%M')
-        species = title_case(species_details.species)
-        context['og_title'] = f'{species_details.common_name} ({species_details.genus} {species}) recording from {when}'
+        species_name = title_case(species_details.species)
+        context['og_title'] = f'{species_details.common_name} ({species_details.genus} {species_name}) recording from {when}'
+        context['title'] = f'{species_details.common_name} ({species_details.genus} {species_name})'
 
     return display_recordings_list(
         files,
