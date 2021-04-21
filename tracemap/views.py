@@ -118,7 +118,7 @@ def day(request, date_string):
 
     context = {
         'title': f'Date: {date_string}',
-        'og_title': f'Bat echolocation recordings from {date_string}',
+        'og_title': f'Echolocation recordings from {date_string}',
         'og_description': 'Visualisation, location and playback'
     }
     return display_recordings_list(files, request, context)
@@ -208,7 +208,7 @@ def genus(request, genus_name):
 
     context = {
         'title': title,
-        'og_title': f'Bat echolocation recordings from {safe_genus_name}',
+        'og_title': f'Echolocation recordings from {safe_genus_name}',
         'og_description': 'Visualisation, location and playback'
     }
 
@@ -255,7 +255,7 @@ def species(request, genus_name, species_name):
     safe_species_name = f'{safe_common_name} ({safe_latin_name})' \
         if safe_common_name else safe_latin_name
 
-    context['og_title'] = f'Bat echolocation recordings from {safe_species_name}'
+    context['og_title'] = f'Echolocation recordings from {safe_species_name}'
 
     return display_recordings_list(
         files,

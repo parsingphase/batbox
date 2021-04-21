@@ -7,6 +7,8 @@
  * @property {Array<number>} latlon
  */
 
+import {mammalDiversitySpeciesLink} from './linkTools.js'
+
 export default class MapHandler {
     // noinspection JSUnusedGlobalSymbols
     /**
@@ -267,9 +269,8 @@ export default class MapHandler {
         }
 
         if (trace.species_info && trace.species_info.mdd_id) {
-            output += ' <a href="https://mammaldiversity.org/species-account/species-id=' +
-                trace.species_info.mdd_id + '" title="More into at mammaldiversity.org">' +
-                '<i class="fas fa-info-circle"></i></a> ';
+            let mdlink = mammalDiversitySpeciesLink(trace.species_info.mdd_id);
+            output += ` <a href="${mdlink}" title="More into at mammaldiversity.org"><i class="fas fa-info-circle"></i></a> `;
         }
 
         const permaUrl = this.urlRouter['single_view'](trace.id);

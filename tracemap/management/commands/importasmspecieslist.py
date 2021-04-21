@@ -4,6 +4,11 @@ from django.core.management.base import BaseCommand
 
 from tracemap.models import Species
 
+KEY_ORDER = 'order'
+KEY_GENUS = 'genus'
+KEY_SPECIES = 'specificepithet'
+KEY_COMMON_NAME = 'maincommonname'
+KEY_INTERNAL_ID = 'id'
 
 # Use various prior knowledge if heuristics aren't adequate
 canon_genus_map = {
@@ -23,15 +28,17 @@ class Command(BaseCommand):
         parser.add_argument('filename', type=str, help='Name of the file or directory to import')
 
     def handle(self, *args, **kwargs):
-        required_fields = ['genus', 'species', 'common name', 'linnean order', 'internal id']
+        required_fields = [KEY_GENUS, KEY_SPECIES, KEY_COMMON_NAME, KEY_ORDER, KEY_INTERNAL_ID]
         filename = kwargs['filename']
         column_map = {}
         i = 0
         with open(filename, newline='', encoding='ISO-8859–1') as csvfile:  # Export is not utf8
             reader = csv.reader(csvfile)
 
-            row = next(reader)
-            # print(row)
+            row = []
+            while len(row) == 0:
+                row = next(reader)
+            print(row)
             for index in range(0, len(row)):
                 column_map[row[index].lower()] = index
 
@@ -41,11 +48,11 @@ class Command(BaseCommand):
                     print(f"Can't find all required headers in CSV: {', '.join(required_fields)}")
                     exit(1)
 
-            o = column_map['linnean order']
-            g = column_map['genus']
-            s = column_map['species']
-            c = column_map['common name']
-            m = column_map['internal id']
+            o = column_map[KEY_ORDER]
+            g = column_map[KEY_GENUS]
+            s = column_map[KEY_SPECIES]
+            c = column_map[KEY_COMMON_NAME]
+            m = column_map[KEY_INTERNAL_ID]
 
             new = 0
 
