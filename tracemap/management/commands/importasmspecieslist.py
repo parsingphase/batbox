@@ -4,6 +4,7 @@ from django.core.management.base import BaseCommand
 
 from tracemap.models import Species
 
+
 KEY_ORDER = 'order'
 KEY_GENUS = 'genus'
 KEY_SPECIES = 'specificepithet'

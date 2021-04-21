@@ -23,7 +23,7 @@ help:
 
 test:
 	python -m flake8
-	python -m isort -c
+	python -m isort -c .
 	python -m pylint batbox
 	npm test
 
