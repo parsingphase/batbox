@@ -1,4 +1,5 @@
-/* jshint -W069 */ // Url handler uses [] notation for consistency
+/* jshint -W069 */  // Url handler uses [] notation for consistency
+import {mammalDiversitySpeciesLink} from './linkTools.js'
 
 function ucFirst(s) {
     if (typeof s !== 'string') return '';
@@ -173,9 +174,8 @@ export default class ListHandler {
                             }
 
                             if (row.species_info && row.species_info.mdd_id) {
-                                cellContent += ' <a href="https://mammaldiversity.org/species-account/species-id=' +
-                                    row.species_info.mdd_id + '" title="More info at mammaldiversity.org">' +
-                                    '<i class="fas fa-info-circle"></i></a> ';
+                                const mdlink = mammalDiversitySpeciesLink(row.species_info.mdd_id);
+                                cellContent += ` ${mdlink} `;
                             }
 
                             const permaUrl = that.urlRouter['single_view'](row.id);
