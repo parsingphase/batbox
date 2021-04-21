@@ -33,7 +33,7 @@ class Command(BaseCommand):
         filename = kwargs['filename']
         column_map = {}
         i = 0
-        with open(filename, newline='', encoding='ISO-8859–1') as csvfile:  # Export is not utf8
+        with open(filename, newline='', encoding='utf-8') as csvfile:
             reader = csv.reader(csvfile)
 
             row = []
