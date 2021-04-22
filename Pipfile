@@ -4,14 +4,14 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "*"
-xmltodict = "*"
+django = "~=3.2"
+xmltodict = "~=0.12.0"
 guano = {editable = true,git = "https://github.com/riggsd/guano-py.git",ref = "c6c81ce979e9499bd695ee385ad8d0f70353780b"}
-audioread = "*"
-svgwrite = "*"
-python-dateutil = "*"
-django-js-reverse = "*"
-pypng = "*"
+audioread = "~=2.1.9"
+svgwrite = "~=1.4.1"
+python-dateutil = "~=2.8.1"
+django-js-reverse = "~=0.9.1"
+pypng = "~=0.0.20"
 
 [dev-packages]
 flake8 = "*"

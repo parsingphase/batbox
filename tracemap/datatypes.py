@@ -27,6 +27,6 @@ class Point:
         return {
             'name': self.name,
             'description': self.description,
-            'style': self.description,
+            'style': self.style,
             'position': (self.lat, self.lon)
         }
