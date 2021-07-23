@@ -17,6 +17,7 @@ pypng = "~=0.0.20"
 flake8 = "*"
 isort = "*"
 pylint-django = "*"
+importlib-metadata = "*"
 
 [requires]
 python_version = "3.7"
