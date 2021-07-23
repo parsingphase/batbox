@@ -24,7 +24,7 @@ help:
 test:
 	python -m flake8
 	python -m isort -c .
-	python -m pylint batbox
+	DJANGO_SETTINGS_MODULE=batbox.settings python -m pylint batbox
 	npm test
 
 check_virtualenv:
