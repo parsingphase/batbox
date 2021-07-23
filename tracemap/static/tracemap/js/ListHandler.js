@@ -1,5 +1,5 @@
 /* jshint -W069 */  // Url handler uses [] notation for consistency
-import {mammalDiversitySpeciesLink} from './linkTools.js'
+import {mammalDiversitySpeciesLink} from './linkTools.js';
 
 function ucFirst(s) {
     if (typeof s !== 'string') return '';

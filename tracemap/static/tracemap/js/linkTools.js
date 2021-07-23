@@ -8,4 +8,4 @@ function mammalDiversitySpeciesLink(speciesId) {
         '<i class="fas fa-info-circle"></i></a>';
 }
 
-export {mammalDiversitySpeciesUrl, mammalDiversitySpeciesLink}
+export {mammalDiversitySpeciesUrl, mammalDiversitySpeciesLink};

@@ -7,7 +7,7 @@
  * @property {Array<number>} latlon
  */
 
-import {mammalDiversitySpeciesLink} from './linkTools.js'
+import {mammalDiversitySpeciesLink} from './linkTools.js';
 
 export default class MapHandler {
     // noinspection JSUnusedGlobalSymbols
