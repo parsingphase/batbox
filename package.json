@@ -22,7 +22,7 @@
     "timepicker": "^1.11.15"
   },
   "devDependencies": {
-    "jshint": "^2.10.2"
+    "jshint": "^2.13.0"
   },
   "scripts": {
     "test": "./node_modules/.bin/jshint -c .jshintrc tracemap/static/tracemap/js --verbose"
