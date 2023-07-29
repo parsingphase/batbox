@@ -1,4 +1,4 @@
-# Build tools - venv must be initialised beforehand
+# Build tools - venv must be initialised beforehand - RUN pipenv shell!
 
 SHELL := /bin/bash
 
@@ -81,7 +81,7 @@ migrate: check_virtualenv
 venv: venv/bin/activate
 
 venv/bin/activate:
-	test -d venv || python3 -m venv venv
+	test -d venv || python -m venv venv
 	touch venv/bin/activate   # update it in case date was old
 
 remind_restart: check_settings
