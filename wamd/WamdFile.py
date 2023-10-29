@@ -66,7 +66,7 @@ class WamdFile:
         """
         if isinstance(timestamp, bytes):
             timestamp = timestamp.decode('utf-8')
-        if len(timestamp) == 25:
+        if len(timestamp) == 25 or len(timestamp) == 24:
             dt, offset = timestamp[:-6], timestamp[19:]
             try:
                 tz = tzoffset(offset)
